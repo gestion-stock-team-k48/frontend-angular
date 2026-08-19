@@ -36,8 +36,8 @@ export const NAVIGATION: readonly GroupeNavigation[] = [
   {
     titre: 'Stock',
     entrees: [
-      { libelle: 'Mouvements de stock', chemin: '/mouvements-stock', disponible: false },
-      { libelle: 'Alertes de seuil', chemin: '/mouvements-stock/alertes', disponible: false },
+      { libelle: 'Mouvements de stock', chemin: '/mouvements-stock', disponible: true },
+      { libelle: 'Alertes de seuil', chemin: '/mouvements-stock/alertes', disponible: true },
     ],
   },
   {
