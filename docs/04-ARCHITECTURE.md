@@ -93,6 +93,24 @@ pour les erreurs de champ. Tableau de correspondance dans `06-API-CONTRAT.md`.
 directement par les composants. Les mutations passent par le service API de la feature, qui
 invalide ou recharge la ressource concernée.
 
+## Shell applicatif
+
+`layout/shell` porte la coquille : `Topbar`, `Sidebar`, `FilAriane`, zone de contenu. Toutes
+les routes de l'application sont ses enfants, y compris la page 403 et la page 404.
+
+La structure de la navigation est déclarée une seule fois, dans `layout/navigation.ts` :
+libellé métier, chemin, rôle requis, et un drapeau `disponible`. Une entrée dont l'écran
+n'existe pas encore reste affichée mais inerte — masquer la moitié du menu donnerait une
+fausse idée du périmètre. Une entrée réservée à un rôle disparaît pour qui ne l'a pas.
+
+Le fil d'Ariane se construit depuis l'URL, en reprenant les libellés de `navigation.ts`
+quand ils existent, et en adoucissant les autres segments.
+
+Sur écran étroit, la navigation devient un tiroir posé au-dessus du contenu, avec un voile
+qui la referme au clic.
+
 ## Rendu
 
-Zoneless, `OnPush` partout. Transitions de route via `withViewTransitions()`.
+Zoneless, `OnPush` partout. Transitions de route via `withViewTransitions()`, réduites à un
+fondu court. `withInMemoryScrolling` remet en haut à chaque changement d'écran et restaure
+la position au retour arrière.

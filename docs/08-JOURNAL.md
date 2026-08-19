@@ -153,3 +153,31 @@ jour à chaque étape, pour qu'une interruption ne laisse jamais un état illisi
 
 **En attente.** Visibilité du dépôt, confirmation de `@types/node`, relecture d'ensemble des
 phases enchaînées en autonomie.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 4 · Shell
+
+**Branche** : `feat/layout-shell` (depuis `develop`)
+
+**Fait.**
+
+- Coquille applicative complète, navigation déclarative, fil d'Ariane, pages 403 et 404,
+  transitions de route, tiroir de navigation sous 48 rem.
+- 80 tests.
+
+**Choix de conception.**
+
+- Les entrées de navigation dont l'écran n'existe pas restent visibles, marquées « à venir ».
+  Le menu montre ainsi le périmètre réel de l'application, plutôt que de grandir écran après
+  écran sans qu'on sache où l'on va.
+- L'état d'ouverture de la navigation n'est pas persisté : sur un poste d'entrepôt partagé,
+  une préférence gardée d'une session à l'autre surprendrait plus qu'elle n'aiderait.
+- L'activité réseau est signalée par une fine barre dans le bandeau, jamais par un voile
+  plein écran qui masquerait le contenu déjà lisible.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+80 tests passés, build de production 290,47 ko.
+
+**En attente.** Relecture d'ensemble des phases 2 à 4, visibilité du dépôt, confirmation de
+`@types/node`.

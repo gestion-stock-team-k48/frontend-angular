@@ -1,0 +1,16 @@
+@if (miettes().length > 0) {
+  <nav class="fil" aria-label="Fil d'Ariane">
+    <ol class="fil__liste">
+      @for (miette of miettes(); track miette.chemin) {
+        <li class="fil__element">
+          @if (miette.dernier) {
+            <span aria-current="page">{{ miette.libelle }}</span>
+          } @else {
+            <a [routerLink]="miette.chemin">{{ miette.libelle }}</a>
+            <span class="fil__separateur" aria-hidden="true">/</span>
+          }
+        </li>
+      }
+    </ol>
+  </nav>
+}

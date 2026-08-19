@@ -1,0 +1,40 @@
+<header class="topbar">
+  <button
+    type="button"
+    class="topbar__bascule"
+    [attr.aria-expanded]="sidebarOuverte()"
+    aria-controls="navigation-principale"
+    aria-label="Afficher ou masquer la navigation"
+    (click)="bascule.emit()"
+  >
+    <span aria-hidden="true">☰</span>
+  </button>
+
+  <div class="topbar__identite">
+    <span class="topbar__application">Gestion de Stock</span>
+    @if (auth.entreprise(); as entreprise) {
+      <span class="topbar__entreprise">{{ entreprise.nom }}</span>
+    }
+  </div>
+
+  <!-- Barre d'activité : elle remplace un spinner plein écran, qui masquerait le contenu
+       déjà affiché à chaque appel. -->
+  @if (chargement.enCours()) {
+    <span class="topbar__activite" role="status" aria-label="Chargement en cours"></span>
+  }
+
+  <div class="topbar__actions">
+    <button
+      type="button"
+      class="topbar__action"
+      [attr.aria-pressed]="theme.themeApplique() === 'sombre'"
+      (click)="basculerTheme()"
+    >
+      {{ theme.themeApplique() === 'sombre' ? 'Thème clair' : 'Thème sombre' }}
+    </button>
+
+    @if (auth.utilisateur(); as utilisateur) {
+      <span class="topbar__utilisateur">{{ utilisateur.prenom }} {{ utilisateur.nom }}</span>
+    }
+  </div>
+</header>
