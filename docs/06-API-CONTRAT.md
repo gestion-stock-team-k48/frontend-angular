@@ -276,6 +276,24 @@ non `403` : ce `401` ne signale pas une session expirée. Voir ADR-013.
    réponse n'est pas paginée. À surveiller dès que le catalogue grandit : c'est un coût
    serveur, que l'interface ne peut ni voir ni contourner.
 
-10. **`Pageable` est déclaré `required: true`** en paramètre de requête sur les listes, alors
+10. **`PUT` sur une commande ne vérifie pas son état.** Les deux services acceptent de
+    réécrire les lignes d'une commande `VALIDEE` ou `LIVREE`, dont les mouvements de stock
+    sont déjà enregistrés — la commande et le stock cesseraient de correspondre. L'interface
+    s'interdit la modification au-delà de `EN_PREPARATION` (ADR-019), mais ce contrôle a sa
+    place côté serveur.
+
+11. **`DELETE /ventes/{id}` échoue toujours.** L'implémentation lève systématiquement
+    `InvalidOperationException`, quel qu'en soit l'appelant : l'endpoint est publié mais ne
+    peut jamais aboutir. L'interface ne propose donc aucune suppression de vente.
+
+12. **`VenteResponse` ne porte aucun total**, contrairement à `CommandeClientResponse` et
+    `CommandeFournisseurResponse` qui exposent `totalHt`, `totalTva` et `totalTtc`.
+    L'interface dérive le montant des lignes renvoyées, faute de mieux.
+
+13. **Aucune recherche ni aucun filtre sur les listes de commandes et de ventes.** Comme
+    pour les articles et les tiers, seule la pagination est disponible. `GET /ventes/code/{code}`
+    est le seul accès direct publié, et il ne rend qu'une vente exacte.
+
+14. **`Pageable` est déclaré `required: true`** en paramètre de requête sur les listes, alors
     que Spring applique des valeurs par défaut si le paramètre est absent. Le frontend envoie
     toujours `page` et `size` explicitement, ce qui évite la question.

@@ -372,3 +372,32 @@ Le jour où l'un des deux modules s'éloigne de l'autre — un fournisseur qui g
 de livraison, par exemple — la sortie est simple : le module concerné cesse d'utiliser le
 composant partagé et écrit le sien. C'est un partage par constat, pas une abstraction posée
 d'avance.
+
+---
+
+## ADR-019 — Les deux modules de commandes partagent leurs écrans, et la modification s'arrête à la validation
+
+**Contexte.** `CommandeClientRequest` et `CommandeFournisseurRequest` ne diffèrent que par le
+nom de leur tiers — `idClient` contre `idFournisseur` — et leurs réponses par trois champs.
+Les transitions d'état, les lignes, les totaux et les règles de suppression sont identiques.
+
+Par ailleurs, `PUT /commandes-client/{id}` n'effectue **aucun contrôle d'état** : le serveur
+accepte de réécrire les lignes d'une commande déjà livrée, dont les mouvements de stock sont
+pourtant enregistrés. La commande et le stock cesseraient alors de se correspondre.
+
+**Décisions.**
+
+1. La liste et l'écran de commande sont écrits une fois, dans `shared/commerce`. Chaque
+   module fournit la traduction vers une forme commune (`CommandeVue`) et l'inverse vers son
+   propre DTO. C'est le seul endroit où `idClient` et `idFournisseur` apparaissent.
+2. L'interface n'ouvre la modification qu'à l'état `EN_PREPARATION`. Passé cet état, l'écran
+   devient une fiche en lecture, et ne propose que les transitions légales.
+
+**Conséquences.** La restriction de modification est une décision d'interface, pas une
+sécurité : le serveur accepte toujours l'appel, et un client HTTP direct pourra le faire.
+L'écart est signalé pour que le contrôle soit ajouté côté backend, seul endroit où il
+protège vraiment quelque chose.
+
+Le total affiché pendant la saisie est annoncé comme estimé : le serveur recalcule les
+totaux à partir des prix qu'il détient, et c'est le sien qui fait foi une fois la commande
+enregistrée.

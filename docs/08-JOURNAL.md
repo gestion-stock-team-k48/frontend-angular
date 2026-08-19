@@ -379,3 +379,54 @@ consigne de continuer en autonomie.
 
 **En attente.** Vérification visuelle des écrans de tiers, confirmation d'ADR-015 et
 d'ADR-018, et un jeton GitLab valide pour pousser.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 9 · Commerce
+
+**Branche** : `feat/commandes-ventes` (depuis `develop`)
+
+**Contexte.** Phase 8 fusionnée dans `develop` sans vérification visuelle préalable, sur
+consigne de continuer en autonomie.
+
+**Fait.**
+
+- `shared/commerce` : états et transitions, éditeur de lignes, liste et écran de commande.
+- Modules commandes client et commandes fournisseur, réduits à leur service d'accès, leur
+  traduction de DTO et deux composants d'assemblage.
+- Module ventes : liste avec recherche par code, enregistrement, fiche en lecture seule.
+- 208 tests.
+
+**Découvert en route.**
+
+- `PUT` sur une commande n'effectue aucun contrôle d'état : le serveur accepte de réécrire
+  les lignes d'une commande déjà livrée. L'interface s'interdit la modification au-delà de
+  `EN_PREPARATION` (ADR-019) et l'écart est signalé — le contrôle a sa place côté serveur.
+- `DELETE /ventes/{id}` lève systématiquement une erreur : l'endpoint est publié mais ne
+  peut jamais aboutir. Aucun bouton de suppression n'est proposé pour une vente.
+- `VenteResponse` ne porte aucun total, là où les deux commandes en portent trois. Le montant
+  est dérivé des lignes renvoyées par le serveur.
+- Aucune recherche n'existe sur les commandes ni sur les ventes. Les listes déroulantes de
+  tiers et d'articles chargent une page large et disent quand il en reste derrière.
+
+**Incident.** Trois commandes ont tourné dans le dépôt backend : le répertoire courant y était
+resté après une lecture de ses sources. Un dossier `src/app/` y a été créé et une branche
+`feat/commandes-ventes` posée, puis les deux supprimés ; le dépôt est revenu sur `main`, sans
+autre trace. La seule modification qui subsiste chez lui — `mvnw` passé en 755 — est
+antérieure à cette session. Les chemins absolus sont désormais utilisés pour tout changement
+de répertoire.
+
+**Choix de conception.**
+
+- Un seul écran pour créer, modifier et lire une commande : les trois montrent la même chose,
+  et l'état décide si elle est ouverte à la saisie.
+- Le total affiché pendant la saisie est annoncé comme estimé. Le serveur recalcule à partir
+  des prix qu'il détient ; présenter le calcul du navigateur comme définitif serait faux.
+- L'avertissement d'écriture définitive d'une vente est affiché **avant** la saisie, pas
+  après l'envoi.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+208 tests passés, build de production 323,13 ko.
+
+**En attente.** Vérification visuelle des écrans de commerce, confirmation d'ADR-015, ADR-018
+et ADR-019, et un jeton GitLab valide pour pousser.
