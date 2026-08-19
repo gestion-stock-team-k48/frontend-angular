@@ -245,3 +245,41 @@ fermer un élément.
 l'application à relayer une donnée qui ne le concerne pas. La règle ESLint qui empêche
 `shared` d'importer une feature reste en place ; c'est elle qui compte, et elle n'est pas
 touchée.
+
+---
+
+## ADR-013 — Le changement de mot de passe est exclu du rafraîchissement
+
+**Contexte.** `POST /utilisateurs/change-password` répond `401` quand l'ancien mot de passe
+est faux : le backend y lève `BadCredentialsException`. Or l'intercepteur de rafraîchissement
+traite `401` et `403` comme une session à renouveler (ADR-005). Une faute de frappe sur
+l'ancien mot de passe déclenchait donc un rafraîchissement, un rejeu de la requête, un second
+`401`, puis une déconnexion : l'utilisateur perdait sa session pour une erreur de saisie.
+
+**Décision.** Poser `SANS_RAFRAICHISSEMENT` sur cet appel. Le `401` remonte tel quel et
+s'affiche sous le champ « Mot de passe actuel ».
+
+**Conséquence.** Si la session expire réellement pendant que l'écran est ouvert, l'appel
+échoue sans tentative de rafraîchissement et l'utilisateur doit se reconnecter. C'est le bon
+arbitrage : le cas est rare, alors qu'une faute de frappe ne l'est pas. Le jour où le backend
+distinguera les deux situations — un code d'erreur suffirait —, cette exclusion pourra
+tomber avec ADR-005.
+
+---
+
+## ADR-014 — Les routes d'authentification sont importées statiquement
+
+**Contexte.** Les écrans d'authentification doivent être déclarés avant la route du shell,
+qui attrape tout le reste par sa route générique `**`. Un `loadChildren` posé sur un chemin
+vide oblige le routeur à charger le fichier de routes pour vérifier ses enfants, y compris
+lorsque l'URL est `/` : le morceau d'authentification serait téléchargé à chaque démarrage,
+y compris pour un utilisateur déjà connecté.
+
+**Décision.** `app.routes.ts` importe `routesAuth` directement. Le fichier importé ne
+contient que des objets de route et deux gardes ; chaque écran garde son `loadComponent` et
+n'est téléchargé qu'à l'affichage.
+
+**Conséquence.** Une entorse assumée à « chaque feature est lazy-loadée » : ce qui est chargé
+d'avance, ce sont les définitions de routes, pas les écrans. Le build le confirme —
+`connexion`, `inscription`, `mot-de-passe-oublie`, `reinitialisation`,
+`changer-mot-de-passe` et `coquille-auth` restent des morceaux séparés.

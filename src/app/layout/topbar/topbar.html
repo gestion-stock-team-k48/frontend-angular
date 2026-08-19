@@ -34,7 +34,11 @@
     </button>
 
     @if (auth.utilisateur(); as utilisateur) {
-      <span class="topbar__utilisateur">{{ utilisateur.prenom }} {{ utilisateur.nom }}</span>
+      <a class="topbar__action" routerLink="/changer-mot-de-passe">
+        {{ utilisateur.prenom }} {{ utilisateur.nom }}
+      </a>
     }
+
+    <button type="button" class="topbar__action" (click)="deconnecter()">Se déconnecter</button>
   </div>
 </header>

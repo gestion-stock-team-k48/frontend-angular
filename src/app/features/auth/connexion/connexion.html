@@ -1,0 +1,51 @@
+<section class="carte-auth">
+  <h1 class="carte-auth__titre">Connexion</h1>
+  <p class="carte-auth__intro">
+    Saisir les identifiants du compte de l'entreprise pour accéder au stock.
+  </p>
+
+  @if (message(); as texte) {
+    <p class="carte-auth__bandeau" role="alert">{{ texte }}</p>
+  }
+
+  <form class="carte-auth__formulaire" (submit)="$event.preventDefault(); connecter()">
+    <app-champ
+      libelle="Email"
+      identifiant="connexion-email"
+      [requis]="true"
+      [erreur]="erreurEmail()"
+    >
+      <input
+        id="connexion-email"
+        type="email"
+        autocomplete="username"
+        [formField]="formulaire.email"
+      />
+    </app-champ>
+
+    <app-champ
+      libelle="Mot de passe"
+      identifiant="connexion-mot-de-passe"
+      [requis]="true"
+      [erreur]="erreurMotDePasse()"
+    >
+      <input
+        id="connexion-mot-de-passe"
+        type="password"
+        autocomplete="current-password"
+        [formField]="formulaire.motDePasse"
+      />
+    </app-champ>
+
+    <div class="carte-auth__actions">
+      <app-bouton type="submit" variante="primaire" [pleineLargeur]="true" [chargement]="enCours()">
+        Se connecter
+      </app-bouton>
+    </div>
+  </form>
+
+  <p class="carte-auth__liens">
+    <a class="carte-auth__lien" routerLink="/mot-de-passe-oublie">Mot de passe oublié</a>
+    <a class="carte-auth__lien" routerLink="/inscription">Inscrire une entreprise</a>
+  </p>
+</section>

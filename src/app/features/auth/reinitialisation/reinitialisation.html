@@ -1,0 +1,68 @@
+<section class="carte-auth">
+  <h1 class="carte-auth__titre">Nouveau mot de passe</h1>
+  <p class="carte-auth__intro">
+    Recopier le code reçu par email, puis choisir un mot de passe d'au moins
+    {{ longueurMinimale }} caractères.
+  </p>
+
+  @if (message(); as texte) {
+    <p class="carte-auth__bandeau" role="alert">{{ texte }}</p>
+  }
+
+  <form class="carte-auth__formulaire" (submit)="$event.preventDefault(); reinitialiser()">
+    <app-champ
+      libelle="Code de réinitialisation"
+      identifiant="reinit-code"
+      [requis]="true"
+      aide="Le code figure dans l'email de réinitialisation."
+      [erreur]="erreurToken()"
+    >
+      <input
+        id="reinit-code"
+        type="text"
+        autocomplete="one-time-code"
+        spellcheck="false"
+        [formField]="formulaire.token"
+      />
+    </app-champ>
+
+    <app-champ
+      libelle="Nouveau mot de passe"
+      identifiant="reinit-mot-de-passe"
+      [requis]="true"
+      [erreur]="erreurMotDePasse()"
+    >
+      <input
+        id="reinit-mot-de-passe"
+        type="password"
+        autocomplete="new-password"
+        [formField]="formulaire.newPassword"
+      />
+    </app-champ>
+
+    <app-champ
+      libelle="Confirmer le mot de passe"
+      identifiant="reinit-confirmation"
+      [requis]="true"
+      [erreur]="erreurConfirmation()"
+    >
+      <input
+        id="reinit-confirmation"
+        type="password"
+        autocomplete="new-password"
+        [formField]="formulaire.confirmation"
+      />
+    </app-champ>
+
+    <div class="carte-auth__actions">
+      <app-bouton type="submit" variante="primaire" [pleineLargeur]="true" [chargement]="enCours()">
+        Définir le mot de passe
+      </app-bouton>
+    </div>
+  </form>
+
+  <p class="carte-auth__liens">
+    <a class="carte-auth__lien" routerLink="/connexion">Revenir à la connexion</a>
+    <a class="carte-auth__lien" routerLink="/mot-de-passe-oublie">Demander un nouveau code</a>
+  </p>
+</section>

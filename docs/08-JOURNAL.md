@@ -181,3 +181,59 @@ phases enchaînées en autonomie.
 
 **En attente.** Relecture d'ensemble des phases 2 à 4, visibilité du dépôt, confirmation de
 `@types/node`.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 5 · Authentification
+
+**Branche** : `feat/auth-connexion` (depuis `develop`)
+
+**Périmètre arbitré à l'ouverture.** Authentification complète : les cinq endpoints
+`/auth/*` plus `/utilisateurs/change-password`. L'inscription d'entreprise entre donc dans
+la phase — sans elle, aucun tenant ne peut être créé depuis l'interface.
+
+**Fait.**
+
+- Coquille d'authentification et cinq écrans : connexion, inscription, mot de passe oublié,
+  réinitialisation, changement de mot de passe.
+- Formulaires en Signal Forms, avec répartition des erreurs serveur entre les champs et un
+  bandeau d'ensemble.
+- `ServiceAuthentification` complété ; restauration de session au démarrage ;
+  `gardeMotDePasse` ; déconnexion et lien de compte dans le bandeau.
+- 105 tests.
+
+**Découvert en route.**
+
+- `POST /utilisateurs/change-password` répond `401` quand l'ancien mot de passe est faux.
+  L'intercepteur de rafraîchissement l'aurait pris pour une session expirée et aurait
+  déconnecté l'utilisateur pour une faute de frappe. Appel exclu du rafraîchissement
+  (ADR-013).
+- Un `loadChildren` posé sur un chemin vide oblige le routeur à charger le fichier de routes
+  même pour l'URL `/`. Les routes d'authentification sont donc importées statiquement ; les
+  écrans, eux, restent des morceaux séparés (ADR-014).
+- Signal Forms refuse l'attribut `name` sur un contrôle porteur de `[formField]` — la
+  directive le pose elle-même — et les entrées booléennes d'un composant ne se règlent pas
+  par un attribut nu (`requis` devient `[requis]="true"`).
+- L'email de réinitialisation transporte un code à recopier, pas un lien de retour :
+  l'écran de réinitialisation demande donc le code, sans lire de paramètre d'URL.
+- Le backend ne dit pas lequel des deux emails est en cause sur un `409` à l'inscription.
+  Le message part en bandeau plutôt que sous un champ choisi au hasard.
+
+**Choix de conception.**
+
+- Le formulaire d'inscription ne demande que ce que le backend exige. Adresse, téléphone,
+  site web et description sont facultatifs côté serveur : ils appartiennent à l'écran
+  Entreprise, pas à la première page vue par un nouveau client.
+- Quand toutes les erreurs de validation ont trouvé leur champ, aucun bandeau ne s'affiche :
+  répéter en haut d'écran ce qui est écrit sous chaque champ double le bruit.
+- `returnUrl` est filtré aux chemins internes. Une adresse absolue renverrait l'utilisateur
+  vers un site tiers juste après la saisie de son mot de passe.
+- Pas de menu de compte dans le bandeau : deux actions ne justifient pas un menu déroulant.
+  Il viendra avec l'écran de profil, quand il y aura plus à y mettre.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+105 tests passés, build de production 297,61 ko.
+
+**En attente.** Vérification visuelle des cinq écrans par le mainteneur — la liste des points
+à parcourir est dans `01-ETAT.md`. Puis relecture d'ensemble des phases 2 à 5, visibilité du
+dépôt, confirmation de `@types/node`.

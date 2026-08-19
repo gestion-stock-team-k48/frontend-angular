@@ -9,7 +9,7 @@ import {
 } from '@angular/router';
 import { Injector, runInInjectionContext } from '@angular/core';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { gardeAuthentification, gardeInvite, gardeRole } from './guards';
+import { gardeAuthentification, gardeInvite, gardeMotDePasse, gardeRole } from './guards';
 import { ServiceAuthentification } from './auth';
 import { provideAppConfig } from '../config/app-config';
 import type { Utilisateur } from '../api/api-types';
@@ -94,6 +94,25 @@ describe('gardes de navigation', () => {
 
   it('laisse un visiteur atteindre la connexion', () => {
     const resultat = runInInjectionContext(injector, () => gardeInvite(ROUTE, etat('/connexion')));
+
+    expect(resultat).toBe(true);
+  });
+  it('détourne vers le changement de mot de passe tant qu’il est temporaire', () => {
+    ouvrirSession({ ...SIMPLE, mustChangePassword: true });
+
+    const resultat = runInInjectionContext(injector, () =>
+      gardeMotDePasse(ROUTE, etat('/articles')),
+    );
+
+    expect(String(resultat)).toContain('/changer-mot-de-passe');
+  });
+
+  it('laisse passer un mot de passe déjà choisi par l’utilisateur', () => {
+    ouvrirSession(SIMPLE);
+
+    const resultat = runInInjectionContext(injector, () =>
+      gardeMotDePasse(ROUTE, etat('/articles')),
+    );
 
     expect(resultat).toBe(true);
   });

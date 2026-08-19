@@ -1,0 +1,38 @@
+.coquille-auth {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100vh;
+  background-color: var(--surface-0);
+
+  &__entete {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--espace-3);
+    padding: var(--espace-4) var(--espace-5);
+  }
+
+  &__marque {
+    color: var(--text-strong);
+    font-family: var(--police-display);
+    font-size: var(--taille-lg);
+    font-weight: 600;
+  }
+
+  &__theme {
+    padding: var(--espace-1) var(--espace-3);
+    border: var(--bordure-fine) solid var(--border-subtle);
+    border-radius: var(--rayon-controle);
+    background-color: transparent;
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+  }
+
+  &__contenu {
+    display: flex;
+    flex: 1;
+    align-items: flex-start;
+    justify-content: center;
+    padding: var(--espace-4) var(--espace-4) var(--espace-8);
+  }
+}

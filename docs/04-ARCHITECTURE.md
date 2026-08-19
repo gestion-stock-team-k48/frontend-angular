@@ -52,11 +52,25 @@ de CORS avec `ng serve`.
   `Authorization` de la requête, pas dans un corps JSON (voir `06-API-CONTRAT.md`).
 - Les rôles et l'entreprise courante viennent de `GET /utilisateurs/me`, pas du contenu du
   jeton : le profil est la source de vérité, et le jeton n'est jamais décodé côté client.
+- `core/auth` porte l'ensemble des appels qui touchent aux identifiants : authentification,
+  inscription, rafraîchissement, mot de passe oublié, réinitialisation et changement de mot
+  de passe. Les écrans de `features/auth` n'ont pas de service d'accès API propre — leur
+  seul interlocuteur est `ServiceAuthentification`.
+- La session est restaurée par un `provideAppInitializer` avant le premier affichage. Sans
+  cette étape, les gardes trancheraient sur une session qu'elles croiraient fermée. L'échec
+  est absorbé : l'application démarre alors déconnectée, jamais bloquée.
+- `POST /utilisateurs/change-password` est exclu du rafraîchissement : un `401` y signifie
+  « ancien mot de passe incorrect » (ADR-013).
 
 ## Guards
 
-Guards fonctionnels : `authGuard`, `roleGuard(['ROLE_ADMIN'])`, `guestGuard`.
-Le rôle conditionne aussi l'affichage via la directive `*appHasRole`.
+Gardes fonctionnelles : `gardeAuthentification`, `gardeRole('ROLE_ADMIN')`, `gardeInvite`,
+`gardeMotDePasse`. Le rôle conditionne aussi l'affichage dans la navigation.
+
+`gardeMotDePasse` retient tout compte dont le profil déclare encore `mustChangePassword` :
+l'administrateur qui crée un utilisateur lui attribue un mot de passe généré, transmis par
+email. Elle est posée en `canActivateChild` du shell, donc relue à chaque changement d'écran,
+et jamais sur `/changer-mot-de-passe`, qui est la sortie.
 
 **L'interface ne remplace jamais la sécurité serveur.** Masquer un bouton n'est pas protéger
 une action.
@@ -93,10 +107,27 @@ pour les erreurs de champ. Tableau de correspondance dans `06-API-CONTRAT.md`.
 directement par les composants. Les mutations passent par le service API de la feature, qui
 invalide ou recharge la ressource concernée.
 
+## Écrans d'authentification
+
+Connexion, inscription, mot de passe oublié, réinitialisation et changement de mot de passe
+vivent hors du shell, sous une coquille à eux : ni navigation, ni fil d'Ariane. Leurs routes
+sont déclarées avant celle du shell — ce dernier attrape tout le reste par sa route
+générique — et sont importées statiquement dans `app.routes.ts` (ADR-014).
+
+Les erreurs de validation renvoyées par le backend sont réparties par `erreurs-formulaire.ts`
+entre les champs qu'elles nomment et un bandeau d'ensemble. Quand tout a trouvé sa place, il
+n'y a pas de bandeau : répéter en haut d'écran ce qui est écrit sous chaque champ double le
+bruit sans rien ajouter.
+
+Le `returnUrl` porté par l'URL est filtré : seuls les chemins internes sont suivis. Une
+adresse absolue, ou relative au protocole, renverrait l'utilisateur vers un site tiers juste
+après la saisie de son mot de passe.
+
 ## Shell applicatif
 
 `layout/shell` porte la coquille : `Topbar`, `Sidebar`, `FilAriane`, zone de contenu. Toutes
-les routes de l'application sont ses enfants, y compris la page 403 et la page 404.
+les routes de l'application sont ses enfants, y compris la page 403 et la page 404 — seuls
+les écrans d'authentification vivent en dehors.
 
 La structure de la navigation est déclarée une seule fois, dans `layout/navigation.ts` :
 libellé métier, chemin, rôle requis, et un drapeau `disponible`. Une entrée dont l'écran

@@ -1,8 +1,19 @@
 import type { Routes } from '@angular/router';
+import { gardeAuthentification, gardeMotDePasse } from './core/auth/guards';
+import { routesAuth } from './features/auth/auth.routes';
 
 export const routes: Routes = [
+  // Les écrans d'authentification passent avant le shell : ils sont les seuls à vivre hors
+  // de la coquille applicative, et le shell attrape tout le reste par sa route générique.
+  // Leurs définitions sont importées directement — ce ne sont que des objets de route, les
+  // composants, eux, restent chargés à la demande.
+  ...routesAuth,
   {
     path: '',
+    canActivate: [gardeAuthentification],
+    // Relue à chaque changement d'écran : la session peut se fermer, et un mot de passe
+    // temporaire doit être remplacé avant d'atteindre quoi que ce soit d'autre.
+    canActivateChild: [gardeAuthentification, gardeMotDePasse],
     loadComponent: () => import('./layout/shell/shell').then((module) => module.Shell),
     children: [
       {

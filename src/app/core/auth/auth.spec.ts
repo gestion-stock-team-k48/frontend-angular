@@ -4,6 +4,7 @@ import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ServiceAuthentification } from './auth';
 import { provideAppConfig } from '../config/app-config';
+import { SANS_JETON, SANS_RAFRAICHISSEMENT } from '../http/http-contexte';
 import type { Utilisateur } from '../api/api-types';
 
 const BASE = '/api/v1';
@@ -116,5 +117,62 @@ describe('ServiceAuthentification', () => {
 
     expect(service.jeton()).toBeNull();
     expect(service.estAuthentifie()).toBe(true);
+  });
+  it('ouvre la session directement à l’inscription d’une entreprise', () => {
+    service
+      .inscrire({
+        nomEntreprise: 'Quincaillerie du Centre',
+        codeFiscal: 'M0123',
+        email: 'contact@exemple.cm',
+        nomAdmin: 'Nandjo',
+        prenomAdmin: 'Jordan',
+        emailAdmin: 'jordan@exemple.cm',
+        motDePasse: 'motdepasse',
+      })
+      .subscribe();
+
+    const inscription = http.expectOne(`${BASE}/auth/register`);
+    inscription.flush({ token: 'jeton-acces', refreshToken: 'jeton-refresh' });
+    http.expectOne(`${BASE}/utilisateurs/me`).flush(UTILISATEUR);
+
+    expect(inscription.request.headers.has('Authorization')).toBe(false);
+    expect(service.jeton()).toBe('jeton-acces');
+    expect(service.utilisateur()).toEqual(UTILISATEUR);
+  });
+
+  it('n’attache aucun jeton à la demande de réinitialisation', () => {
+    service.demanderReinitialisation({ email: 'jordan@exemple.cm' }).subscribe();
+
+    const demande = http.expectOne(`${BASE}/auth/forgot-password`);
+    demande.flush(null);
+
+    expect(demande.request.context.get(SANS_JETON)).toBe(true);
+    expect(demande.request.context.get(SANS_RAFRAICHISSEMENT)).toBe(true);
+  });
+
+  it('exclut le changement de mot de passe du rafraîchissement', () => {
+    // Un 401 y signifie « ancien mot de passe incorrect » : le rejouer après un
+    // rafraîchissement déconnecterait l'utilisateur pour une faute de frappe.
+    service.changerMotDePasse({ oldPassword: 'ancien', newPassword: 'nouveau12' }).subscribe();
+
+    const changement = http.expectOne(`${BASE}/utilisateurs/change-password`);
+
+    expect(changement.request.context.get(SANS_RAFRAICHISSEMENT)).toBe(true);
+    expect(changement.request.context.get(SANS_JETON)).toBe(false);
+  });
+
+  it('recharge le profil après un changement de mot de passe', () => {
+    service.changerMotDePasse({ oldPassword: 'ancien', newPassword: 'nouveau12' }).subscribe();
+    http.expectOne(`${BASE}/utilisateurs/change-password`).flush(null);
+    http.expectOne(`${BASE}/utilisateurs/me`).flush({ ...UTILISATEUR, mustChangePassword: false });
+
+    expect(service.doitChangerMotDePasse()).toBe(false);
+  });
+
+  it('signale un mot de passe temporaire tant que le profil le déclare', () => {
+    service.chargerUtilisateur().subscribe();
+    http.expectOne(`${BASE}/utilisateurs/me`).flush({ ...UTILISATEUR, mustChangePassword: true });
+
+    expect(service.doitChangerMotDePasse()).toBe(true);
   });
 });
