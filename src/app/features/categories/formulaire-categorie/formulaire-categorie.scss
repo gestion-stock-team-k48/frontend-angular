@@ -1,0 +1,21 @@
+.formulaire-categorie {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-4);
+  min-inline-size: min(24rem, 70vw);
+
+  &__bandeau {
+    padding: var(--espace-3);
+    border: var(--bordure-fine) solid var(--state-danger);
+    border-radius: var(--rayon-controle);
+    background-color: var(--state-danger-surface);
+    color: var(--state-danger-text);
+    font-size: var(--taille-sm);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--espace-2);
+  }
+}
