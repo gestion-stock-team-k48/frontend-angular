@@ -581,10 +581,13 @@ aient de quoi parler, des corrections, des commandes des deux côtés à des ét
 ventes.
 
 **Le mot de passe unique.** Le backend ne permet pas de choisir le mot de passe d'un compte
-créé : il en génère un et l'envoie par email. Le script le lit dans Mailpit, se connecte avec,
-puis appelle `POST /utilisateurs/change-password` — le parcours exact d'une première
-connexion. Tous les comptes finissent donc sur le même mot de passe sans qu'aucune donnée ne
-soit forcée en base.
+créé : il en génère un et l'envoie par email. Le premier jet lisait ce mot de passe dans
+Mailpit — et vingt et un comptes sont restés dehors, parce que Mailpit ne garde qu'un nombre
+limité de messages et que les notifications de commande avaient chassé les emails de création.
+Le script emprunte désormais le parcours « mot de passe oublié » : la demande produit toujours
+un message frais, et c'est de toute façon le chemin qu'emprunterait la personne. Un mode de
+rattrapage (`SEED_ALIGNEMENT=1`) repasse sur les comptes restés en arrière ; il a servi à
+aligner les vingt et un.
 
 **Découvert en route.**
 

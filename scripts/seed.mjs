@@ -333,11 +333,12 @@ function ilYA(jours) {
 const patienter = (millisecondes) => new Promise((suite) => setTimeout(suite, millisecondes));
 
 /**
- * L'email part de façon asynchrone : au premier regard, la boîte est parfois encore vide.
- * Quelques tentatives espacées suffisent, plutôt que de laisser un compte sur son mot de
- * passe temporaire pour une demi-seconde de retard.
+ * Dernier email reçu par une adresse, ou `null` si la boîte est vide.
+ *
+ * L'envoi est asynchrone : au premier regard, la boîte l'est souvent encore. Quelques
+ * tentatives espacées suffisent.
  */
-async function motDePasseTemporaire(email, tentatives = 6) {
+async function dernierEmail(email, tentatives = 8) {
   const liste = await fetch(`${CONFIG.mailpit}/api/v1/search?query=${encodeURIComponent(email)}`);
   if (!liste.ok) {
     throw new Error(`Mailpit a répondu ${liste.status}`);
@@ -347,20 +348,40 @@ async function motDePasseTemporaire(email, tentatives = 6) {
   const message = messages?.[0];
   if (message === undefined) {
     if (tentatives <= 1) {
-      throw new Error(`aucun email reçu pour ${email}`);
+      return null;
     }
-    await patienter(500);
-    return motDePasseTemporaire(email, tentatives - 1);
+    await patienter(600);
+    return dernierEmail(email, tentatives - 1);
   }
 
   const detail = await (await fetch(`${CONFIG.mailpit}/api/v1/message/${message.ID}`)).json();
-  const contenu = `${detail.HTML ?? ''}${detail.Text ?? ''}`;
-  const trouve = /Mot de passe temporaire\s*:\s*(?:<strong[^>]*>)?\s*([A-Z0-9]{6,})/u.exec(contenu);
+  return `${detail.HTML ?? ''}${detail.Text ?? ''}`;
+}
 
-  if (trouve === null) {
-    throw new Error(`mot de passe temporaire introuvable dans l'email de ${email}`);
+/**
+ * Pose le mot de passe commun sur un compte, par le parcours « mot de passe oublié ».
+ *
+ * C'est plus robuste que de lire le mot de passe temporaire de l'email de création : cet
+ * email-là finit par disparaître de Mailpit, qui ne garde qu'un nombre limité de messages et
+ * que les notifications de commande chassent vite. Une demande de réinitialisation, elle,
+ * produit toujours un message frais — et c'est le parcours qu'emprunterait la personne.
+ */
+async function poserMotDePasse(email) {
+  await appeler('POST', '/auth/forgot-password', { corps: { email } });
+
+  const contenu = await dernierEmail(email);
+  if (contenu === null) {
+    throw new Error(`aucun email de réinitialisation pour ${email}`);
   }
-  return trouve[1];
+
+  const code = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/iu.exec(contenu);
+  if (code === null) {
+    throw new Error(`code de réinitialisation introuvable pour ${email}`);
+  }
+
+  await appeler('POST', '/auth/reset-password', {
+    corps: { token: code[1], newPassword: CONFIG.motDePasse },
+  });
 }
 
 // ── Construction d'une entreprise ───────────────────────────────────────────────────────
@@ -464,12 +485,11 @@ async function creerTiers(jeton, domaine) {
 }
 
 /**
- * Crée les comptes, puis remplace leur mot de passe temporaire par le mot de passe commun.
+ * Crée les comptes, puis pose sur chacun le mot de passe commun.
  *
  * Le backend ne permet pas de choisir le mot de passe à la création : il en génère un et
- * l'envoie par email. Le seul chemin honnête pour obtenir un mot de passe unique passe donc
- * par la boîte de réception de développement, puis par `POST /utilisateurs/change-password`,
- * exactement comme le ferait la personne à sa première connexion.
+ * l'envoie par email. Le chemin honnête pour obtenir un mot de passe unique est donc celui
+ * de la personne elle-même — demander une réinitialisation, lire le code reçu, le poser.
  */
 async function creerUtilisateurs(jeton, domaine) {
   const comptes = Array.from({ length: CONFIG.utilisateurs }, (_, rang) => ({
@@ -732,14 +752,7 @@ async function aligner() {
 
     for (const compte of aRegler) {
       try {
-        const temporaire = await motDePasseTemporaire(compte.email);
-        const session = await appeler('POST', '/auth/authenticate', {
-          corps: { email: compte.email, motDePasse: temporaire },
-        });
-        await appeler('POST', '/utilisateurs/change-password', {
-          jeton: session.token,
-          corps: { oldPassword: temporaire, newPassword: CONFIG.motDePasse },
-        });
+        await poserMotDePasse(compte.email);
         alignes += 1;
       } catch (erreur) {
         console.warn(`  ! ${compte.email} : ${erreur.message}`);

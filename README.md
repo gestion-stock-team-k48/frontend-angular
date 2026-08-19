@@ -47,9 +47,13 @@ docker compose down -v && docker compose up -d   # base remise à zéro
 cd ../frontend-angular && npm run seed
 ```
 
-Tous les comptes créés partagent le mot de passe `GestionStock2026!`, y compris ceux à qui le
-serveur avait envoyé un mot de passe temporaire : le script le récupère dans Mailpit et le
-remplace, exactement comme le ferait la personne à sa première connexion.
+Tous les comptes créés partagent le mot de passe `GestionStock2026!`. Le backend ne permet pas
+de le choisir à la création : le script emprunte donc le parcours « mot de passe oublié » —
+demande de réinitialisation, lecture du code dans Mailpit, pose du mot de passe — exactement
+ce que ferait la personne elle-même.
+
+`SEED_ALIGNEMENT=1 npm run seed` repasse sur les comptes restés à leur mot de passe
+temporaire, sans rien recréer.
 
 Réglages par variables d'environnement — `SEED_ENTREPRISES`, `SEED_ARTICLES`,
 `SEED_MOT_DE_PASSE`, `SEED_ETIQUETTE` (suffixe à poser pour ajouter des entreprises à une
