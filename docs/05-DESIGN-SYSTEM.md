@@ -1,8 +1,27 @@
 # Design system
 
-Ce document fixe l'architecture visuelle. Son implémentation est faite en phase 2 (thème)
-et phase 3 (primitives UI). Les arbitrages typographie et couleur d'amorce sont rendus
-(session 1, 2026-08-19) et consignés en ADR-009.
+Ce document fixe l'architecture visuelle. La phase 2 est faite : polices, tokens,
+`ServiceTheme`, mouvement. Les primitives UI et l'écran « Apparence » arrivent en phase 3.
+Les arbitrages typographie et couleur d'amorce sont rendus (session 1, 2026-08-19) et
+consignés en ADR-009.
+
+## Où vivent les tokens
+
+| Fichier                               | Contenu                                                 |
+| ------------------------------------- | ------------------------------------------------------- |
+| `src/styles/_polices.scss`            | déclarations `@font-face`                               |
+| `src/styles/tokens/_primitifs.scss`   | rampes de marque, neutre et couleurs d'état             |
+| `src/styles/tokens/_semantiques.scss` | tokens consommés par les composants, thème sombre       |
+| `src/styles/tokens/_systeme.scss`     | espacement, rayons, ombres, plans, typographie, densité |
+| `src/styles/tokens/_mouvement.scss`   | durées, courbes, `prefers-reduced-motion`               |
+| `src/styles/_base.scss`               | modèle de boîte, typographie de base, focus             |
+| `src/app/core/theme/couleur-oklch.ts` | génération de rampe, conversion, contraste              |
+| `src/app/core/theme/theme.ts`         | `ServiceTheme`                                          |
+
+La rampe de marque existe en deux endroits : en dur dans `_primitifs.scss`, pour que le
+premier rendu soit juste avant l'exécution du script, et calculée par `ServiceTheme` pour
+l'amorce réelle de l'entreprise. Un test verrouille l'accord entre les deux
+(`tokens-statiques.spec.ts`).
 
 ## Parti pris
 

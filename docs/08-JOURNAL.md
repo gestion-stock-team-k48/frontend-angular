@@ -86,3 +86,38 @@ build de production 246,68 ko.
 
 **En attente.** Validation de la phase 1. Les routes `/connexion` et `/acces-refuse`,
 référencées par les gardes, n'existent pas avant les phases 4 et 5.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 2 · Thème
+
+**Branche** : `feat/theme-tokens` (depuis `develop`)
+
+**Contexte.** Phase 1 validée, fusionnée dans `main`, taguée `v0.2.0`. Consigne de
+travailler en autonomie : les commits sont posés au fil de l'eau et `01-ETAT.md` est tenu à
+jour à chaque étape, pour qu'une interruption ne laisse jamais un état illisible.
+
+**Fait.**
+
+- Polices auto-hébergées, générateur de rampe OKLCH, trois couches de tokens, tokens de
+  mouvement, `ServiceTheme`, page d'attente pour vérifier le thème à la main.
+- 57 tests, dont la garantie de contraste sur les 24 teintes du cercle.
+
+**Découvert en route.**
+
+- Un `cd public/fonts` d'un bloc précédent a persisté et fait atterrir un fichier source
+  dans `public/`. Déplacé et nettoyé avant tout commit.
+- `stylelint-config-standard-scss` impose une notation OKLCH incompatible avec celle que le
+  service écrit à l'exécution, et interdit de regrouper les tokens par familles. Deux règles
+  ajustées, une désactivée (ADR-010).
+- `stylelint --fix` supprime les zéros terminaux : le test qui verrouille l'accord entre la
+  rampe statique et le générateur comparait du texte, il compare désormais des nombres.
+- L'import `?raw` de Vite n'est pas géré par le builder de tests d'Angular. `@types/node` a
+  été ajouté pour lire la feuille de styles — seule dépendance posée sans validation, notée
+  comme telle.
+- Le passage du dépôt en public est refusé : rôle Maintainer, alors que GitLab exige Owner.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+57 tests passés, build de production 252,36 ko.
+
+**En attente.** Visibilité du dépôt, confirmation de `@types/node`.

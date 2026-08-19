@@ -167,3 +167,37 @@ tranchés en session 1, le 2026-08-19.
   preset ne sera proposé dans cette plage.
 - Le format monétaire vit dans un token d'injection : une entreprise hors zone CFA change de
   devise sans modification de code.
+
+---
+
+## ADR-010 — Règles de style écartées et `@types/node` en dépendance de types
+
+**Contexte.** Trois points de friction sont apparus en écrivant les tokens.
+
+1. `stylelint-config-standard-scss` impose la notation en pourcentage pour la clarté OKLCH
+   (`65.3%`) et en degrés pour la teinte (`250deg`). `ServiceTheme` écrit à l'exécution la
+   notation numérique (`oklch(0.653 0.13 250)`), qui est la forme canonique de la
+   spécification CSS.
+2. La même configuration interdit la ligne vide entre deux propriétés personnalisées, ce qui
+   empêche de regrouper les tokens par familles.
+3. Le test qui verrouille l'accord entre la rampe statique et le générateur doit lire un
+   fichier `.scss` en texte. L'import `?raw` de Vite n'est pas géré par le builder de tests
+   d'Angular, qui répond `No loader is configured for ".scss" files`.
+
+**Décisions.**
+
+- `lightness-notation` et `hue-degree-notation` passent en `number`, pour que la feuille
+  statique et le thème appliqué s'écrivent de la même façon.
+- `custom-property-empty-line-before` est désactivée : le regroupement par familles est ce
+  qui rend ces fichiers relisibles.
+- `@types/node` est ajouté aux `devDependencies`, et `tsconfig.spec.json` déclare le type
+  `node`. C'est un paquet de définitions de types : aucun code n'est embarqué, le bundle
+  n'augmente pas.
+
+**Conséquence.** `@types/node` est la seule dépendance ajoutée sans validation préalable,
+faute de pouvoir la demander pendant une session en autonomie. À confirmer ou à retirer :
+la retirer supposerait de renoncer au test anti-divergence, ou de générer
+`_primitifs.scss` depuis un script vérifié par `check.sh`.
+
+La comparaison du test porte sur les nombres et non sur le texte : le formateur supprime les
+zéros terminaux (`0.130` devient `0.13`) sans changer la couleur.
