@@ -1,0 +1,112 @@
+<section class="stock">
+  @if (introuvable()) {
+    <app-etat-vide
+      titre="Cet article n'existe plus, ou n'est pas accessible"
+      message="Il a peut-être été supprimé du catalogue."
+      ton="erreur"
+    >
+      <a class="stock__lien-fort" routerLink="/mouvements-stock">Revenir au choix de l'article</a>
+    </app-etat-vide>
+  } @else {
+    <header class="stock__entete">
+      <div>
+        <p class="stock__fil">
+          <a class="stock__lien" routerLink="/mouvements-stock">Mouvements de stock</a>
+        </p>
+        <h1 class="stock__titre">{{ article()?.designation ?? 'Article' }}</h1>
+        <p class="stock__code" data-numerique>{{ article()?.code }}</p>
+      </div>
+
+      <a class="stock__lien" [routerLink]="['/articles', identifiant()]">Modifier l'article</a>
+    </header>
+
+    <section class="stock__mesure">
+      <h2 class="stock__sous-titre">Stock réel</h2>
+
+      @if (mesureConnue()) {
+        <app-jauge-seuil
+          taille="grande"
+          [stock]="stockReel()"
+          [seuil]="seuil()"
+          [article]="article()?.designation ?? null"
+        />
+
+        @if (sousLeSeuil()) {
+          <app-badge ton="danger">Sous le seuil</app-badge>
+        }
+
+        <p class="stock__aide">
+          Le stock réel est calculé par le serveur à partir des mouvements. L'interface ne le
+          recalcule jamais.
+        </p>
+      } @else {
+        <p class="stock__aide">Mesure en cours…</p>
+      }
+
+      <div class="stock__operations">
+        <app-bouton variante="primaire" (presse)="ouvrir('entree')">Entrée</app-bouton>
+        <app-bouton (presse)="ouvrir('sortie')">Sortie</app-bouton>
+        <app-bouton (presse)="ouvrir('correction-positive')">Correction +</app-bouton>
+        <app-bouton (presse)="ouvrir('correction-negative')">Correction −</app-bouton>
+      </div>
+    </section>
+
+    <section class="stock__historique">
+      <h2 class="stock__sous-titre">Historique</h2>
+
+      <app-tableau [colonnes]="colonnes" [etat]="etat()" [lignesSquelette]="5">
+        @for (mouvement of mouvements(); track mouvement.id) {
+          <tr>
+            <td data-numerique>{{ mouvement.dateMvt | date: 'short' }}</td>
+            <td>{{ libelleType(mouvement.typeMvt) }}</td>
+            <td data-alignement="fin" data-numerique>
+              {{ ajouteAuStock(mouvement.typeMvt) ? '+' : '−' }}{{ mouvement.quantite | quantite }}
+            </td>
+            <td>{{ libelleSource(mouvement.sourceMvt) }}</td>
+            <td>{{ mouvement.motif ?? '—' }}</td>
+          </tr>
+        }
+
+        <div zoneEtat>
+          @if (etat() === 'erreur') {
+            <app-etat-vide
+              titre="L'historique n'a pas pu être chargé"
+              message="Le serveur n'a pas répondu comme attendu."
+              ton="erreur"
+            >
+              <app-bouton (presse)="reessayer()">Réessayer</app-bouton>
+            </app-etat-vide>
+          } @else {
+            <app-etat-vide
+              titre="Aucun mouvement"
+              message="Le stock de cet article n'a jamais bougé. Une entrée de stock initial est souvent le premier mouvement."
+            >
+              <app-bouton variante="primaire" (presse)="ouvrir('entree')">
+                Enregistrer une entrée
+              </app-bouton>
+            </app-etat-vide>
+          }
+        </div>
+      </app-tableau>
+
+      @if (etat() === 'pret') {
+        <app-pagination
+          [etat]="etatPage()"
+          (pageChange)="page.set($event)"
+          (tailleChange)="changerTaille($event)"
+        />
+      }
+    </section>
+  }
+</section>
+
+<app-modale [ouverte]="operation() !== null" [titre]="titreOperation()" (fermeture)="fermer()">
+  @if (operation(); as operation) {
+    <app-formulaire-mouvement
+      [operation]="operation"
+      [articleId]="identifiant()"
+      (enregistre)="apresMouvement($event)"
+      (annule)="fermer()"
+    />
+  }
+</app-modale>

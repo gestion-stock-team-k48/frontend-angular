@@ -1,0 +1,54 @@
+<section class="alertes">
+  <header class="alertes__entete">
+    <div>
+      <h1 class="alertes__titre">Alertes de seuil</h1>
+      <p class="alertes__sous-titre">
+        Les articles dont le stock réel a rejoint ou franchi leur seuil minimal, par le bas.
+      </p>
+    </div>
+
+    <a class="alertes__lien" routerLink="/mouvements-stock">Choisir un autre article</a>
+  </header>
+
+  <app-tableau [colonnes]="colonnes" [etat]="etat()" libelleActions="Stock" [lignesSquelette]="4">
+    @for (alerte of alertes(); track alerte.articleId) {
+      <tr>
+        <td data-numerique>{{ alerte.code }}</td>
+        <td>{{ alerte.designation }}</td>
+        <td class="alertes__jauge">
+          <app-jauge-seuil
+            [stock]="alerte.quantiteStock ?? 0"
+            [seuil]="alerte.seuilMinimum ?? 0"
+            [article]="alerte.designation ?? null"
+          />
+        </td>
+        <td data-alignement="fin" data-numerique>{{ alerte.quantiteStock | quantite }}</td>
+        <td data-alignement="fin" data-numerique>{{ alerte.seuilMinimum | quantite }}</td>
+        <td data-alignement="fin">
+          <a class="alertes__lien" [routerLink]="['/mouvements-stock/article', alerte.articleId]">
+            Réapprovisionner
+          </a>
+        </td>
+      </tr>
+    }
+
+    <div zoneEtat>
+      @if (etat() === 'erreur') {
+        <app-etat-vide
+          titre="Les alertes n'ont pas pu être chargées"
+          message="Le serveur n'a pas répondu comme attendu."
+          ton="erreur"
+        >
+          <button type="button" class="alertes__lien" (click)="reessayer()">Réessayer</button>
+        </app-etat-vide>
+      } @else {
+        <app-etat-vide
+          titre="Aucune alerte"
+          message="Tous les articles du catalogue sont au-dessus de leur seuil minimal."
+        >
+          <a class="alertes__lien" routerLink="/mouvements-stock">Voir le stock d'un article</a>
+        </app-etat-vide>
+      }
+    </div>
+  </app-tableau>
+</section>

@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import type { FieldTree, ValidationError } from '@angular/forms/signals';
+import type { ReadonlyFieldTree, ValidationError } from '@angular/forms/signals';
 import { erreursDeValidation } from '../../core/http/error-response';
 import { messageErreurUtilisateur } from '../../core/http/messages-erreur';
 
@@ -23,7 +23,7 @@ export interface EchecSoumission {
  */
 export function repartirErreur(
   erreur: unknown,
-  champs: Readonly<Record<string, FieldTree<string>>>,
+  champs: Readonly<Record<string, ReadonlyFieldTree<unknown>>>,
 ): EchecSoumission {
   if (!(erreur instanceof HttpErrorResponse)) {
     return { message: "La demande n'a pas pu être traitée. Réessayer.", erreurs: [] };

@@ -261,6 +261,21 @@ non `403` : ce `401` ne signale pas une session expirée. Voir ADR-013.
    de récupérer le fichier ni une URL signée : l'interface confirme l'envoi, elle ne peut pas
    afficher l'image. Le même écart vaut pour les clients, les fournisseurs et les utilisateurs.
 
-7. **`Pageable` est déclaré `required: true`** en paramètre de requête sur les listes, alors
-   que Spring applique des valeurs par défaut si le paramètre est absent. Le frontend envoie
-   toujours `page` et `size` explicitement, ce qui évite la question.
+7. **Aucune liste globale des mouvements de stock.** Les mouvements ne se lisent que par
+   `GET /mouvements-stock/article/{idArticle}`. Impossible de répondre à « qu'est-ce qui a
+   bougé aujourd'hui ? » sans interroger chaque article. Un endpoint paginé et filtrable
+   comblerait le manque ; l'interface ouvre en attendant sur le choix d'un article (ADR-017).
+
+8. **L'historique d'un article ignore le tri demandé.** La requête est déclarée avec
+   `pageable`, mais l'implémentation force l'ordre des dates
+   (`findByArticleIdAndIdEntrepriseOrderByDateMvtAsc`). L'écran ne propose donc aucun en-tête
+   cliquable sur cet historique : des colonnes triables sans effet mentiraient.
+
+9. **`GET /mouvements-stock/alertes-stock` recalcule tout le catalogue.** Le stock réel de
+   chaque article est dérivé de ses mouvements, article par article, à chaque appel. La
+   réponse n'est pas paginée. À surveiller dès que le catalogue grandit : c'est un coût
+   serveur, que l'interface ne peut ni voir ni contourner.
+
+10. **`Pageable` est déclaré `required: true`** en paramètre de requête sur les listes, alors
+    que Spring applique des valeurs par défaut si le paramètre est absent. Le frontend envoie
+    toujours `page` et `size` explicitement, ce qui évite la question.

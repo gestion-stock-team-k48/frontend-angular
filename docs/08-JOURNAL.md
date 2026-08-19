@@ -290,3 +290,49 @@ des phases 6 à 11 a été déduit des groupes de navigation et consigné en ADR
 
 **En attente.** Vérification visuelle du catalogue, confirmation du découpage des phases
 (ADR-015), et un jeton GitLab valide pour pousser.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 7 · Stock
+
+**Branche** : `feat/mouvements-stock` (depuis `develop`)
+
+**Contexte.** Phase 6 fusionnée dans `develop` sans vérification visuelle préalable, sur
+consigne de continuer en autonomie.
+
+**Fait.**
+
+- Trois écrans : choix de l'article, stock d'un article, alertes de seuil.
+- Les quatre opérations de mouvement, dans un formulaire unique porté par une modale.
+- Pipe `quantite` ; helper d'erreurs élargi aux champs numériques.
+- 157 tests.
+
+**Découvert en route.**
+
+- Aucune liste globale des mouvements n'existe côté backend. La section s'ouvre donc sur le
+  choix d'un article (ADR-017) plutôt que sur une liste qui aurait coûté une requête par
+  ligne de catalogue.
+- L'historique d'un article ignore le paramètre `sort` : l'ordre des dates est forcé par la
+  requête du repository. Aucun en-tête cliquable n'est proposé sur ce tableau.
+- `GET /mouvements-stock/alertes-stock` dérive le stock réel de chaque article du catalogue à
+  chaque appel, sans pagination. Signalé, sans contournement possible côté interface.
+- `repartirErreur` n'acceptait que des champs de texte : une quantité est un nombre. Le type
+  du paramètre est passé à `ReadonlyFieldTree<unknown>`.
+- Quatre commits avaient été posés dans un ordre qui laissait deux d'entre eux référencer un
+  écran pas encore ajouté. Défaits par `reset --soft`, refaits dans l'ordre : chaque commit
+  de la branche compile seul.
+
+**Choix de conception.**
+
+- La quantité saisie est toujours positive : le sens du mouvement est porté par l'opération
+  choisie, comme côté backend. Un signe à saisir aurait doublé la source d'erreur.
+- L'écran de stock redemande le stock réel après chaque écriture au lieu de l'ajuster
+  lui-même. Le serveur reste seul à savoir ; deux calculs divergeraient un jour.
+- Les alertes sont triées par manque relatif au seuil : une rupture passe devant un article
+  qui frôle son seuil, et deux articles de tailles différentes se comparent quand même.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+157 tests passés, build de production 322,45 ko.
+
+**En attente.** Vérification visuelle des écrans de stock, confirmation du découpage des
+phases (ADR-015), et un jeton GitLab valide pour pousser.

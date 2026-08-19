@@ -1,0 +1,79 @@
+.stock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-5);
+
+  &__entete {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--espace-3);
+  }
+
+  &__fil {
+    font-size: var(--taille-sm);
+  }
+
+  &__titre {
+    color: var(--text-strong);
+    font-family: var(--police-display);
+    font-size: var(--taille-xl);
+  }
+
+  &__code {
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+  }
+
+  &__sous-titre {
+    color: var(--text-strong);
+    font-size: var(--taille-md);
+    font-weight: 600;
+  }
+
+  &__mesure {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--espace-3);
+    padding: var(--espace-5);
+    border: var(--bordure-fine) solid var(--border-subtle);
+    border-radius: var(--rayon-carte);
+    background-color: var(--surface-1);
+  }
+
+  &__historique {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-3);
+  }
+
+  &__aide {
+    max-inline-size: 60ch;
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+  }
+
+  &__operations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--espace-2);
+    margin-block-start: var(--espace-2);
+  }
+
+  &__lien {
+    color: var(--brand);
+    font-size: var(--taille-sm);
+  }
+
+  &__lien-fort {
+    padding: var(--espace-2) var(--espace-4);
+    border-radius: var(--rayon-controle);
+    background-color: var(--brand);
+    color: var(--brand-contrast);
+    font-size: var(--taille-sm);
+    font-weight: 500;
+    text-decoration: none;
+  }
+}
