@@ -4,6 +4,11 @@
   "compileOnSave": false,
   "compilerOptions": {
     "noImplicitOverride": true,
+    // TypeScript 6 est strict par défaut : `strict` n'a pas à être redéclaré (ADR-002).
+    // Les options ci-dessous ne le sont pas et doivent être demandées explicitement.
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
