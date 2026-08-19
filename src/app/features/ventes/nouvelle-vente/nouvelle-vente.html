@@ -1,0 +1,52 @@
+<section class="vente">
+  <header class="vente__entete">
+    <div>
+      <p class="vente__fil"><a class="vente__lien" routerLink="/ventes">Retour aux ventes</a></p>
+      <h1 class="vente__titre">Nouvelle vente</h1>
+    </div>
+  </header>
+
+  <p class="vente__avertissement" role="status">
+    Enregistrer la vente sort aussitôt les articles du stock. Elle ne pourra ensuite être ni
+    modifiée ni supprimée : le serveur les refuse pour préserver l'historique des mouvements.
+  </p>
+
+  @if (message(); as texte) {
+    <p class="vente__bandeau" role="alert">{{ texte }}</p>
+  }
+
+  <form class="vente__carte" (submit)="$event.preventDefault(); enregistrer()">
+    <div class="vente__groupe">
+      <app-champ
+        libelle="Code"
+        identifiant="vente-code"
+        aide="Laisser vide pour que le serveur en attribue un."
+        [erreur]="erreurCode()"
+      >
+        <input id="vente-code" type="text" spellcheck="false" [formField]="formulaire.code" />
+      </app-champ>
+
+      <app-champ
+        libelle="Commentaire"
+        identifiant="vente-commentaire"
+        [erreur]="erreurCommentaire()"
+      >
+        <input id="vente-commentaire" type="text" [formField]="formulaire.commentaire" />
+      </app-champ>
+    </div>
+
+    <app-editeur-lignes
+      [articles]="articles()"
+      [catalogueTronque]="catalogueTronque()"
+      [(lignes)]="lignes"
+      [desactive]="enCours()"
+    />
+
+    <div class="vente__actions">
+      <a class="vente__lien" routerLink="/ventes">Annuler</a>
+      <app-bouton type="submit" variante="primaire" [chargement]="enCours()">
+        Enregistrer la vente
+      </app-bouton>
+    </div>
+  </form>
+</section>
