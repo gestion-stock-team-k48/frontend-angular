@@ -198,6 +198,18 @@ s'envoie, le backend refusant celle d'autrui (ADR-020).
 L'entreprise n'existe qu'au singulier : `GET` et `PUT /entreprises/me`, sans liste ni
 création — une entreprise naît de l'inscription.
 
+## Tableau de bord
+
+`GET /dashboard/statistiques` porte les chiffres — chiffre d'affaires, commandes par état,
+articles les plus vendus. Rien n'y est recalculé côté navigateur : la seule opération faite
+sur place est la mise à l'échelle des barres du classement, qui est de l'affichage.
+
+Les alertes de seuil y sont reprises parce que ce sont les seules données auxquelles il faut
+réagir le jour même. Cinq articles sont détaillés, le reste est compté et renvoie à l'écran
+des alertes.
+
+La racine de l'application mène à cet écran.
+
 ## Shell applicatif
 
 `layout/shell` porte la coquille : `Topbar`, `Sidebar`, `FilAriane`, zone de contenu. Toutes
