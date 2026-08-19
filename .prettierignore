@@ -1,0 +1,11 @@
+# Généré : ne jamais reformater à la main.
+src/app/core/api/generated/
+openapi.json
+
+# Artefacts
+.angular/
+.check-logs/
+coverage/
+dist/
+node_modules/
+package-lock.json
