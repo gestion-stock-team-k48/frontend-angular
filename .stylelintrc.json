@@ -1,0 +1,43 @@
+{
+  "extends": ["stylelint-config-standard-scss"],
+  "ignoreFiles": ["dist/**", ".angular/**", "coverage/**", "node_modules/**"],
+  "rules": {
+    "selector-class-pattern": [
+      "^[a-z][a-z0-9]*(-[a-z0-9]+)*(__[a-z0-9]+(-[a-z0-9]+)*)?(--[a-z0-9]+(-[a-z0-9]+)*)?$",
+      {
+        "message": "Nommage BEM en kebab-case attendu : bloc__element--modificateur"
+      }
+    ],
+    "custom-property-pattern": [
+      "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      {
+        "message": "Nom de token CSS en kebab-case attendu"
+      }
+    ],
+    "scss/dollar-variable-pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+    "declaration-property-value-no-unknown": true,
+    "color-named": "never",
+    "alpha-value-notation": "number",
+    "color-function-notation": "modern",
+    "no-empty-source": null
+  },
+  "overrides": [
+    {
+      "files": ["src/styles/tokens/**/*.scss", "src/styles.scss"],
+      "rules": {
+        "color-no-hex": null
+      }
+    },
+    {
+      "files": ["src/app/**/*.scss"],
+      "rules": {
+        "color-no-hex": [
+          true,
+          {
+            "message": "Couleur littérale interdite hors du fichier de tokens : utiliser var(--...)"
+          }
+        ]
+      }
+    }
+  ]
+}

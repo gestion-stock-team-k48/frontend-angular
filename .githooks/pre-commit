@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Formate et vérifie uniquement les fichiers indexés, avant chaque commit.
+set -uo pipefail
+
+C_KO=$'\033[0;31m'; C_GRIS=$'\033[0;90m'; RAZ=$'\033[0m'
+
+printf '%s[pre-commit] lint-staged sur les fichiers indexés…%s\n' "$C_GRIS" "$RAZ"
+
+if ! npx --no-install lint-staged; then
+  printf '\n%s[pre-commit] COMMIT REFUSÉ%s\n' "$C_KO" "$RAZ"
+  printf 'Corrige les erreurs ci-dessus, réindexe les fichiers, puis relance le commit.\n'
+  printf 'Pour une vérification complète : ./scripts/check.sh\n\n'
+  exit 1
+fi
+
+exit 0
