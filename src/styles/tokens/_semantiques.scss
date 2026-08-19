@@ -1,0 +1,107 @@
+// Tokens sémantiques — les seuls que le code applicatif a le droit d'utiliser.
+// Un composant écrit `var(--surface-1)`, jamais `var(--neutre-100)` ni une valeur littérale.
+// Thème clair par défaut. Le thème sombre est défini plus bas et appliqué par
+// ThemeService via l'attribut `data-theme`, ou par la préférence système en mode auto.
+
+:root {
+  color-scheme: light;
+
+  // Surfaces, de la plus profonde à la plus détachée
+  --surface-0: var(--neutre-50);
+  --surface-1: var(--neutre-0);
+  --surface-2: var(--neutre-100);
+  --surface-3: var(--neutre-200);
+
+  // Texte
+  --text-strong: var(--neutre-950);
+  --text-base: var(--neutre-800);
+  --text-muted: var(--neutre-600);
+  --text-inverse: var(--neutre-0);
+
+  // Bordures
+  --border-subtle: var(--neutre-200);
+  --border-base: var(--neutre-300);
+  --border-strong: var(--neutre-400);
+
+  // Marque. --brand-contrast est recalculé à l'exécution pour garantir 4,5:1.
+  --brand: var(--brand-600);
+  --brand-hover: var(--brand-700);
+  --brand-subtle: var(--brand-50);
+  --brand-contrast: var(--neutre-0);
+  --focus-ring: var(--brand-500);
+
+  // États
+  --state-success: var(--vert-500);
+  --state-success-surface: var(--vert-100);
+  --state-success-text: var(--vert-700);
+
+  --state-warning: var(--ambre-500);
+  --state-warning-surface: var(--ambre-100);
+  --state-warning-text: var(--ambre-700);
+
+  --state-danger: var(--rouge-500);
+  --state-danger-surface: var(--rouge-100);
+  --state-danger-text: var(--rouge-700);
+
+  --state-info: var(--bleu-500);
+  --state-info-surface: var(--bleu-100);
+  --state-info-text: var(--bleu-700);
+
+  // Jauge de seuil — élément signature. Ces trois couleurs portent le sens métier et ne
+  // suivent jamais la marque de l'entreprise, sans quoi le signal deviendrait illisible.
+  --stock-ok: var(--vert-500);
+  --stock-low: var(--ambre-500);
+  --stock-out: var(--rouge-500);
+  --stock-piste: var(--neutre-200);
+}
+
+// Thème sombre. Les surfaces remontent, le texte descend, et les couleurs d'état sont
+// éclaircies : à luminosité égale, un vert saturé sur fond sombre paraît plus agressif.
+@mixin theme-sombre {
+  color-scheme: dark;
+
+  --surface-0: var(--neutre-950);
+  --surface-1: var(--neutre-900);
+  --surface-2: var(--neutre-800);
+  --surface-3: var(--neutre-700);
+
+  --text-strong: var(--neutre-50);
+  --text-base: var(--neutre-200);
+  --text-muted: var(--neutre-400);
+  --text-inverse: var(--neutre-950);
+
+  --border-subtle: var(--neutre-800);
+  --border-base: var(--neutre-700);
+  --border-strong: var(--neutre-600);
+
+  --brand: var(--brand-500);
+  --brand-hover: var(--brand-400);
+  --brand-subtle: var(--brand-950);
+  --focus-ring: var(--brand-400);
+
+  --state-success-surface: var(--vert-900);
+  --state-success-text: oklch(0.82 0.12 150);
+
+  --state-warning-surface: var(--ambre-900);
+  --state-warning-text: oklch(0.85 0.13 85);
+
+  --state-danger-surface: var(--rouge-900);
+  --state-danger-text: oklch(0.78 0.14 25);
+
+  --state-info-surface: var(--bleu-900);
+  --state-info-text: oklch(0.8 0.11 235);
+
+  --stock-piste: var(--neutre-700);
+}
+
+// Choix explicite du mainteneur : il l'emporte sur la préférence système.
+:root[data-theme='dark'] {
+  @include theme-sombre;
+}
+
+// Mode automatique : on suit le système, sauf si le thème clair a été demandé.
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    @include theme-sombre;
+  }
+}

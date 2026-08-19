@@ -1,0 +1,91 @@
+// Base de l'application. Rien de décoratif ici : uniquement ce qui rend l'interface
+// prévisible — modèle de boîte, typographie, focus, sélection.
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  // Le zoom du navigateur reste la première aide à la lecture : pas de taille figée.
+  // Le préfixe reste nécessaire : Safari iOS n'implémente pas la propriété standard, et
+  // sans lui le texte grossit tout seul au passage en paysage.
+  // stylelint-disable-next-line property-no-vendor-prefix
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--surface-0);
+  color: var(--text-base);
+  font-family: var(--police-texte);
+  font-size: var(--taille-md);
+  line-height: var(--interligne-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: var(--text-strong);
+  font-family: var(--police-display);
+  font-weight: 500;
+  line-height: var(--interligne-serre);
+}
+
+h1 {
+  font-size: var(--taille-2xl);
+}
+
+h2 {
+  font-size: var(--taille-xl);
+}
+
+h3 {
+  font-size: var(--taille-lg);
+}
+
+p {
+  margin: 0;
+}
+
+// Toute donnée chiffrée s'aligne verticalement : c'est la condition d'un tableau lisible.
+code,
+kbd,
+samp,
+pre,
+[data-numerique] {
+  font-family: var(--police-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+table {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+// Le focus clavier est toujours visible. Non négociable, jamais désactivé.
+:focus-visible {
+  outline: var(--largeur-focus) solid var(--focus-ring);
+  outline-offset: var(--decalage-focus);
+}
+
+::selection {
+  background-color: var(--brand-subtle);
+  color: var(--text-strong);
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
