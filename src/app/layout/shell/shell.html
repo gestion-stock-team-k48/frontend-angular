@@ -1,0 +1,26 @@
+<app-topbar [sidebarOuverte]="navigationOuverte()" (bascule)="basculerNavigation()" />
+
+<div class="shell" [class.shell--navigation-repliee]="!navigationOuverte()">
+  <app-sidebar
+    id="navigation-principale"
+    class="shell__navigation"
+    [repliee]="!navigationOuverte()"
+    (fermeture)="fermerSurMobile()"
+  />
+
+  <!-- Sur mobile la navigation recouvre le contenu : le voile permet de la refermer
+       d'un clic, et signale que le reste de l'écran est momentanément inaccessible. -->
+  @if (navigationOuverte()) {
+    <button
+      type="button"
+      class="shell__voile"
+      aria-label="Fermer la navigation"
+      (click)="basculerNavigation()"
+    ></button>
+  }
+
+  <main class="shell__contenu" tabindex="-1">
+    <app-fil-ariane />
+    <router-outlet />
+  </main>
+</div>

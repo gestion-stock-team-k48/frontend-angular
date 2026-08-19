@@ -1,0 +1,74 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100vh;
+}
+
+.shell {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 16rem 1fr;
+  transition: grid-template-columns var(--dur-base) var(--ease-out);
+
+  &--navigation-repliee {
+    grid-template-columns: 0 1fr;
+  }
+
+  &__navigation {
+    overflow: hidden;
+    border-inline-end: var(--bordure-fine) solid var(--border-subtle);
+    background-color: var(--surface-1);
+  }
+
+  &__voile {
+    display: none;
+  }
+
+  &__contenu {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-4);
+    padding: var(--espace-5) var(--espace-4);
+    min-inline-size: 0;
+
+    // Le contenu reçoit le focus après une navigation : il ne doit pas pour autant
+    // dessiner un contour, qui n'apporterait rien à cet endroit.
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+@media (width <= 48rem) {
+  .shell {
+    grid-template-columns: 1fr;
+
+    &__navigation {
+      position: fixed;
+      inset-block: 3.5rem 0;
+      inset-inline-start: 0;
+      z-index: var(--z-sidebar);
+      inline-size: min(18rem, 80vw);
+      box-shadow: var(--ombre-3);
+      transition: transform var(--dur-base) var(--ease-out);
+    }
+
+    &--navigation-repliee .shell__navigation {
+      transform: translateX(-100%);
+    }
+
+    &__voile {
+      position: fixed;
+      inset: 0;
+      z-index: var(--z-voile);
+      display: block;
+      border: none;
+      background-color: oklch(0 0 0 / 0.4);
+      cursor: pointer;
+    }
+
+    &--navigation-repliee .shell__voile {
+      display: none;
+    }
+  }
+}

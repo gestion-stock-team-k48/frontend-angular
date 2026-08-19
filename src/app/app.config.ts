@@ -6,7 +6,7 @@ import {
   provideBrowserGlobalErrorListeners,
   type ApplicationConfig,
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withInMemoryScrolling, withViewTransitions } from '@angular/router';
 
 import { routes } from './app.routes';
 import { provideAppConfig } from './core/config/app-config';
@@ -20,7 +20,14 @@ registerLocaleData(localeFr);
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes),
+    provideRouter(
+      routes,
+      // Transition native entre écrans. Le navigateur qui ne la connaît pas navigue
+      // normalement : rien à prévoir de plus.
+      withViewTransitions(),
+      // Un changement d'écran repart du haut ; un retour arrière retrouve sa position.
+      withInMemoryScrolling({ scrollPositionRestoration: 'enabled', anchorScrolling: 'enabled' }),
+    ),
     provideAppConfig(),
     { provide: LOCALE_ID, useValue: 'fr' },
     provideHttpClient(

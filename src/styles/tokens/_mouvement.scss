@@ -31,3 +31,26 @@
     scroll-behavior: auto !important;
   }
 }
+
+// Transition de route. Discrète par construction : sur un outil de saisie, un écran qui
+// glisse coûte plus d'attention qu'il n'en guide.
+::view-transition-old(root) {
+  animation: fondu-sortie var(--dur-fast) var(--ease-out) both;
+}
+
+::view-transition-new(root) {
+  animation: fondu-entree var(--dur-base) var(--ease-out) both;
+}
+
+@keyframes fondu-sortie {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fondu-entree {
+  from {
+    opacity: 0;
+    transform: translateY(var(--espace-1));
+  }
+}
