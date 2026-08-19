@@ -1,0 +1,18 @@
+<div class="coquille-auth">
+  <header class="coquille-auth__entete">
+    <p class="coquille-auth__marque">Gestion de Stock</p>
+
+    <button
+      type="button"
+      class="coquille-auth__theme"
+      [attr.aria-pressed]="theme.themeApplique() === 'sombre'"
+      (click)="basculerTheme()"
+    >
+      {{ theme.themeApplique() === 'sombre' ? 'Thème clair' : 'Thème sombre' }}
+    </button>
+  </header>
+
+  <main class="coquille-auth__contenu">
+    <router-outlet />
+  </main>
+</div>
