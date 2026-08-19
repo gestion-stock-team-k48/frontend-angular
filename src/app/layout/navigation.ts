@@ -1,8 +1,11 @@
 import { ROLE_ADMIN, type Role } from '../core/api/api-types';
+import type { NomIcone } from '../shared/ui/icone/icone';
 
 export interface EntreeNavigation {
   readonly libelle: string;
   readonly chemin: string;
+  /** Icône de l'entrée. Elle seule reste visible quand la navigation est repliée en rail. */
+  readonly icone: NomIcone;
   /** Rôle requis. Sans rôle, l'entrée est visible de tous les utilisateurs connectés. */
   readonly role?: Role;
   /**
@@ -24,44 +27,88 @@ export interface GroupeNavigation {
 export const NAVIGATION: readonly GroupeNavigation[] = [
   {
     titre: 'Pilotage',
-    entrees: [{ libelle: 'Tableau de bord', chemin: '/tableau-de-bord', disponible: true }],
+    entrees: [
+      {
+        libelle: 'Tableau de bord',
+        chemin: '/tableau-de-bord',
+        icone: 'tableau-de-bord',
+        disponible: true,
+      },
+    ],
   },
   {
     titre: 'Catalogue',
     entrees: [
-      { libelle: 'Articles', chemin: '/articles', disponible: true },
-      { libelle: 'Catégories', chemin: '/categories', disponible: true },
+      { libelle: 'Articles', chemin: '/articles', icone: 'articles', disponible: true },
+      { libelle: 'Catégories', chemin: '/categories', icone: 'categories', disponible: true },
     ],
   },
   {
     titre: 'Stock',
     entrees: [
-      { libelle: 'Mouvements de stock', chemin: '/mouvements-stock', disponible: true },
-      { libelle: 'Alertes de seuil', chemin: '/mouvements-stock/alertes', disponible: true },
+      {
+        libelle: 'Mouvements de stock',
+        chemin: '/mouvements-stock',
+        icone: 'mouvements',
+        disponible: true,
+      },
+      {
+        libelle: 'Alertes de seuil',
+        chemin: '/mouvements-stock/alertes',
+        icone: 'alertes',
+        disponible: true,
+      },
     ],
   },
   {
     titre: 'Tiers',
     entrees: [
-      { libelle: 'Clients', chemin: '/clients', disponible: true },
-      { libelle: 'Fournisseurs', chemin: '/fournisseurs', disponible: true },
+      { libelle: 'Clients', chemin: '/clients', icone: 'clients', disponible: true },
+      { libelle: 'Fournisseurs', chemin: '/fournisseurs', icone: 'fournisseurs', disponible: true },
     ],
   },
   {
     titre: 'Commerce',
     entrees: [
-      { libelle: 'Commandes client', chemin: '/commandes-client', disponible: true },
-      { libelle: 'Commandes fournisseur', chemin: '/commandes-fournisseur', disponible: true },
-      { libelle: 'Ventes', chemin: '/ventes', disponible: true },
+      {
+        libelle: 'Commandes client',
+        chemin: '/commandes-client',
+        icone: 'commande-client',
+        disponible: true,
+      },
+      {
+        libelle: 'Commandes fournisseur',
+        chemin: '/commandes-fournisseur',
+        icone: 'commande-fournisseur',
+        disponible: true,
+      },
+      { libelle: 'Ventes', chemin: '/ventes', icone: 'ventes', disponible: true },
     ],
   },
   {
     titre: 'Administration',
     entrees: [
-      { libelle: 'Entreprise', chemin: '/entreprise', role: ROLE_ADMIN, disponible: true },
-      { libelle: 'Utilisateurs', chemin: '/utilisateurs', role: ROLE_ADMIN, disponible: true },
-      { libelle: 'Mon profil', chemin: '/profil', disponible: true },
-      { libelle: 'Apparence', chemin: '/parametres/apparence', disponible: true },
+      {
+        libelle: 'Entreprise',
+        chemin: '/entreprise',
+        icone: 'entreprise',
+        role: ROLE_ADMIN,
+        disponible: true,
+      },
+      {
+        libelle: 'Utilisateurs',
+        chemin: '/utilisateurs',
+        icone: 'utilisateurs',
+        role: ROLE_ADMIN,
+        disponible: true,
+      },
+      { libelle: 'Mon profil', chemin: '/profil', icone: 'profil', disponible: true },
+      {
+        libelle: 'Apparence',
+        chemin: '/parametres/apparence',
+        icone: 'apparence',
+        disponible: true,
+      },
     ],
   },
 ];

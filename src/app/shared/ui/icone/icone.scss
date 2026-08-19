@@ -1,0 +1,16 @@
+:host {
+  display: inline-flex;
+  flex: none;
+  inline-size: 1.25rem;
+  block-size: 1.25rem;
+}
+
+:host([data-taille='grande']) {
+  inline-size: 1.5rem;
+  block-size: 1.5rem;
+}
+
+svg {
+  inline-size: 100%;
+  block-size: 100%;
+}
