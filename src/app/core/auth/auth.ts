@@ -12,7 +12,7 @@ import {
   throwError,
 } from 'rxjs';
 import { API_BASE_URL } from '../config/app-config';
-import { SANS_JETON, SANS_RAFRAICHISSEMENT } from '../http/http-contexte';
+import { SANS_JETON, SANS_NOTIFICATION_ERREUR, SANS_RAFRAICHISSEMENT } from '../http/http-contexte';
 import type {
   DemandeAuthentification,
   DemandeChangementMotDePasse,
@@ -144,7 +144,9 @@ export class ServiceAuthentification {
   changerMotDePasse(demande: DemandeChangementMotDePasse): Observable<Utilisateur> {
     return this.http
       .post<void>(`${this.baseUrl}/utilisateurs/change-password`, demande, {
-        context: new HttpContext().set(SANS_RAFRAICHISSEMENT, true),
+        context: new HttpContext()
+          .set(SANS_RAFRAICHISSEMENT, true)
+          .set(SANS_NOTIFICATION_ERREUR, true),
       })
       .pipe(switchMap(() => this.chargerUtilisateur()));
   }
@@ -232,5 +234,8 @@ export class ServiceAuthentification {
  * de rafraîchissement si le serveur refuse — le refus est alors la réponse attendue.
  */
 function contexteHorsSession(): HttpContext {
-  return new HttpContext().set(SANS_JETON, true).set(SANS_RAFRAICHISSEMENT, true);
+  return new HttpContext()
+    .set(SANS_JETON, true)
+    .set(SANS_RAFRAICHISSEMENT, true)
+    .set(SANS_NOTIFICATION_ERREUR, true);
 }
