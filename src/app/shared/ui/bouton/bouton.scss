@@ -1,0 +1,103 @@
+:host {
+  display: inline-flex;
+}
+
+.bouton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espace-2);
+  padding: var(--espace-2) var(--espace-4);
+  border: var(--bordure-fine) solid transparent;
+  border-radius: var(--rayon-controle);
+  font-weight: 500;
+  line-height: var(--interligne-serre);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  &--pleine-largeur {
+    inline-size: 100%;
+  }
+
+  &__contenu {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--espace-2);
+    transition: opacity var(--dur-instant) var(--ease-out);
+
+    // Masqué mais toujours présent : c'est lui qui tient la largeur du bouton.
+    &--masque {
+      opacity: 0;
+    }
+  }
+
+  &__indicateur {
+    position: absolute;
+    inline-size: 1rem;
+    block-size: 1rem;
+    border: var(--bordure-epaisse) solid currentcolor;
+    border-block-start-color: transparent;
+    border-radius: var(--rayon-plein);
+    animation: bouton-rotation 700ms linear infinite;
+  }
+
+  &[data-taille='petite'] {
+    padding: var(--espace-1) var(--espace-3);
+    font-size: var(--taille-sm);
+  }
+
+  &[data-variante='primaire'] {
+    background-color: var(--brand);
+    color: var(--brand-contrast);
+
+    &:hover:not(:disabled) {
+      background-color: var(--brand-hover);
+    }
+  }
+
+  &[data-variante='secondaire'] {
+    border-color: var(--border-base);
+    background-color: var(--surface-1);
+    color: var(--text-strong);
+
+    &:hover:not(:disabled) {
+      border-color: var(--border-strong);
+      background-color: var(--surface-2);
+    }
+  }
+
+  &[data-variante='fantome'] {
+    background-color: transparent;
+    color: var(--text-base);
+
+    &:hover:not(:disabled) {
+      background-color: var(--surface-2);
+      color: var(--text-strong);
+    }
+  }
+
+  &[data-variante='danger'] {
+    background-color: var(--state-danger);
+    color: var(--text-inverse);
+
+    &:hover:not(:disabled) {
+      background-color: var(--rouge-700);
+    }
+  }
+}
+
+@keyframes bouton-rotation {
+  to {
+    transform: rotate(360deg);
+  }
+}

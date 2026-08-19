@@ -1,0 +1,33 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espace-1);
+  padding: var(--espace-1) var(--espace-2);
+  border-radius: var(--rayon-1);
+  background-color: var(--surface-2);
+  color: var(--text-base);
+  font-size: var(--taille-xs);
+  font-weight: 500;
+  line-height: var(--interligne-serre);
+  white-space: nowrap;
+}
+
+:host([data-ton='succes']) {
+  background-color: var(--state-success-surface);
+  color: var(--state-success-text);
+}
+
+:host([data-ton='avertissement']) {
+  background-color: var(--state-warning-surface);
+  color: var(--state-warning-text);
+}
+
+:host([data-ton='danger']) {
+  background-color: var(--state-danger-surface);
+  color: var(--state-danger-text);
+}
+
+:host([data-ton='information']) {
+  background-color: var(--state-info-surface);
+  color: var(--state-info-text);
+}
