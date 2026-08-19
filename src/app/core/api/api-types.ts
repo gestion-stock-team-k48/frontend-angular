@@ -20,6 +20,9 @@ export type DemandeCategorie = Schemas['CategoryRequest'];
 export type Article = Schemas['ArticleResponse'];
 export type DemandeArticle = Schemas['ArticleRequest'];
 
+export type StatistiquesTableauDeBord = Schemas['DashboardStatsResponse'];
+export type TopArticleVendu = Schemas['TopArticleVenduResponse'];
+
 export type Entreprise = Schemas['EntrepriseResponse'];
 export type DemandeEntreprise = Schemas['EntrepriseRequest'];
 export type DemandeUtilisateur = Schemas['UtilisateurRequest'];

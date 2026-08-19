@@ -469,3 +469,35 @@ et ADR-019, et un jeton GitLab valide pour pousser.
 225 tests passés, build de production 323,88 ko.
 
 **En attente.** Vérification visuelle des écrans d'administration, et un jeton GitLab valide.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 11 · Tableau de bord
+
+**Branche** : `feat/tableau-de-bord` (depuis `develop`)
+
+**Fait.**
+
+- Écran de pilotage : chiffre d'affaires du mois et total, commandes par état, classement des
+  articles les plus vendus, aperçu des cinq alertes de seuil les plus proches.
+- Racine de l'application redirigée vers le tableau de bord, comme prévu depuis la phase 4.
+- 230 tests.
+
+**Choix de conception.**
+
+- Aucun chiffre n'est recalculé côté navigateur : `GET /dashboard/statistiques` les porte
+  tous. La seule opération faite sur place est la mise à l'échelle des barres du classement.
+- Les alertes de seuil figurent sur le tableau de bord parce que ce sont les seules données
+  auxquelles il faut réagir le jour même. Cinq articles sont détaillés ; au-delà, un compte
+  renvoie à l'écran des alertes plutôt que d'allonger la page.
+- Le chiffre d'affaires du mois porte la couleur de marque : c'est la mesure qu'on vient
+  chercher en ouvrant l'application.
+- Le test de la navigation a changé de sens : il vérifiait qu'une entrée annoncée restait
+  inerte, il vérifie maintenant qu'il n'en reste aucune.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+230 tests passés, build de production 323,98 ko.
+
+**En attente.** Vérification visuelle du tableau de bord. Le plan déduit en ADR-015 s'achève
+ici : la suite appartient au mainteneur — relecture d'ensemble, fusion dans `main` et tag, ou
+reprise des seize écarts backend consignés dans `06-API-CONTRAT.md`.

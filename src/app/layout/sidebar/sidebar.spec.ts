@@ -53,18 +53,17 @@ describe('Sidebar', () => {
     expect(texte).toContain('Articles');
   });
 
-  it('affiche les écrans à venir, mais sans lien cliquable', async () => {
+  it('mène désormais à tous les écrans qu’elle annonce', async () => {
     const fixture = await monter(SIMPLE);
     const racine = fixture.nativeElement as HTMLElement;
 
     const liens = Array.from(racine.querySelectorAll('a')).map((lien) => lien.textContent?.trim());
-    expect(liens).toContain('Apparence');
+    expect(liens).toContain('Tableau de bord');
     expect(liens).toContain('Articles');
-    // Écran non encore livré : l'entrée reste visible, mais n'est pas un lien.
-    expect(liens).not.toContain('Tableau de bord');
+    expect(liens).toContain('Ventes');
 
-    const indisponibles = racine.querySelectorAll('.sidebar__lien--indisponible');
-    expect(indisponibles.length).toBeGreaterThan(0);
+    // Toutes les entrées visibles de ce rôle sont livrées : plus aucune n'est inerte.
+    expect(racine.querySelectorAll('.sidebar__lien--indisponible')).toHaveLength(0);
   });
 
   it('n’affiche aucun groupe vide', async () => {

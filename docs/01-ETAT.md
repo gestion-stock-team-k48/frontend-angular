@@ -1,25 +1,22 @@
 # État courant
 
 - Dernière mise à jour : 2026-08-19 — session 1
-- Phase en cours : 10 · Administration — terminée, en attente de vérification visuelle
-- Branche de travail : feat/administration
-- Dernier commit : voir `git log -1` — tests et documentation de la phase 10
+- Phase en cours : 11 · Tableau de bord — terminée, en attente de vérification visuelle.
+  **C'est la dernière phase du plan déduit (ADR-015).**
+- Branche de travail : feat/tableau-de-bord
+- Dernier commit : voir `git log -1` — tableau de bord et documentation
 - Backend requis démarré : oui — `http://localhost:8080/api/v1`
-- Prochaine action précise : vérifier les écrans d'administration à la main (voir
-  « À vérifier »), puis fusionner dans `develop` et ouvrir la phase 11 · Tableau de bord.
+- Prochaine action précise : vérifier le tableau de bord à la main (voir « À vérifier »),
+  fusionner dans `develop`, puis décider de la suite — relecture d'ensemble des phases 2 à 11,
+  fusion dans `main` et tag, ou reprise des écarts backend signalés.
 
 ## Fait dans cette phase
 
-- `/entreprise` — fiche de l'entreprise courante, réservée aux administrateurs. Pas de logo :
-  aucun endpoint ne l'envoie.
-- `/utilisateurs` — liste paginée, création, modification, suppression. Aucun mot de passe
-  n'est saisi : le serveur en génère un temporaire et l'envoie par email. Les comptes encore
-  porteurs de ce mot de passe sont signalés.
-- `/profil` — « Mon profil » : identité, adresse, envoi de photo. Email et rôles en lecture
-  seule. Le nom dans le bandeau y mène désormais.
-- Deux garde-fous d'interface : pas de suppression de son propre compte, photo limitée au
-  sien (ADR-020).
-- 225 tests.
+- `/tableau-de-bord` : chiffre d'affaires du mois et total, commandes client et fournisseur
+  par état, classement des articles les plus vendus, aperçu des alertes de seuil.
+- La racine de l'application mène désormais au tableau de bord.
+- Dernière entrée de navigation ouverte : plus aucun écran annoncé n'est inerte.
+- 230 tests.
 
 ## Reste à faire dans cette phase
 
@@ -29,22 +26,14 @@
 
     nvm use && npm start
 
-Connecté avec un compte administrateur :
-
-1. `/entreprise` → la fiche est pré-remplie ; modifier la ville, enregistrer, recharger la
-   page : la valeur tient. Un code fiscal déjà pris affiche le message du backend sous le champ.
-2. `/utilisateurs` → créer un compte : aucun champ mot de passe, et le message l'explique.
-   Après création, l'email de mot de passe temporaire arrive dans Mailpit
-   (`http://localhost:8025`).
-3. Le nouveau compte apparaît avec la pastille « Temporaire ».
-4. Se déconnecter, se connecter avec ce compte → l'application impose le changement de mot
-   de passe, puis s'ouvre. Sa ligne passe à « Choisi ».
-5. Avec ce compte non administrateur : `/utilisateurs` et `/entreprise` renvoient vers
-   `/acces-refuse`, et les entrées correspondantes n'apparaissent pas dans la navigation.
-6. `/profil` → modifier le prénom, enregistrer : le bandeau applicatif se met à jour aussitôt.
-7. Envoyer une photo depuis le profil → « Photo enregistrée ». L'image ne peut pas être
-   affichée (écart backend nº 6).
-8. Sur `/utilisateurs`, la ligne du compte courant ne propose pas « Supprimer ».
+1. `/` redirige vers `/tableau-de-bord`.
+2. Les quatre tuiles affichent les chiffres du serveur ; le chiffre d'affaires du mois est
+   mis en avant par la couleur de marque.
+3. Le classement des ventes met le meilleur article à pleine largeur, les autres au prorata.
+4. Un article sous son seuil apparaît dans les alertes, avec sa jauge ; « Tout voir » mène à
+   `/mouvements-stock/alertes`, et cliquer un article mène à son stock.
+5. Sans aucune vente ni aucune alerte, les deux cartes le disent au lieu d'afficher du vide.
+6. La navigation ne contient plus aucune entrée grisée.
 
 ## Points bloquants / en attente de ma validation
 

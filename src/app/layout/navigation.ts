@@ -24,7 +24,7 @@ export interface GroupeNavigation {
 export const NAVIGATION: readonly GroupeNavigation[] = [
   {
     titre: 'Pilotage',
-    entrees: [{ libelle: 'Tableau de bord', chemin: '/tableau-de-bord', disponible: false }],
+    entrees: [{ libelle: 'Tableau de bord', chemin: '/tableau-de-bord', disponible: true }],
   },
   {
     titre: 'Catalogue',
