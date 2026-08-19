@@ -1,0 +1,109 @@
+:host {
+  display: block;
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--z-entete);
+}
+
+.topbar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--espace-4);
+  padding: var(--espace-3) var(--espace-4);
+  border-block-end: var(--bordure-fine) solid var(--border-subtle);
+  background-color: var(--surface-1);
+
+  &__bascule {
+    padding: var(--espace-1) var(--espace-2);
+    border: var(--bordure-fine) solid var(--border-base);
+    border-radius: var(--rayon-controle);
+    background-color: var(--surface-1);
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--surface-2);
+    }
+  }
+
+  &__identite {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
+
+  &__application {
+    color: var(--text-strong);
+    font-family: var(--police-display);
+    font-weight: 500;
+    line-height: var(--interligne-serre);
+  }
+
+  &__entreprise {
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: var(--taille-xs);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__activite {
+    position: absolute;
+    inset-block-end: -1px;
+    inset-inline: 0;
+    block-size: var(--bordure-epaisse);
+    overflow: hidden;
+
+    &::after {
+      position: absolute;
+      inline-size: 40%;
+      block-size: 100%;
+      background-color: var(--brand);
+      content: '';
+      animation: topbar-activite 1.1s var(--ease-in-out) infinite;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--espace-3);
+    margin-inline-start: auto;
+  }
+
+  &__action {
+    padding: var(--espace-1) var(--espace-3);
+    border: var(--bordure-fine) solid var(--border-base);
+    border-radius: var(--rayon-controle);
+    background-color: var(--surface-1);
+    color: var(--text-base);
+    font-size: var(--taille-sm);
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--border-strong);
+      color: var(--text-strong);
+    }
+  }
+
+  &__utilisateur {
+    color: var(--text-base);
+    font-size: var(--taille-sm);
+  }
+}
+
+@media (width <= 48rem) {
+  .topbar__utilisateur {
+    display: none;
+  }
+}
+
+@keyframes topbar-activite {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(350%);
+  }
+}

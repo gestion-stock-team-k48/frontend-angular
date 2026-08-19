@@ -1,0 +1,29 @@
+<nav class="sidebar" aria-label="Navigation principale">
+  @for (groupe of groupes(); track groupe.titre) {
+    <div class="sidebar__groupe">
+      <p class="sidebar__titre" [attr.aria-hidden]="repliee()">{{ groupe.titre }}</p>
+      <ul class="sidebar__liste">
+        @for (entree of groupe.entrees; track entree.chemin) {
+          <li>
+            @if (entree.disponible) {
+              <a
+                class="sidebar__lien"
+                [routerLink]="entree.chemin"
+                routerLinkActive="sidebar__lien--actif"
+                [routerLinkActiveOptions]="{ exact: false }"
+                (click)="fermeture.emit()"
+              >
+                {{ entree.libelle }}
+              </a>
+            } @else {
+              <span class="sidebar__lien sidebar__lien--indisponible">
+                {{ entree.libelle }}
+                <span class="sidebar__bientot">à venir</span>
+              </span>
+            }
+          </li>
+        }
+      </ul>
+    </div>
+  }
+</nav>
