@@ -23,17 +23,22 @@ Hors périmètre :
 - Une application mobile native. L'application web est responsive jusqu'à 360 px, c'est tout.
 - L'internationalisation multi-langue. L'interface est en français, locale `fr`.
 
+## Langue et format
+
+Interface en français, locale `fr`. Devise `XAF` (FCFA), zéro décimale — arbitré en
+session 1. Devise et format monétaire restent portés par un token de configuration.
+
 ## Backend de référence
 
-| | |
-|---|---|
-| Dépôt local | `../gestion-stock-backend` |
-| API REST | `http://localhost:8080/api/v1` |
-| Spécification OpenAPI | `http://localhost:8080/api/v1/v3/api-docs` |
-| Swagger UI | `http://localhost:8080/api/v1/swagger-ui.html` |
-| Authentification | JWT `token` (24 h) + `refreshToken` (7 j), schéma `BearerAuth` |
-| Rôles | `ROLE_ADMIN`, `ROLE_USER` |
-| Multi-tenant | scoping par entreprise assuré côté serveur |
+|                       |                                                                |
+| --------------------- | -------------------------------------------------------------- |
+| Dépôt local           | `../gestion-stock-backend`                                     |
+| API REST              | `http://localhost:8080/api/v1`                                 |
+| Spécification OpenAPI | `http://localhost:8080/api/v1/v3/api-docs`                     |
+| Swagger UI            | `http://localhost:8080/api/v1/swagger-ui.html`                 |
+| Authentification      | JWT `token` (24 h) + `refreshToken` (7 j), schéma `BearerAuth` |
+| Rôles                 | `ROLE_ADMIN`, `ROLE_USER`                                      |
+| Multi-tenant          | scoping par entreprise assuré côté serveur                     |
 
 Infrastructure de développement du backend, à démarrer avec `docker compose up -d` depuis
 `../gestion-stock-backend` : PostgreSQL `5433`, MinIO `9005` (console `9006`), Mailpit SMTP
@@ -60,14 +65,14 @@ branche = un merge dans `develop`. Chaque phase se termine par un rapport, la mi
 
 ## Documents de pilotage
 
-| Fichier | Contenu |
-|---|---|
-| `00-BRIEF.md` | ce document : mission, périmètre |
-| `01-ETAT.md` | état courant — à lire en premier à chaque session |
-| `02-CONVENTIONS.md` | git, code, nommage, structure |
-| `03-INTERDITS.md` | garde-fous |
-| `04-ARCHITECTURE.md` | découpage, flux de données, authentification |
-| `05-DESIGN-SYSTEM.md` | tokens, thème, animations |
-| `06-API-CONTRAT.md` | endpoints, pagination, erreurs |
-| `07-DECISIONS.md` | décisions d'architecture (ADR courts) |
-| `08-JOURNAL.md` | journal daté, append-only |
+| Fichier               | Contenu                                           |
+| --------------------- | ------------------------------------------------- |
+| `00-BRIEF.md`         | ce document : mission, périmètre                  |
+| `01-ETAT.md`          | état courant — à lire en premier à chaque session |
+| `02-CONVENTIONS.md`   | git, code, nommage, structure                     |
+| `03-INTERDITS.md`     | garde-fous                                        |
+| `04-ARCHITECTURE.md`  | découpage, flux de données, authentification      |
+| `05-DESIGN-SYSTEM.md` | tokens, thème, animations                         |
+| `06-API-CONTRAT.md`   | endpoints, pagination, erreurs                    |
+| `07-DECISIONS.md`     | décisions d'architecture (ADR courts)             |
+| `08-JOURNAL.md`       | journal daté, append-only                         |

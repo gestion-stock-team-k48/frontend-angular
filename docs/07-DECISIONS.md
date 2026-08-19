@@ -140,3 +140,30 @@ anti-IA puis délègue à `commitlint`.
 lancer `./scripts/bootstrap.sh`, qui pose `core.hooksPath` et rend les hooks exécutables.
 C'est la contrepartie de la suppression de husky, et l'étape 5 du bootstrap l'affiche
 explicitement. À trancher par le mainteneur s'il préfère l'inverse.
+
+---
+
+## ADR-009 — Arbitrages de direction artistique et de format
+
+**Contexte.** La phase 0 s'est terminée avec cinq points en attente d'arbitrage. Ils ont été
+tranchés en session 1, le 2026-08-19.
+
+**Décisions.**
+
+| Sujet                       | Choix                                                                      |
+| --------------------------- | -------------------------------------------------------------------------- |
+| Typographie                 | Space Grotesk (display) + IBM Plex Sans (texte) + IBM Plex Mono (chiffres) |
+| Couleur d'amorce par défaut | `oklch(0.55 0.13 250)`, bleu-indigo désaturé                               |
+| Devise                      | `XAF` / FCFA, zéro décimale, symbole après le montant                      |
+| Hooks git                   | `.githooks` conservé, husky écarté — confirme ADR-008                      |
+| Dépôt distant               | GitLab, projet créé par le mainteneur ; remote ajouté ensuite              |
+
+**Conséquences.**
+
+- Les trois familles typographiques sont sous licence OFL et seront auto-hébergées en
+  `woff2` dans `public/fonts/` en phase 2. Aucun appel à un CDN : l'application doit se
+  charger sans accès Internet.
+- L'amorce ne concurrence ni le vert, ni l'ambre, ni le rouge de la jauge de seuil. Aucun
+  preset ne sera proposé dans cette plage.
+- Le format monétaire vit dans un token d'injection : une entreprise hors zone CFA change de
+  devise sans modification de code.

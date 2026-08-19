@@ -1,7 +1,8 @@
 # Design system
 
 Ce document fixe l'architecture visuelle. Son implémentation est faite en phase 2 (thème)
-et phase 3 (primitives UI). Les points marqués **[à valider]** attendent une décision.
+et phase 3 (primitives UI). Les arbitrages typographie et couleur d'amorce sont rendus
+(session 1, 2026-08-19) et consignés en ADR-009.
 
 ## Parti pris
 
@@ -10,23 +11,24 @@ parfois mobile en entrepôt. La qualité perçue vient de la lisibilité des chi
 vitesse de saisie et de la clarté des états — pas d'effets décoratifs.
 
 Écartés d'office parce que ce sont des réflexes, pas des choix : fond crème + serif contrasté
-+ accent terracotta ; noir profond + accent vert acide ; dégradés violet-bleu ; cartes KPI
-identiques avec une grosse flèche colorée.
+
+- accent terracotta ; noir profond + accent vert acide ; dégradés violet-bleu ; cartes KPI
+  identiques avec une grosse flèche colorée.
 
 ## Élément signature — la jauge de seuil
 
 Micro-représentation du rapport `stock réel / seuil minimum`, déclinée à trois tailles :
 
-| Taille | Emploi |
-|---|---|
-| `inline` | dans une ligne de tableau, à côté de la quantité |
-| `moyenne` | sur une fiche article |
-| `grande` | sur le tableau de bord, bloc des alertes |
+| Taille    | Emploi                                           |
+| --------- | ------------------------------------------------ |
+| `inline`  | dans une ligne de tableau, à côté de la quantité |
+| `moyenne` | sur une fiche article                            |
+| `grande`  | sur le tableau de bord, bloc des alertes         |
 
 Même grammaire visuelle aux trois tailles. C'est le seul motif fort de l'application ; tout
 le reste autour reste sobre.
 
-## Typographie **[à valider]**
+## Typographie
 
 Trois rôles, polices auto-hébergées dans `public/fonts/`, jamais de CDN externe :
 l'application doit se charger sans accès Internet.
@@ -37,12 +39,22 @@ l'application doit se charger sans accès Internet.
   numériques. `font-variant-numeric: tabular-nums` obligatoire : les chiffres d'un tableau
   s'alignent verticalement.
 
-Deux pairings proposés, en attente d'arbitrage :
+**Choix retenu :**
 
-| | display | texte | monospace | Argument |
-|---|---|---|---|---|
-| 1 | Bricolage Grotesque | Inter | JetBrains Mono | JetBrains Mono distingue nettement `0/O` et `1/l/I`, ce qui compte sur des codes article saisis à la main |
-| 2 | Space Grotesk | IBM Plex Sans | IBM Plex Mono | Plex Sans et Plex Mono sont dessinées ensemble : libellé et colonne chiffrée s'alignent sans réglage |
+| Rôle      | Famille           | Emploi                                                  |
+| --------- | ----------------- | ------------------------------------------------------- |
+| display   | **Space Grotesk** | titres de page, chiffres clés des KPI                   |
+| texte     | **IBM Plex Sans** | toute l'interface                                       |
+| monospace | **IBM Plex Mono** | codes article, quantités, montants, colonnes numériques |
+
+Motif du choix : Plex Sans et Plex Mono sont dessinées ensemble, avec la même hauteur d'x et
+des chasses cohérentes. Un libellé en Plex Sans et une colonne chiffrée en Plex Mono
+s'alignent sans réglage optique, ce qui est exactement le problème d'un écran de stock.
+Space Grotesk apporte des chiffres géométriques marquants là où il en faut, et nulle part
+ailleurs.
+
+Les trois familles sont sous licence OFL et seront auto-hébergées en `woff2` dans
+`public/fonts/`, avec `font-display: swap` et une pile de repli système déclarée.
 
 ## Tokens
 
@@ -54,7 +66,7 @@ Une seule couleur d'amorce (`seed`) par entreprise, d'où est générée une ram
 50 → 950 en **OKLCH** : les écarts de luminosité restent perceptuellement réguliers quelle
 que soit la teinte choisie.
 
-Amorce par défaut proposée **[à valider]** : `oklch(0.55 0.13 250)`, bleu-indigo désaturé.
+Amorce par défaut retenue : **`oklch(0.55 0.13 250)`**, bleu-indigo désaturé.
 La jauge de seuil monopolise le vert, l'ambre et le rouge pour le signal métier ; une marque
 froide et moyennement saturée ne les concurrence jamais et reste supportable huit heures par
 jour. Presets prévus : ardoise, indigo, teal, prune, brique — aucun dans la plage
@@ -83,12 +95,12 @@ mouvement.
 
 Service à base de signaux, exposant :
 
-| Réglage | Valeurs |
-|---|---|
-| mode | `clair` / `sombre` / `système` |
+| Réglage          | Valeurs                                    |
+| ---------------- | ------------------------------------------ |
+| mode             | `clair` / `sombre` / `système`             |
 | couleur d'amorce | n'importe quelle couleur, plus des presets |
-| densité | `confortable` / `compact` (tableaux longs) |
-| rayon global | `net` / `doux` / `arrondi` |
+| densité          | `confortable` / `compact` (tableaux longs) |
+| rayon global     | `net` / `doux` / `arrondi`                 |
 
 Il applique les variables sur `document.documentElement`, persiste dans `localStorage`, et
 respecte `prefers-color-scheme` en mode système. `color-scheme` est déclaré et
@@ -97,6 +109,20 @@ respecte `prefers-color-scheme` en mode système. `color-scheme` est déclaré e
 **Contraste garanti** : à la génération de la palette, le contraste est calculé et
 `--brand-contrast` (texte sur fond de marque) est choisi automatiquement pour rester
 ≥ 4.5:1. Une amorce claire ne doit jamais produire un bouton illisible.
+
+## Format monétaire
+
+Devise par défaut : **`XAF`**, symbole **FCFA**, **zéro décimale** — le franc CFA n'a pas de
+subdivision en usage. Séparateur de milliers : espace insécable étroit. Symbole placé après
+le montant.
+
+```
+Total commande     1 250 000 FCFA
+Prix unitaire          4 500 FCFA
+```
+
+Ces valeurs sont portées par un token d'injection, jamais codées en dur : une entreprise
+déployée hors zone CFA change de devise sans toucher au code.
 
 ## Écran « Apparence »
 
