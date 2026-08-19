@@ -1,40 +1,43 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { describe, expect, it } from 'vitest';
 import { App } from './app';
-import { appConfig } from './app.config';
+import { provideAppConfig } from './core/config/app-config';
+import { ServiceNotifications } from './core/notifications/notifications';
+
+async function monter() {
+  await TestBed.configureTestingModule({
+    imports: [App],
+    providers: [
+      provideRouter([]),
+      provideHttpClient(),
+      provideHttpClientTesting(),
+      provideAppConfig(),
+    ],
+  }).compileComponents();
+
+  const fixture = TestBed.createComponent(App);
+  await fixture.whenStable();
+  return fixture;
+}
 
 describe('App', () => {
-  it('rend la page d’attente du thème', async () => {
-    await TestBed.configureTestingModule({
-      imports: [App],
-      providers: appConfig.providers,
-    }).compileComponents();
+  it('monte la sortie du routeur et la zone de notifications', async () => {
+    const fixture = await monter();
+    const racine = fixture.nativeElement as HTMLElement;
 
-    const fixture = TestBed.createComponent(App);
-    await fixture.whenStable();
-
-    const titre = fixture.nativeElement as HTMLElement;
-    expect(titre.querySelector('h1')?.textContent).toContain('Gestion de Stock');
+    expect(racine.querySelector('app-zone-notifications')).not.toBeNull();
   });
 
-  it('bascule la densité', async () => {
-    await TestBed.configureTestingModule({
-      imports: [App],
-      providers: appConfig.providers,
-    }).compileComponents();
+  it('affiche les notifications poussées depuis le noyau', async () => {
+    const fixture = await monter();
 
-    const fixture = TestBed.createComponent(App);
+    TestBed.inject(ServiceNotifications).erreur('Stock insuffisant pour ART-00187');
     await fixture.whenStable();
 
-    const boutons = Array.from(
-      (fixture.nativeElement as HTMLElement).querySelectorAll('button'),
-    ).filter((bouton) => bouton.textContent?.includes('Densité'));
-
-    expect(boutons[0]?.textContent).toContain('confortable');
-
-    boutons[0]?.click();
-    await fixture.whenStable();
-
-    expect(boutons[0]?.textContent).toContain('compact');
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.textContent).toContain('Stock insuffisant pour ART-00187');
   });
 });
