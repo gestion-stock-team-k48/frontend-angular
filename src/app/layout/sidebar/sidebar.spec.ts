@@ -59,7 +59,9 @@ describe('Sidebar', () => {
 
     const liens = Array.from(racine.querySelectorAll('a')).map((lien) => lien.textContent?.trim());
     expect(liens).toContain('Apparence');
-    expect(liens).not.toContain('Articles');
+    expect(liens).toContain('Articles');
+    // Écran non encore livré : l'entrée reste visible, mais n'est pas un lien.
+    expect(liens).not.toContain('Ventes');
 
     const indisponibles = racine.querySelectorAll('.sidebar__lien--indisponible');
     expect(indisponibles.length).toBeGreaterThan(0);

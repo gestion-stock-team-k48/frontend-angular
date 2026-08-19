@@ -17,6 +17,18 @@ export const routes: Routes = [
     loadComponent: () => import('./layout/shell/shell').then((module) => module.Shell),
     children: [
       {
+        path: 'articles',
+        loadChildren: () =>
+          import('./features/articles/articles.routes').then((module) => module.routesArticles),
+      },
+      {
+        path: 'categories',
+        loadChildren: () =>
+          import('./features/categories/categories.routes').then(
+            (module) => module.routesCategories,
+          ),
+      },
+      {
         path: 'parametres',
         loadChildren: () =>
           import('./features/parametres/parametres.routes').then(
