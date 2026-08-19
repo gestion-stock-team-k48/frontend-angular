@@ -1,0 +1,58 @@
+// Tokens primitifs — jamais consommés directement par un composant.
+// Le code applicatif n'utilise que les tokens sémantiques de _semantiques.scss.
+// La rampe de marque est recalculée à l'exécution par ThemeService à partir de la couleur
+// d'amorce de l'entreprise. Les valeurs ci-dessous sont celles de l'amorce par défaut
+// oklch(0.55 0.13 250) : elles servent au premier rendu, avant que le script ne prenne la
+// main, et de repli si le stockage local est vide. Elles sont produites par le même
+// générateur que celui du service, et un test vérifie qu'elles ne divergent pas.
+
+:root {
+  // Rampe de marque — amorce oklch(0.550 0.130 250.0)
+  --brand-50: oklch(0.971 0.029 250);
+  --brand-100: oklch(0.936 0.047 250);
+  --brand-200: oklch(0.885 0.075 250);
+  --brand-300: oklch(0.828 0.101 250);
+  --brand-400: oklch(0.746 0.121 250);
+  --brand-500: oklch(0.653 0.13 250);
+  --brand-600: oklch(0.563 0.13 250);
+  --brand-700: oklch(0.478 0.122 250);
+  --brand-800: oklch(0.398 0.108 250);
+  --brand-900: oklch(0.322 0.09 250);
+  --brand-950: oklch(0.251 0.072 250);
+
+  // Rampe neutre — teinte légèrement froide, accordée à la marque par défaut sans la suivre.
+  // Un gris parfaitement neutre paraît sale à côté d'une marque colorée.
+  --neutre-0: oklch(1 0 0);
+  --neutre-50: oklch(0.985 0.002 250);
+  --neutre-100: oklch(0.967 0.004 250);
+  --neutre-200: oklch(0.928 0.006 250);
+  --neutre-300: oklch(0.873 0.008 250);
+  --neutre-400: oklch(0.712 0.012 250);
+  --neutre-500: oklch(0.556 0.014 250);
+  --neutre-600: oklch(0.446 0.014 250);
+  --neutre-700: oklch(0.372 0.013 250);
+  --neutre-800: oklch(0.279 0.011 250);
+  --neutre-900: oklch(0.212 0.009 250);
+  --neutre-950: oklch(0.155 0.008 250);
+
+  // Couleurs d'état. Fixes : elles portent un sens, elles ne suivent pas la marque.
+  --vert-100: oklch(0.94 0.05 150);
+  --vert-500: oklch(0.62 0.15 150);
+  --vert-700: oklch(0.48 0.13 150);
+  --vert-900: oklch(0.3 0.08 150);
+
+  --ambre-100: oklch(0.95 0.06 85);
+  --ambre-500: oklch(0.75 0.16 85);
+  --ambre-700: oklch(0.58 0.14 85);
+  --ambre-900: oklch(0.35 0.09 85);
+
+  --rouge-100: oklch(0.94 0.04 25);
+  --rouge-500: oklch(0.58 0.2 25);
+  --rouge-700: oklch(0.48 0.18 25);
+  --rouge-900: oklch(0.3 0.11 25);
+
+  --bleu-100: oklch(0.94 0.04 235);
+  --bleu-500: oklch(0.6 0.14 235);
+  --bleu-700: oklch(0.48 0.13 235);
+  --bleu-900: oklch(0.3 0.08 235);
+}

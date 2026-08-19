@@ -71,7 +71,22 @@ Avant toute action, lis dans l'ordre :
 1. docs/01-ETAT.md
 2. docs/03-INTERDITS.md
 3. docs/02-CONVENTIONS.md
+
 Puis résume l'état en 5 lignes et attends le feu vert.
+
+## Reprise après interruption
+
+`docs/01-ETAT.md` est mis à jour à chaque étape, pas seulement en fin de phase :
+il décrit toujours un état réel, y compris au milieu d'une phase. La ligne
+« Prochaine action précise » indique exactement où reprendre.
+
+Si le mainteneur a laissé la consigne de continuer sans lui, reprendre à cette
+ligne sans redemander de feu vert, et continuer à mettre à jour ce fichier à
+chaque étape terminée.
+
+Commande de reprise :
+
+    nvm use && ./scripts/etat.sh
 PENSE_BETE
   detail "CLAUDE.md régénéré depuis docs/00-BRIEF.md."
   consigner "Pense-bête local" "régénéré" "OK"
