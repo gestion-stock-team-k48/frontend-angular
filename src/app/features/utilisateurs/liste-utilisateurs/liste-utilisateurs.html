@@ -1,0 +1,113 @@
+<section class="utilisateurs">
+  <header class="utilisateurs__entete">
+    <div>
+      <h1 class="utilisateurs__titre">Utilisateurs</h1>
+      <p class="utilisateurs__sous-titre">
+        Les comptes de l'entreprise. Créer un compte envoie un mot de passe temporaire par email ;
+        son titulaire devra le remplacer à sa première connexion.
+      </p>
+    </div>
+
+    <a class="utilisateurs__action" routerLink="/utilisateurs/nouveau">Nouvel utilisateur</a>
+  </header>
+
+  <app-tableau
+    [colonnes]="colonnes"
+    [etat]="etat()"
+    [tri]="tri()"
+    libelleActions="Actions"
+    (triChange)="changerTri($event)"
+  >
+    @for (utilisateur of utilisateurs(); track utilisateur.id) {
+      <tr>
+        <td>{{ utilisateur.nom }}</td>
+        <td>{{ utilisateur.prenom }}</td>
+        <td>{{ utilisateur.email }}</td>
+        <td>
+          @for (role of utilisateur.roles ?? []; track role) {
+            <app-badge [ton]="role === 'ROLE_ADMIN' ? 'information' : 'neutre'">
+              {{ libelleRole(role) }}
+            </app-badge>
+          }
+        </td>
+        <td>
+          @if (utilisateur.mustChangePassword) {
+            <app-badge ton="avertissement">Temporaire</app-badge>
+          } @else {
+            <span class="utilisateurs__discret">Choisi</span>
+          }
+        </td>
+        <td data-alignement="fin">
+          <div class="utilisateurs__actions">
+            <a class="utilisateurs__lien" [routerLink]="['/utilisateurs', utilisateur.id]">
+              Modifier
+            </a>
+            @if (!estMoi(utilisateur)) {
+              <app-bouton taille="petite" variante="danger" (presse)="aSupprimer.set(utilisateur)">
+                Supprimer
+              </app-bouton>
+            }
+          </div>
+        </td>
+      </tr>
+    }
+
+    <div zoneEtat>
+      @if (etat() === 'erreur') {
+        <app-etat-vide
+          titre="Les utilisateurs n'ont pas pu être chargés"
+          message="Le serveur n'a pas répondu comme attendu."
+          ton="erreur"
+        >
+          <app-bouton (presse)="reessayer()">Réessayer</app-bouton>
+        </app-etat-vide>
+      } @else {
+        <app-etat-vide
+          titre="Aucun utilisateur"
+          message="Seul le compte administrateur créé à l'inscription existe pour l'instant."
+        >
+          <a class="utilisateurs__action" routerLink="/utilisateurs/nouveau">Nouvel utilisateur</a>
+        </app-etat-vide>
+      }
+    </div>
+  </app-tableau>
+
+  @if (etat() === 'pret') {
+    <app-pagination
+      [etat]="etatPage()"
+      (pageChange)="page.set($event)"
+      (tailleChange)="changerTaille($event)"
+    />
+  }
+</section>
+
+<app-modale
+  [ouverte]="aSupprimer() !== null"
+  titre="Supprimer l'utilisateur"
+  [bloquante]="suppressionEnCours()"
+  (fermeture)="aSupprimer.set(null)"
+>
+  @if (aSupprimer(); as utilisateur) {
+    <p class="utilisateurs__confirmation">
+      Le compte de « {{ utilisateur.prenom }} {{ utilisateur.nom }} » sera supprimé. Cette personne
+      perdra aussitôt l'accès à l'application.
+    </p>
+
+    <div class="utilisateurs__actions utilisateurs__actions--fin">
+      <app-bouton
+        variante="fantome"
+        [desactive]="suppressionEnCours()"
+        (presse)="aSupprimer.set(null)"
+      >
+        Annuler
+      </app-bouton>
+      <app-bouton
+        variante="danger"
+        [chargement]="suppressionEnCours()"
+        (presse)="confirmerSuppression()"
+      >
+        Supprimer
+      </app-bouton>
+    </div>
+  }
+</app-modale>

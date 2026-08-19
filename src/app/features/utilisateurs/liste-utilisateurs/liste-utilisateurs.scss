@@ -1,0 +1,61 @@
+.utilisateurs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-4);
+
+  &__entete {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--espace-3);
+  }
+
+  &__titre {
+    color: var(--text-strong);
+    font-family: var(--police-display);
+    font-size: var(--taille-xl);
+  }
+
+  &__sous-titre {
+    max-inline-size: 62ch;
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+  }
+
+  &__action {
+    padding: var(--espace-2) var(--espace-4);
+    border-radius: var(--rayon-controle);
+    background-color: var(--brand);
+    color: var(--brand-contrast);
+    font-size: var(--taille-sm);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  &__lien {
+    color: var(--brand);
+    font-size: var(--taille-sm);
+  }
+
+  &__discret {
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--espace-3);
+
+    &--fin {
+      margin-block-start: var(--espace-4);
+    }
+  }
+
+  &__confirmation {
+    max-inline-size: 46ch;
+    color: var(--text-base);
+  }
+}

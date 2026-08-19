@@ -1,0 +1,107 @@
+<section class="profil">
+  <header class="profil__entete">
+    <div>
+      <h1 class="profil__titre">Mon profil</h1>
+      <p class="profil__sous-titre">{{ utilisateur()?.email }}</p>
+    </div>
+
+    <div class="profil__roles">
+      @for (role of utilisateur()?.roles ?? []; track role) {
+        <app-badge [ton]="role === 'ROLE_ADMIN' ? 'information' : 'neutre'">
+          {{ libelleRole(role) }}
+        </app-badge>
+      }
+    </div>
+  </header>
+
+  @if (message(); as texte) {
+    <p class="profil__bandeau" role="alert">{{ texte }}</p>
+  }
+
+  <form class="profil__carte" (submit)="$event.preventDefault(); enregistrer()">
+    <div class="profil__groupe">
+      <app-champ libelle="Nom" identifiant="profil-nom" [requis]="true" [erreur]="erreurNom()">
+        <input
+          id="profil-nom"
+          type="text"
+          autocomplete="family-name"
+          [formField]="formulaire.nom"
+        />
+      </app-champ>
+
+      <app-champ
+        libelle="Prénom"
+        identifiant="profil-prenom"
+        [requis]="true"
+        [erreur]="erreurPrenom()"
+      >
+        <input
+          id="profil-prenom"
+          type="text"
+          autocomplete="given-name"
+          [formField]="formulaire.prenom"
+        />
+      </app-champ>
+
+      <app-champ libelle="Date de naissance" identifiant="profil-naissance" [erreur]="erreurDate()">
+        <input id="profil-naissance" type="date" [formField]="formulaire.dateDeNaissance" />
+      </app-champ>
+    </div>
+
+    <div class="profil__groupe">
+      <app-champ libelle="Rue" identifiant="profil-rue" [erreur]="erreurRue()">
+        <input id="profil-rue" type="text" [formField]="formulaire.rue" />
+      </app-champ>
+
+      <app-champ libelle="Ville" identifiant="profil-ville" [erreur]="erreurVille()">
+        <input id="profil-ville" type="text" [formField]="formulaire.ville" />
+      </app-champ>
+
+      <app-champ
+        libelle="Code postal"
+        identifiant="profil-code-postal"
+        [erreur]="erreurCodePostal()"
+      >
+        <input id="profil-code-postal" type="text" [formField]="formulaire.codePostal" />
+      </app-champ>
+
+      <app-champ libelle="Pays" identifiant="profil-pays" [erreur]="erreurPays()">
+        <input id="profil-pays" type="text" [formField]="formulaire.pays" />
+      </app-champ>
+    </div>
+
+    <p class="profil__aide">
+      L'email et les rôles ne se modifient pas ici : un administrateur les change depuis l'écran
+      Utilisateurs.
+    </p>
+
+    <div class="profil__actions">
+      <a class="profil__lien" routerLink="/changer-mot-de-passe">Changer le mot de passe</a>
+      <app-bouton type="submit" variante="primaire" [chargement]="enCours()"
+        >Enregistrer</app-bouton
+      >
+    </div>
+  </form>
+
+  <section class="profil__carte">
+    <h2 class="profil__sous-titre-fort">Photo</h2>
+
+    <p class="profil__aide">
+      @if (utilisateur()?.photo; as photo) {
+        Une photo est enregistrée sous « {{ photo }} ». Le backend ne publie aucun endpoint pour la
+        relire : l'interface ne peut donc pas l'afficher.
+      } @else {
+        Aucune photo enregistrée.
+      }
+    </p>
+
+    <input
+      id="profil-photo"
+      type="file"
+      accept="image/*"
+      aria-label="Choisir une photo à envoyer"
+      [disabled]="photoEnvoi()"
+      (change)="envoyerPhoto($event)"
+    />
+  </section>
+</section>
