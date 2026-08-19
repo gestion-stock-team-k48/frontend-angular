@@ -50,6 +50,8 @@ de CORS avec `ng serve`.
   une redirection vers la connexion avec `returnUrl`.
 - `POST /auth/refresh-token` attend le jeton de rafraîchissement dans l'en-tête
   `Authorization` de la requête, pas dans un corps JSON (voir `06-API-CONTRAT.md`).
+- Les rôles et l'entreprise courante viennent de `GET /utilisateurs/me`, pas du contenu du
+  jeton : le profil est la source de vérité, et le jeton n'est jamais décodé côté client.
 
 ## Guards
 
@@ -58,6 +60,25 @@ Le rôle conditionne aussi l'affichage via la directive `*appHasRole`.
 
 **L'interface ne remplace jamais la sécurité serveur.** Masquer un bouton n'est pas protéger
 une action.
+
+## Ordre des intercepteurs
+
+Déclarés dans `app.config.ts` dans cet ordre : chargement, erreurs, authentification,
+rafraîchissement. **L'ordre s'inverse au retour** — le premier de la liste traite la requête
+en premier, mais voit l'erreur en dernier.
+
+```
+requête : chargement → erreurs → authentification → rafraîchissement → réseau
+erreur  : rafraîchissement (rejoue) → erreurs (traduit) → chargement (referme)
+```
+
+Conséquence voulue : une erreur n'est traduite et notifiée qu'après l'échec du
+rafraîchissement, et le compteur de chargement ne retombe qu'une fois les tentatives
+épuisées.
+
+Une requête s'exclut d'un intercepteur par un marqueur de contexte
+(`SANS_JETON`, `SANS_RAFRAICHISSEMENT`, `SANS_INDICATEUR_CHARGEMENT`), jamais par un
+filtrage d'URL : explicite à la lecture, et insensible aux changements de chemin.
 
 ## Gestion des erreurs
 
