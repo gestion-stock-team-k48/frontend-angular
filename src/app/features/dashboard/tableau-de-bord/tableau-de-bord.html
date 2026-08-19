@@ -1,0 +1,141 @@
+<section class="bord">
+  <header class="bord__entete">
+    <div>
+      <h1 class="bord__titre">Tableau de bord</h1>
+      <p class="bord__sous-titre">
+        Les chiffres du serveur, et ce qui demande une décision aujourd'hui.
+      </p>
+    </div>
+  </header>
+
+  @if (indisponible()) {
+    <app-etat-vide
+      titre="Les statistiques n'ont pas pu être chargées"
+      message="Le serveur n'a pas répondu comme attendu."
+      ton="erreur"
+    >
+      <app-bouton (presse)="reessayer()">Réessayer</app-bouton>
+    </app-etat-vide>
+  } @else {
+    <div class="bord__tuiles">
+      <article class="bord__tuile bord__tuile--forte">
+        <p class="bord__mesure">Chiffre d'affaires du mois</p>
+        @if (chargement()) {
+          <app-squelette hauteur="2rem" />
+        } @else {
+          <p class="bord__valeur" data-numerique>
+            {{ stats().chiffreAffairesMoisCourant | montant }}
+          </p>
+        }
+      </article>
+
+      <article class="bord__tuile">
+        <p class="bord__mesure">Chiffre d'affaires total</p>
+        @if (chargement()) {
+          <app-squelette hauteur="2rem" />
+        } @else {
+          <p class="bord__valeur" data-numerique>{{ stats().chiffreAffairesTotal | montant }}</p>
+        }
+      </article>
+
+      <article class="bord__tuile">
+        <p class="bord__mesure">Commandes client</p>
+        @if (chargement()) {
+          <app-squelette hauteur="2rem" />
+        } @else {
+          <p class="bord__valeur" data-numerique>{{ stats().commandesClientEnCours ?? 0 }}</p>
+          <p class="bord__detail">en cours · {{ stats().commandesClientLivrees ?? 0 }} livrées</p>
+        }
+      </article>
+
+      <article class="bord__tuile">
+        <p class="bord__mesure">Commandes fournisseur</p>
+        @if (chargement()) {
+          <app-squelette hauteur="2rem" />
+        } @else {
+          <p class="bord__valeur" data-numerique>{{ stats().commandesFournisseurEnCours ?? 0 }}</p>
+          <p class="bord__detail">
+            en cours · {{ stats().commandesFournisseurLivrees ?? 0 }} livrées
+          </p>
+        }
+      </article>
+    </div>
+
+    <div class="bord__colonnes">
+      <section class="bord__carte">
+        <header class="bord__carte-entete">
+          <h2 class="bord__carte-titre">Alertes de seuil</h2>
+          <a class="bord__lien" routerLink="/mouvements-stock/alertes">Tout voir</a>
+        </header>
+
+        @if (alertesChargent()) {
+          <app-squelette hauteur="6rem" forme="bloc" />
+        } @else if (alertes().length === 0) {
+          <p class="bord__aide">
+            Aucun article sous son seuil. Rien à réapprovisionner aujourd'hui.
+          </p>
+        } @else {
+          <ul class="bord__alertes">
+            @for (alerte of alertesEnApercu(); track alerte.articleId) {
+              <li class="bord__alerte">
+                <a
+                  class="bord__lien-fort"
+                  [routerLink]="['/mouvements-stock/article', alerte.articleId]"
+                >
+                  {{ alerte.designation }}
+                </a>
+                <app-jauge-seuil
+                  [stock]="alerte.quantiteStock ?? 0"
+                  [seuil]="alerte.seuilMinimum ?? 0"
+                  [article]="alerte.designation ?? null"
+                />
+                <span class="bord__chiffre" data-numerique>
+                  {{ alerte.quantiteStock | quantite }} / {{ alerte.seuilMinimum | quantite }}
+                </span>
+              </li>
+            }
+          </ul>
+
+          @if (alertesRestantes() > 0) {
+            <p class="bord__aide">
+              et {{ alertesRestantes() }} autre{{ alertesRestantes() > 1 ? 's' : '' }} article{{
+                alertesRestantes() > 1 ? 's' : ''
+              }}
+              sous leur seuil.
+            </p>
+          }
+        }
+      </section>
+
+      <section class="bord__carte">
+        <header class="bord__carte-entete">
+          <h2 class="bord__carte-titre">Articles les plus vendus</h2>
+          <a class="bord__lien" routerLink="/ventes">Voir les ventes</a>
+        </header>
+
+        @if (chargement()) {
+          <app-squelette hauteur="6rem" forme="bloc" />
+        } @else if (topArticles().length === 0) {
+          <p class="bord__aide">Aucune vente enregistrée pour l'instant.</p>
+        } @else {
+          <ul class="bord__classement">
+            @for (article of topArticles(); track article.articleId) {
+              <li class="bord__rang">
+                <span class="bord__rang-nom">{{ article.designation }}</span>
+                <span class="bord__barre" aria-hidden="true">
+                  <span
+                    class="bord__barre-part"
+                    [style.inline-size.%]="proportion(article.quantiteVendue)"
+                  ></span>
+                </span>
+                <span class="bord__chiffre" data-numerique>
+                  {{ article.quantiteVendue | quantite }}
+                </span>
+              </li>
+            }
+          </ul>
+        }
+      </section>
+    </div>
+  }
+</section>

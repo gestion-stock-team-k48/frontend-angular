@@ -1,0 +1,147 @@
+.bord {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-5);
+
+  &__entete {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--espace-3);
+  }
+
+  &__titre {
+    color: var(--text-strong);
+    font-family: var(--police-display);
+    font-size: var(--taille-xl);
+  }
+
+  &__sous-titre {
+    max-inline-size: 60ch;
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+  }
+
+  &__tuiles {
+    display: grid;
+    gap: var(--espace-4);
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  }
+
+  &__tuile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-2);
+    padding: var(--espace-4);
+    border: var(--bordure-fine) solid var(--border-subtle);
+    border-radius: var(--rayon-carte);
+    background-color: var(--surface-1);
+
+    // La mesure du mois est celle qu'on vient chercher : elle porte la couleur de marque.
+    &--forte {
+      border-color: var(--brand);
+    }
+  }
+
+  &__mesure {
+    color: var(--text-muted);
+    font-size: var(--taille-xs);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  &__valeur {
+    color: var(--text-strong);
+    font-family: var(--police-display);
+    font-size: var(--taille-lg);
+    font-weight: 600;
+  }
+
+  &__detail,
+  &__aide {
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+  }
+
+  &__colonnes {
+    display: grid;
+    gap: var(--espace-4);
+    grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  }
+
+  &__carte {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-3);
+    padding: var(--espace-5);
+    border: var(--bordure-fine) solid var(--border-subtle);
+    border-radius: var(--rayon-carte);
+    background-color: var(--surface-1);
+  }
+
+  &__carte-entete {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--espace-3);
+  }
+
+  &__carte-titre {
+    color: var(--text-strong);
+    font-size: var(--taille-md);
+    font-weight: 600;
+  }
+
+  &__alertes,
+  &__classement {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-3);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  &__alerte,
+  &__rang {
+    display: grid;
+    align-items: center;
+    gap: var(--espace-3);
+    grid-template-columns: minmax(6rem, 1fr) minmax(5rem, 1fr) auto;
+  }
+
+  &__rang-nom {
+    color: var(--text-base);
+  }
+
+  &__barre {
+    display: block;
+    overflow: hidden;
+    block-size: var(--espace-2);
+    border-radius: var(--rayon-plein);
+    background-color: var(--surface-3);
+  }
+
+  &__barre-part {
+    display: block;
+    block-size: 100%;
+    border-radius: var(--rayon-plein);
+    background-color: var(--brand);
+  }
+
+  &__chiffre {
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+  }
+
+  &__lien {
+    color: var(--brand);
+    font-size: var(--taille-sm);
+  }
+
+  &__lien-fort {
+    color: var(--text-strong);
+    text-decoration: none;
+  }
+}
