@@ -43,8 +43,8 @@ export const NAVIGATION: readonly GroupeNavigation[] = [
   {
     titre: 'Tiers',
     entrees: [
-      { libelle: 'Clients', chemin: '/clients', disponible: false },
-      { libelle: 'Fournisseurs', chemin: '/fournisseurs', disponible: false },
+      { libelle: 'Clients', chemin: '/clients', disponible: true },
+      { libelle: 'Fournisseurs', chemin: '/fournisseurs', disponible: true },
     ],
   },
   {

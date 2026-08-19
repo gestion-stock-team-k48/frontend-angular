@@ -13,7 +13,8 @@ async function monter() {
   await TestBed.configureTestingModule({
     imports: [ChangerMotDePasse],
     providers: [
-      provideRouter([]),
+      // Une route attrape-tout : ces écrans naviguent après l'enregistrement.
+      provideRouter([{ path: '**', children: [] }]),
       provideHttpClient(),
       provideHttpClientTesting(),
       provideAppConfig(),
