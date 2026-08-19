@@ -346,3 +346,29 @@ parcourt tout le catalogue.
 échange, aucune requête en éventail, et rien qui prétende exister côté serveur sans exister.
 Le jour où le backend publie une liste globale — paginée, filtrable par article et par date —
 l'écran de choix devient cette liste, et le reste ne bouge pas.
+
+---
+
+## ADR-018 — Clients et fournisseurs partagent leurs écrans, pas leur module
+
+**Contexte.** `ClientRequest` et `FournisseurRequest` déclarent exactement les mêmes champs,
+avec les mêmes contraintes : nom, prénom, email, téléphone, adresse, photo. Leurs réponses
+se ressemblent autant, et leurs endpoints ne diffèrent que par leur racine. Écrire deux fois
+la même liste et le même formulaire, c'était garantir qu'ils divergeraient à la première
+retouche.
+
+**Décision.** Les deux écrans réutilisables vivent dans `shared/tiers` : `ListeTiers` et
+`FormulaireTiers`, plus les règles de saisie communes. Ils ne construisent aucune URL et
+n'injectent aucun service d'API — l'écran qui les accueille leur passe ce qu'il faut appeler,
+sous forme de fonction. `features/clients` et `features/fournisseurs` gardent chacun leur
+service d'accès, leurs routes et deux composants d'assemblage de quelques lignes.
+
+**Conséquence.** La règle « aucune feature n'importe une autre feature » tient : l'échange
+passe par `shared`, comme prévu. La règle « `shared/ui` ne consomme aucun service » tient
+aussi — ces composants ne sont pas dans `shared/ui`, et le seul service qu'ils touchent est
+la file de notifications, déjà admise pour `ZoneNotifications` (ADR-012).
+
+Le jour où l'un des deux modules s'éloigne de l'autre — un fournisseur qui gagnerait un délai
+de livraison, par exemple — la sortie est simple : le module concerné cesse d'utiliser le
+composant partagé et écrit le sien. C'est un partage par constat, pas une abstraction posée
+d'avance.

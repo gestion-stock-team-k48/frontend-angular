@@ -22,6 +22,18 @@ export const routes: Routes = [
           import('./features/articles/articles.routes').then((module) => module.routesArticles),
       },
       {
+        path: 'clients',
+        loadChildren: () =>
+          import('./features/clients/clients.routes').then((module) => module.routesClients),
+      },
+      {
+        path: 'fournisseurs',
+        loadChildren: () =>
+          import('./features/fournisseurs/fournisseurs.routes').then(
+            (module) => module.routesFournisseurs,
+          ),
+      },
+      {
         path: 'mouvements-stock',
         loadChildren: () =>
           import('./features/mouvements-stock/mouvements-stock.routes').then(

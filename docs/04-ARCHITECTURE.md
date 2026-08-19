@@ -11,6 +11,8 @@ src/app/
 │   └── config/           # tokens d'injection : apiBaseUrl, locale, devise
 ├── shared/
 │   ├── ui/               # design system : bouton, champ, table, modale, toast, badge, jauge
+│   ├── formulaires/      # répartition des erreurs serveur entre champs et bandeau
+│   ├── tiers/            # liste et formulaire communs aux clients et aux fournisseurs
 │   ├── directives/       # permissions, formatage, autofocus
 │   └── pipes/            # montant, quantité, date relative, état de commande
 ├── layout/               # shell : topbar, sidebar, fil d'Ariane, zone de contenu
@@ -153,6 +155,16 @@ motif, obligatoire côté serveur, accompagne une correction.
 
 Faute de liste globale des mouvements côté backend, la section s'ouvre sur le choix d'un
 article (ADR-017).
+
+## Tiers
+
+Clients et fournisseurs se décrivent avec les mêmes champs et les mêmes contraintes. Leur
+liste et leur formulaire sont donc écrits une fois, dans `shared/tiers`, et reçoivent ce qui
+les distingue : libellés, chemin, endpoint, et la fonction à appeler pour enregistrer ou
+supprimer. Aucune URL n'y est construite (ADR-018).
+
+Les champs facultatifs laissés vides sont omis de la requête plutôt qu'envoyés en chaîne
+vide : une adresse absente n'est pas une adresse vide.
 
 ## Shell applicatif
 

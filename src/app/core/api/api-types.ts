@@ -20,6 +20,11 @@ export type DemandeCategorie = Schemas['CategoryRequest'];
 export type Article = Schemas['ArticleResponse'];
 export type DemandeArticle = Schemas['ArticleRequest'];
 
+export type Client = Schemas['ClientResponse'];
+export type DemandeClient = Schemas['ClientRequest'];
+export type Fournisseur = Schemas['FournisseurResponse'];
+export type DemandeFournisseur = Schemas['FournisseurRequest'];
+
 export type MouvementStock = Schemas['MvtStkResponse'];
 export type DemandeMouvementStock = Schemas['MvtStkRequest'];
 export type DemandeCorrectionStock = Schemas['MvtStkCorrectionRequest'];

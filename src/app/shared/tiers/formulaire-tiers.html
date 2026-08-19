@@ -1,0 +1,104 @@
+<form class="formulaire-tiers" (submit)="$event.preventDefault(); enregistrer()">
+  @if (message(); as texte) {
+    <p class="formulaire-tiers__bandeau" role="alert">{{ texte }}</p>
+  }
+
+  <div class="formulaire-tiers__groupe">
+    <app-champ libelle="Nom" identifiant="tiers-nom" [requis]="true" [erreur]="erreurNom()">
+      <input id="tiers-nom" type="text" autocomplete="family-name" [formField]="formulaire.nom" />
+    </app-champ>
+
+    <app-champ
+      libelle="Prénom"
+      identifiant="tiers-prenom"
+      [requis]="true"
+      [erreur]="erreurPrenom()"
+    >
+      <input
+        id="tiers-prenom"
+        type="text"
+        autocomplete="given-name"
+        [formField]="formulaire.prenom"
+      />
+    </app-champ>
+
+    <app-champ libelle="Email" identifiant="tiers-email" [requis]="true" [erreur]="erreurEmail()">
+      <input id="tiers-email" type="email" autocomplete="email" [formField]="formulaire.email" />
+    </app-champ>
+
+    <app-champ libelle="Téléphone" identifiant="tiers-telephone" [erreur]="erreurTelephone()">
+      <input id="tiers-telephone" type="tel" autocomplete="tel" [formField]="formulaire.numTel" />
+    </app-champ>
+  </div>
+
+  <div class="formulaire-tiers__groupe">
+    <app-champ libelle="Rue" identifiant="tiers-rue" [erreur]="erreurRue()">
+      <input
+        id="tiers-rue"
+        type="text"
+        autocomplete="street-address"
+        [formField]="formulaire.rue"
+      />
+    </app-champ>
+
+    <app-champ libelle="Ville" identifiant="tiers-ville" [erreur]="erreurVille()">
+      <input
+        id="tiers-ville"
+        type="text"
+        autocomplete="address-level2"
+        [formField]="formulaire.ville"
+      />
+    </app-champ>
+
+    <app-champ libelle="Code postal" identifiant="tiers-code-postal" [erreur]="erreurCodePostal()">
+      <input
+        id="tiers-code-postal"
+        type="text"
+        autocomplete="postal-code"
+        [formField]="formulaire.codePostal"
+      />
+    </app-champ>
+
+    <app-champ libelle="Pays" identifiant="tiers-pays" [erreur]="erreurPays()">
+      <input
+        id="tiers-pays"
+        type="text"
+        autocomplete="country-name"
+        [formField]="formulaire.pays"
+      />
+    </app-champ>
+  </div>
+
+  <div class="formulaire-tiers__actions">
+    <app-bouton variante="fantome" [desactive]="enCours()" (presse)="annule.emit()">
+      Annuler
+    </app-bouton>
+    <app-bouton type="submit" variante="primaire" [chargement]="enCours()">
+      {{ libelleEnregistrer() }}
+    </app-bouton>
+  </div>
+</form>
+
+@if (envoyerPhoto() !== null) {
+  <section class="formulaire-tiers__photo">
+    <h2 class="formulaire-tiers__sous-titre">Photo</h2>
+
+    <p class="formulaire-tiers__aide">
+      @if (photoEnregistree(); as photo) {
+        Une photo est enregistrée sous « {{ photo }} ». Le backend ne publie aucun endpoint pour la
+        relire : l'interface ne peut donc pas l'afficher.
+      } @else {
+        Aucune photo enregistrée.
+      }
+    </p>
+
+    <input
+      id="tiers-photo"
+      type="file"
+      accept="image/*"
+      aria-label="Choisir une photo à envoyer"
+      [disabled]="photoEnvoi()"
+      (change)="choisirPhoto($event)"
+    />
+  </section>
+}
