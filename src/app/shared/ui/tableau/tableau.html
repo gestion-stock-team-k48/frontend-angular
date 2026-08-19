@@ -1,0 +1,59 @@
+<div class="tableau__defilement">
+  <table class="tableau">
+    <thead>
+      <tr>
+        @for (colonne of colonnes(); track colonne.cle) {
+          <th
+            scope="col"
+            [attr.data-alignement]="colonne.alignement ?? 'debut'"
+            [attr.aria-sort]="colonne.triable ? ordre(colonne) : null"
+          >
+            @if (colonne.triable) {
+              <button type="button" class="tableau__tri" (click)="basculerTri(colonne)">
+                {{ colonne.libelle }}
+                <span class="tableau__fleche" aria-hidden="true">
+                  {{
+                    ordre(colonne) === 'ascending'
+                      ? '↑'
+                      : ordre(colonne) === 'descending'
+                        ? '↓'
+                        : ''
+                  }}
+                </span>
+              </button>
+            } @else {
+              {{ colonne.libelle }}
+            }
+          </th>
+        }
+
+        @if (libelleActions(); as libelle) {
+          <th scope="col" data-alignement="fin">{{ libelle }}</th>
+        }
+      </tr>
+    </thead>
+
+    <tbody>
+      @if (etat() === 'chargement') {
+        @for (rang of rangs(); track rang) {
+          <tr>
+            @for (colonne of colonnes(); track colonne.cle) {
+              <td><app-squelette /></td>
+            }
+            @if (libelleActions()) {
+              <td><app-squelette /></td>
+            }
+          </tr>
+        }
+      } @else if (afficheLignes()) {
+        <ng-content />
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (afficheEtat()) {
+  <div class="tableau__zone-etat">
+    <ng-content select="[zoneEtat]" />
+  </div>
+}
