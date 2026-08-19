@@ -22,6 +22,13 @@ export const routes: Routes = [
           import('./features/articles/articles.routes').then((module) => module.routesArticles),
       },
       {
+        path: 'tableau-de-bord',
+        loadChildren: () =>
+          import('./features/dashboard/dashboard.routes').then(
+            (module) => module.routesTableauDeBord,
+          ),
+      },
+      {
         path: 'commandes-client',
         loadChildren: () =>
           import('./features/commandes-client/commandes-client.routes').then(
@@ -101,11 +108,10 @@ export const routes: Routes = [
           import('./features/erreurs/acces-refuse').then((module) => module.AccesRefuse),
       },
       {
-        // Le tableau de bord prendra la racine en phase 11. En attendant, la racine mène
-        // au seul écran qui existe.
+        // La racine mène au tableau de bord : c'est de là qu'on décide quoi faire.
         path: '',
         pathMatch: 'full',
-        redirectTo: 'parametres/apparence',
+        redirectTo: 'tableau-de-bord',
       },
       {
         path: '**',
