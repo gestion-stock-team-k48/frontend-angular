@@ -1,8 +1,39 @@
-// Lignes de tableau — feuille globale.
+// Tableaux — feuille globale.
 // Les lignes sont projetées dans `app-tableau` par l'écran appelant : elles portent donc
 // l'attribut d'encapsulation du parent, jamais celui du composant de tableau. Une règle
 // écrite dans `tableau.scss` ne les atteint pas. Elle vit ici, comme le style des contrôles
 // de saisie et pour la même raison.
+// C'est ce qui décalait les colonnes : l'entête recevait son remplissage et son alignement,
+// les cellules du corps n'en recevaient aucun. Une colonne annoncée à droite s'affichait à
+// gauche, et les deux se répondaient à quelques pixels près.
+
+.tableau th,
+.tableau td {
+  padding: var(--densite-cellule-y) var(--densite-cellule-x);
+  text-align: start;
+  white-space: nowrap;
+}
+
+// Une colonne de chiffres s'aligne à droite, entête comprise : c'est la seule façon de
+// comparer deux montants d'un coup d'œil dans une colonne.
+.tableau th[data-alignement='fin'],
+.tableau td[data-alignement='fin'] {
+  text-align: end;
+}
+
+// L'entête reste visible pendant le défilement d'un long tableau : sans lui, on ne sait plus
+// ce qu'on lit dès la vingtième ligne.
+.tableau thead th {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: var(--z-base);
+  border-block-end: var(--bordure-fine) solid var(--border-base);
+  background-image: var(--degrade-surface);
+  background-color: var(--surface-2);
+  color: var(--text-strong);
+  font-size: var(--taille-sm);
+  font-weight: 600;
+}
 
 .tableau tbody tr {
   border-block-start: var(--bordure-fine) solid var(--border-subtle);

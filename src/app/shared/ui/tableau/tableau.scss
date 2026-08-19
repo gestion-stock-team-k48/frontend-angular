@@ -12,33 +12,10 @@
 }
 
 .tableau {
+  // La géométrie des cellules — remplissage, alignement, entête collant — vit dans
+  // `styles/_tableau.scss` : les lignes sont projetées et ne portent pas l'encapsulation de
+  // ce composant. La régler ici ne toucherait que les lignes de chargement.
   inline-size: 100%;
-
-  th,
-  td {
-    padding: var(--densite-cellule-y) var(--densite-cellule-x);
-    text-align: start;
-    white-space: nowrap;
-  }
-
-  th[data-alignement='fin'],
-  td[data-alignement='fin'] {
-    text-align: end;
-  }
-
-  // L'entête reste visible pendant le défilement d'un long tableau : sans lui, on ne sait
-  // plus ce qu'on lit dès la vingtième ligne.
-  thead th {
-    position: sticky;
-    inset-block-start: 0;
-    z-index: var(--z-base);
-    border-block-end: var(--bordure-fine) solid var(--border-base);
-    background-image: var(--degrade-surface);
-    background-color: var(--surface-2);
-    color: var(--text-strong);
-    font-size: var(--taille-sm);
-    font-weight: 600;
-  }
 
   &__tri {
     display: inline-flex;
