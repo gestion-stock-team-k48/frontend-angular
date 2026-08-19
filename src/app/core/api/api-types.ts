@@ -25,6 +25,17 @@ export type DemandeClient = Schemas['ClientRequest'];
 export type Fournisseur = Schemas['FournisseurResponse'];
 export type DemandeFournisseur = Schemas['FournisseurRequest'];
 
+export type CommandeClient = Schemas['CommandeClientResponse'];
+export type DemandeCommandeClient = Schemas['CommandeClientRequest'];
+export type CommandeFournisseur = Schemas['CommandeFournisseurResponse'];
+export type DemandeCommandeFournisseur = Schemas['CommandeFournisseurRequest'];
+export type DemandeEtatCommande = Schemas['EtatCommandeRequest'];
+export type Vente = Schemas['VenteResponse'];
+export type DemandeVente = Schemas['VenteRequest'];
+
+/** États d'une commande, tels que la spécification les déclare. */
+export type EtatCommande = NonNullable<CommandeClient['etatCommande']>;
+
 export type MouvementStock = Schemas['MvtStkResponse'];
 export type DemandeMouvementStock = Schemas['MvtStkRequest'];
 export type DemandeCorrectionStock = Schemas['MvtStkCorrectionRequest'];

@@ -12,6 +12,7 @@ src/app/
 ├── shared/
 │   ├── ui/               # design system : bouton, champ, table, modale, toast, badge, jauge
 │   ├── formulaires/      # répartition des erreurs serveur entre champs et bandeau
+│   ├── commerce/         # états, lignes, liste et écran communs aux deux types de commandes
 │   ├── tiers/            # liste et formulaire communs aux clients et aux fournisseurs
 │   ├── directives/       # permissions, formatage, autofocus
 │   └── pipes/            # montant, quantité, date relative, état de commande
@@ -165,6 +166,24 @@ supprimer. Aucune URL n'y est construite (ADR-018).
 
 Les champs facultatifs laissés vides sont omis de la requête plutôt qu'envoyés en chaîne
 vide : une adresse absente n'est pas une adresse vide.
+
+## Commerce
+
+Les transitions d'état d'une commande sont déclarées une fois, dans `shared/commerce` :
+`EN_PREPARATION → VALIDEE | ANNULEE`, `VALIDEE → LIVREE | ANNULEE`, et rien après. L'écran ne
+propose que ces transitions ; le serveur refuse les autres.
+
+Marquer une commande livrée déclenche ses mouvements de stock côté serveur — une sortie pour
+une commande client, une entrée pour une commande fournisseur. Un refus, stock insuffisant
+compris, recharge l'écran sur l'état réel plutôt que de laisser une vue périmée.
+
+Commandes client et commandes fournisseur partagent leur liste et leur écran ; chaque module
+traduit son DTO vers `CommandeVue` et retour (ADR-019). Une commande ne se modifie que tant
+qu'elle est en préparation.
+
+Une vente, elle, s'écrit une fois pour toutes : le serveur sort aussitôt les articles du
+stock, n'expose aucune modification et refuse toute suppression. L'écran l'annonce avant la
+saisie, et ne propose ensuite ni l'une ni l'autre.
 
 ## Shell applicatif
 

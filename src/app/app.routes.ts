@@ -22,6 +22,25 @@ export const routes: Routes = [
           import('./features/articles/articles.routes').then((module) => module.routesArticles),
       },
       {
+        path: 'commandes-client',
+        loadChildren: () =>
+          import('./features/commandes-client/commandes-client.routes').then(
+            (module) => module.routesCommandesClient,
+          ),
+      },
+      {
+        path: 'commandes-fournisseur',
+        loadChildren: () =>
+          import('./features/commandes-fournisseur/commandes-fournisseur.routes').then(
+            (module) => module.routesCommandesFournisseur,
+          ),
+      },
+      {
+        path: 'ventes',
+        loadChildren: () =>
+          import('./features/ventes/ventes.routes').then((module) => module.routesVentes),
+      },
+      {
         path: 'clients',
         loadChildren: () =>
           import('./features/clients/clients.routes').then((module) => module.routesClients),
