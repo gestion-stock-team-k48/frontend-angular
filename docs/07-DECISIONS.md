@@ -326,3 +326,23 @@ la devise configurée — zéro en franc CFA.
 côté serveur ne le rattraperait. L'arrondi suit la devise plutôt qu'une constante : une
 entreprise hors zone CFA n'a rien à changer dans le code (ADR-009). Si le backend calcule un
 jour le TTC lui-même, le champ disparaît de la requête sans que l'écran change.
+
+---
+
+## ADR-017 — La section « Mouvements de stock » s'ouvre sur le choix d'un article
+
+**Contexte.** Le backend n'expose aucune liste globale des mouvements : `GET /mouvements-stock`
+n'existe pas. Les mouvements se lisent article par article, et le stock réel se demande de la
+même façon, un article à la fois. Une liste unique « tous les mouvements », ou un catalogue
+affichant le stock de chaque ligne, coûterait une requête par article, à chaque page.
+
+**Décision.** L'entrée « Mouvements de stock » ouvre un choix d'article — le catalogue,
+paginé, avec son seuil. L'écran de stock d'un article réunit ensuite les trois lectures
+disponibles : le stock réel, l'historique paginé, et les quatre opérations qui les font
+bouger. Les alertes de seuil restent un écran à part, servi par le seul endpoint qui
+parcourt tout le catalogue.
+
+**Conséquence.** Deux clics pour atteindre l'historique d'un article, au lieu d'un. En
+échange, aucune requête en éventail, et rien qui prétende exister côté serveur sans exister.
+Le jour où le backend publie une liste globale — paginée, filtrable par article et par date —
+l'écran de choix devient cette liste, et le reste ne bouge pas.

@@ -140,6 +140,20 @@ Le `returnUrl` porté par l'URL est filtré : seuls les chemins internes sont su
 adresse absolue, ou relative au protocole, renverrait l'utilisateur vers un site tiers juste
 après la saisie de son mot de passe.
 
+## Stock
+
+Le stock réel est calculé par le backend à partir des mouvements. L'interface ne le recalcule
+jamais : elle l'affiche, et le redemande après chaque écriture. La jauge de seuil compare ce
+stock au seuil de l'article, chaque ligne étant mesurée par rapport à son propre seuil.
+
+Les quatre opérations — entrée, sortie, correction positive, correction négative — sont
+quatre endpoints distincts. Le sens vit dans l'URL appelée, jamais dans le signe de la
+quantité, qui reste toujours positive. La source accompagne une entrée ou une sortie ; le
+motif, obligatoire côté serveur, accompagne une correction.
+
+Faute de liste globale des mouvements côté backend, la section s'ouvre sur le choix d'un
+article (ADR-017).
+
 ## Shell applicatif
 
 `layout/shell` porte la coquille : `Topbar`, `Sidebar`, `FilAriane`, zone de contenu. Toutes
