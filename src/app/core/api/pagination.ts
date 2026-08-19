@@ -31,6 +31,15 @@ export interface DemandePage {
 /** Taille de page par défaut des listes. Une valeur, un seul endroit. */
 export const TAILLE_PAGE_PAR_DEFAUT = 20;
 
+/**
+ * Taille demandée pour remplir une liste déroulante.
+ *
+ * Le backend ne publie aucun endpoint de recherche : pour proposer des articles ou des
+ * tiers dans un `select`, il faut charger une page large. Au-delà, l'écran le dit plutôt
+ * que de laisser croire que la liste est complète.
+ */
+export const TAILLE_LISTE_DEROULANTE = 200;
+
 /** Tailles proposées à l'utilisateur. */
 export const TAILLES_PAGE: readonly number[] = [10, 20, 50, 100];
 
