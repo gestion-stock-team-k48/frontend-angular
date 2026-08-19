@@ -1,39 +1,56 @@
 # État courant
 
 - Dernière mise à jour : 2026-08-19 — session 1
-- Phase en cours : 11 · Tableau de bord — terminée, en attente de vérification visuelle.
-  **C'est la dernière phase du plan déduit (ADR-015).**
-- Branche de travail : feat/tableau-de-bord
+- Phase en cours : affinage — visuel, alignement des tableaux, jeu de démonstration. Les onze
+  phases du plan déduit (ADR-015) sont terminées et fusionnées dans `develop`.
+- Branche de travail : feat/theme-affinage
 - Dernier commit : voir `git log -1` — tableau de bord et documentation
 - Backend requis démarré : oui — `http://localhost:8080/api/v1`
-- Prochaine action précise : vérifier le tableau de bord à la main (voir « À vérifier »),
-  fusionner dans `develop`, puis décider de la suite — relecture d'ensemble des phases 2 à 11,
-  fusion dans `main` et tag, ou reprise des écarts backend signalés.
+- Prochaine action précise : regarder l'application à l'écran (voir « À vérifier »), puis
+  fusionner dans `develop`. Ensuite : relecture d'ensemble, fusion dans `main` et tag, ou
+  reprise des écarts backend signalés.
 
-## Fait dans cette phase
+## Fait depuis la dernière entrée
 
-- `/tableau-de-bord` : chiffre d'affaires du mois et total, commandes client et fournisseur
-  par état, classement des articles les plus vendus, aperçu des alertes de seuil.
-- La racine de l'application mène désormais au tableau de bord.
-- Dernière entrée de navigation ouverte : plus aucun écran annoncé n'est inerte.
-- 230 tests.
+**Affinage visuel** — couleur, relief et mouvement, détaillés dans `08-JOURNAL.md` et
+`05-DESIGN-SYSTEM.md`.
 
-## Reste à faire dans cette phase
+**Alignement des tableaux corrigé.** Le remplissage et l'alignement des cellules vivaient
+dans le composant `app-tableau`, hors de portée des lignes projetées : l'entête recevait sa
+mise en forme, le corps n'en recevait aucune. Une colonne annoncée à droite s'affichait à
+gauche. Les règles rejoignent la feuille globale, à côté de celles des lignes, qui souffraient
+du même mal.
 
-- Rien de code. La vérification visuelle appartient au mainteneur.
+**Codes attribués par le serveur retirés de l'interface.** Le code d'une commande et celui
+d'une vente sont générés par le backend, seul à savoir ce qui est déjà pris dans l'entreprise.
+Les deux champs disparaissent des formulaires, et les requêtes ne les portent plus.
 
-## À vérifier à la main
+**Jeu de démonstration** — `npm run seed`. Il passe par l'API publique, jamais par la base :
+les règles métier sont donc appliquées par le serveur, et le jeu est cohérent par
+construction. Douze entreprises, chacune avec 12 catégories, 150 articles, 24 clients,
+10 fournisseurs, 5 comptes, son stock initial, ses corrections, ses commandes des deux côtés
+et ses ventes. Tous les comptes partagent `GestionStock2026!` — y compris ceux à qui le
+serveur avait envoyé un mot de passe temporaire, que le script récupère dans Mailpit et
+remplace comme le ferait la personne à sa première connexion.
 
-    nvm use && npm start
+## Deux défauts backend trouvés en construisant le jeu
 
-1. `/` redirige vers `/tableau-de-bord`.
-2. Les quatre tuiles affichent les chiffres du serveur ; le chiffre d'affaires du mois est
-   mis en avant par la couleur de marque.
-3. Le classement des ventes met le meilleur article à pleine largeur, les autres au prorata.
-4. Un article sous son seuil apparaît dans les alertes, avec sa jauge ; « Tout voir » mène à
-   `/mouvements-stock/alertes`, et cliquer un article mène à son stock.
-5. Sans aucune vente ni aucune alerte, les deux cartes le disent au lieu d'afficher du vide.
-6. La navigation ne contient plus aucune entrée grisée.
+1. **Le code d'une vente est unique globalement, mais généré par entreprise** — voir l'écart
+   nº 16 de `06-API-CONTRAT.md`. **C'est bloquant en multi-tenant** : passé la première
+   entreprise inscrite, plus aucune vente ne peut être enregistrée. Le seed fournit un code
+   explicite pour contourner ; l'interface, elle, ne le fait pas.
+2. Rien d'autre : les transitions d'état, les mouvements de stock déclenchés par une
+   livraison et les refus de stock insuffisant se sont comportés exactement comme documenté.
+
+## Base de développement
+
+Les essais du seed ont laissé quelques entreprises partielles (`…x1`, `…x2`, `…x3`) et le jeu
+complet est posé sous l'étiquette `demo`. Aucun endpoint ne supprime une entreprise : pour
+repartir propre, c'est côté backend, et cela t'appartient —
+
+    cd ../gestion-stock-backend && docker compose down -v && docker compose up -d
+    ./mvnw spring-boot:run
+    cd ../frontend-angular && npm run seed
 
 ## Points bloquants / en attente de ma validation
 

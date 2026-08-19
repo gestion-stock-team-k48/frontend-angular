@@ -27,6 +27,7 @@
   }
 
   &__lien {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -38,17 +39,33 @@
     text-decoration: none;
     transition:
       background-color var(--dur-fast) var(--ease-out),
-      color var(--dur-fast) var(--ease-out);
+      color var(--dur-fast) var(--ease-out),
+      padding-inline-start var(--dur-fast) var(--ease-out);
 
     &:hover {
-      background-color: var(--surface-2);
+      background-color: var(--surface-marque);
       color: var(--text-strong);
+
+      // L'entrée avance d'un cran sous le curseur : le survol se sent avant d'être lu.
+      padding-inline-start: var(--espace-4);
     }
 
+    // L'écran courant porte une barre de marque à gauche. C'est le seul repère permanent
+    // de position dans l'application : il mérite mieux qu'un fond légèrement teinté.
     &--actif {
-      background-color: var(--brand-subtle);
+      background-color: var(--surface-marque-forte);
       color: var(--text-strong);
       font-weight: 500;
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset-block: var(--espace-1);
+        inset-inline-start: 0;
+        inline-size: var(--bordure-epaisse);
+        border-radius: var(--rayon-plein);
+        background-image: var(--degrade-marque);
+      }
     }
 
     &--indisponible {

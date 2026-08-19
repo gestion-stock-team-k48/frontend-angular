@@ -1,8 +1,23 @@
 .coquille-auth {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-block-size: 100vh;
   background-color: var(--surface-0);
+
+  // Deux halos de marque, en haut à droite et en bas à gauche : la page de connexion est la
+  // première vue de l'application, elle a le droit d'être un peu plus habitée que le reste.
+  background-image:
+    radial-gradient(
+      60rem 40rem at 90% -10%,
+      color-mix(in oklab, var(--brand) 20%, transparent) 0%,
+      transparent 65%
+    ),
+    radial-gradient(
+      50rem 35rem at -10% 110%,
+      color-mix(in oklab, var(--brand) 14%, transparent) 0%,
+      transparent 60%
+    );
 
   &__entete {
     display: flex;
@@ -17,6 +32,7 @@
     font-family: var(--police-display);
     font-size: var(--taille-lg);
     font-weight: 600;
+    letter-spacing: -0.01em;
   }
 
   &__theme {

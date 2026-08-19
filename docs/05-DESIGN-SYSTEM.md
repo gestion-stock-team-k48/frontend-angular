@@ -179,15 +179,47 @@ Objectif : que l'interface paraisse **réactive**, pas animée.
 
 Aucune durée en dur dans un composant.
 
-Micro-interactions attendues : états de boutons (hover / active / chargement à largeur
+Micro-interactions livrées (session 1, affinage) : états de boutons (hover / active / chargement à largeur
 stable) ; ouverture de modale et de tiroir (fondu + translation courte) ; toasts empilés ;
 skeletons pendant le chargement, jamais de spinner plein écran après le premier rendu ;
 apparition en cascade très légère des lignes de tableau, au premier chargement uniquement ;
 compteur animé sur les KPI du tableau de bord ; pulsation sobre sur les alertes de stock sous
 seuil ; transition de la sidebar repliable.
 
-Transitions de route via `withViewTransitions()`, avec un `view-transition-name` sur les
-éléments qui persistent d'un écran à l'autre.
+Transitions de route via `withViewTransitions()`.
+
+### Où vivent les animations partagées
+
+`src/styles/_animations.scss` porte les images clés communes — `apparition`,
+`apparition-echelle`, `glissement-lateral`, `pulsation-douce` — et deux classes utilitaires.
+Une même apparition employée sur une carte, une ligne de tableau et un toast doit avoir
+exactement la même durée et la même distance, sinon l'interface paraît bricolée.
+
+`src/styles/_tableau.scss` porte le survol et la cascade des lignes de tableau. Ces règles
+sont globales par nécessité : les lignes sont projetées dans `app-tableau` par l'écran
+appelant, elles portent donc l'attribut d'encapsulation du parent, et une règle écrite dans
+`tableau.scss` ne les atteint pas. C'est la même raison qui met le style des contrôles de
+saisie dans `_base.scss`.
+
+`shared/animations/nombre-anime.ts` fait courir les mesures du tableau de bord vers leur
+valeur. C'est le seul chiffre animé de l'application : ailleurs, un montant qui défile serait
+une coquetterie. L'horloge y est relue à chaque image plutôt que prise dans l'argument de
+`requestAnimationFrame`, dont l'origine diffère d'un environnement à l'autre.
+
+### Expression de la couleur
+
+Trois tokens sémantiques ajoutés pour donner de la matière sans sortir la couleur pleine :
+
+| Token                                        | Emploi                                              |
+| -------------------------------------------- | --------------------------------------------------- |
+| `--surface-marque`, `--surface-marque-forte` | survol d'une ligne, entrée de navigation active     |
+| `--degrade-marque`                           | boutons primaires, filets de tête, barres de mesure |
+| `--degrade-surface`, `--degrade-page`        | entêtes de tableau, halo de fond d'application      |
+| `--ombre-marque`, `--ombre-marque-forte`     | relief des actions primaires                        |
+| `--flou-calque`                              | bandeau, voile de modale, tiroir de navigation      |
+
+Les mélanges passent par `color-mix(in oklab, …)` sur `--brand` : la couleur d'amorce de
+l'entreprise se propage donc à tous ces effets sans qu'aucun d'eux ne soit recalculé.
 
 **`prefers-reduced-motion: reduce` est obligatoire** : toutes les durées tombent à `1ms` via
 une surcharge unique des tokens, et aucune animation d'entrée n'est jouée.

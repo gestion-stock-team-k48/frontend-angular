@@ -501,3 +501,106 @@ et ADR-019, et un jeton GitLab valide pour pousser.
 **En attente.** Vérification visuelle du tableau de bord. Le plan déduit en ADR-015 s'achève
 ici : la suite appartient au mainteneur — relecture d'ensemble, fusion dans `main` et tag, ou
 reprise des seize écarts backend consignés dans `06-API-CONTRAT.md`.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Affinage visuel
+
+**Branche** : `feat/theme-affinage` (depuis `develop`, phases 1 à 11 fusionnées)
+
+**Demande.** L'interface est jugée trop plate : plus de couleur, plus de mouvement, plus
+agréable à l'usage.
+
+**Constat de départ.** Le document de design décrivait déjà, depuis la phase 2, la liste des
+micro-interactions attendues — cascade des lignes, transitions de modale et de toasts,
+compteur animé des KPI, pulsation des alertes. Presque rien n'avait été posé. L'affinage n'a
+donc pas inventé une direction : il a livré celle qui était écrite.
+
+**Fait.**
+
+- Trois familles de tokens sémantiques bâties sur `color-mix` de `--brand` : surfaces
+  teintées, dégradés, ombres de marque, flou de calque. Tout suit la couleur d'amorce de
+  l'entreprise sans qu'aucun effet ne soit recalculé.
+- Feuille `styles/_animations.scss` : images clés partagées et deux classes utilitaires.
+- Mouvement posé sur le tableau, la modale, les notifications, la jauge, la navigation, les
+  tuiles du tableau de bord et l'écran de connexion.
+- 232 tests.
+
+**Découvert en route.**
+
+- Les styles de ligne de tableau ne s'appliquaient pas depuis la phase 6 : les lignes sont
+  projetées, donc marquées par l'encapsulation du parent, hors de portée de `tableau.scss`.
+  Déplacés dans une feuille globale, comme le style des champs.
+- Même piège pour l'animation d'entrée d'écran : le composant rendu par le routeur ne porte
+  pas l'attribut d'encapsulation de la coquille.
+- Le compteur animé lisait l'horodatage passé par `requestAnimationFrame`, dont l'origine
+  diffère de `performance.now()` selon l'environnement : l'avancement partait en négatif et
+  les chiffres descendaient sous zéro. L'horloge est relue à chaque image.
+
+**Choix de conception.**
+
+- Un seul chiffre animé dans toute l'application, sur le tableau de bord. Un montant de
+  facture qui défile serait une coquetterie.
+- Le survol d'une ligne pose un liseré de marque plutôt qu'un fond appuyé : les chiffres de
+  la ligne restent lisibles pendant qu'on la désigne.
+- La cascade des lignes plafonne son retard à huit lignes. Sur cent lignes, un retard
+  proportionnel ferait attendre le bas du tableau plusieurs secondes.
+- Aucune durée n'a été écrite hors des tokens : `prefers-reduced-motion` continue d'éteindre
+  toute l'application d'une seule surcharge.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+232 tests passés, build de production 328,27 ko.
+
+**En attente.** Un regard sur l'écran : le mouvement se juge en le voyant, pas en le lisant.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Alignement, codes serveur, jeu de démonstration
+
+**Branche** : `feat/theme-affinage`
+
+**Alignement des tableaux.** Le remplissage et l'alignement des cellules étaient déclarés
+dans `tableau.scss`. Les lignes étant projetées par l'écran appelant, aucune de ces règles ne
+les atteignait : l'entête avait sa mise en forme, le corps n'en avait aucune, et une colonne
+annoncée à droite s'affichait à gauche. C'est le même piège d'encapsulation que celui trouvé
+la veille sur le survol des lignes. Toute la géométrie du tableau vit désormais dans
+`styles/_tableau.scss`.
+
+**Codes attribués par le serveur.** Le champ « Code » disparaît du formulaire de commande et
+de celui de vente : le backend les génère et vérifie leur unicité, les proposer invitait au
+doublon sans rien apporter. Les codes d'article et de catégorie restent saisis — ceux-là, le
+serveur ne les invente pas.
+
+**Jeu de démonstration.** `scripts/seed.mjs` remplit le backend par son API publique, avec
+exactement les appels que ferait l'interface. Rien n'est écrit en base directement : les
+transitions d'état, les mouvements de stock déclenchés par une livraison et les refus de stock
+insuffisant restent l'affaire du serveur, et le jeu est cohérent par construction plutôt que
+par déclaration. Douze entreprises, chacune avec 12 catégories, 150 articles, 24 clients,
+10 fournisseurs, 5 comptes, un stock initial dont une part sous le seuil pour que les alertes
+aient de quoi parler, des corrections, des commandes des deux côtés à des états variés, et des
+ventes.
+
+**Le mot de passe unique.** Le backend ne permet pas de choisir le mot de passe d'un compte
+créé : il en génère un et l'envoie par email. Le premier jet lisait ce mot de passe dans
+Mailpit — et vingt et un comptes sont restés dehors, parce que Mailpit ne garde qu'un nombre
+limité de messages et que les notifications de commande avaient chassé les emails de création.
+Le script emprunte désormais le parcours « mot de passe oublié » : la demande produit toujours
+un message frais, et c'est de toute façon le chemin qu'emprunterait la personne. Un mode de
+rattrapage (`SEED_ALIGNEMENT=1`) repasse sur les comptes restés en arrière ; il a servi à
+aligner les vingt et un.
+
+**Découvert en route.**
+
+- **`uk_ventes_code` est une contrainte d'unicité globale**, alors que le code d'une vente est
+  généré en comptant les ventes de l'entreprise courante. La deuxième entreprise produit à son
+  tour `VT-2026-0001` et toute création de vente y échoue en `409`. C'est bloquant en
+  multi-tenant, bien au-delà du seed : aucune vente n'est possible hors de la première
+  entreprise inscrite. Le script fournit un code explicite pour contourner ; l'interface ne le
+  fait pas. Écart nº 16.
+- Les vagues de requêtes passaient au traitement l'index dans la vague et non dans la liste
+  entière : les codes de catégorie se répétaient toutes les six créations. Trouvé au premier
+  jeu complet, à la cinquième entreprise.
+
+**En attente.** Une base vierge pour poser le jeu canonique : les essais ont laissé des
+entreprises partielles, et aucun endpoint ne supprime une entreprise. La remise à zéro
+appartient au mainteneur, dans le dépôt backend.

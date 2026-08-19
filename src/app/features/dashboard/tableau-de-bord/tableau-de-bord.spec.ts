@@ -53,6 +53,15 @@ function texte(fixture: Awaited<ReturnType<typeof monter>>): string {
   return ((fixture.nativeElement as HTMLElement).textContent ?? '').replace(/\s/gu, ' ');
 }
 
+/**
+ * Les mesures courent vers leur valeur : le test attend la fin du décompte avant de lire
+ * l'écran, plutôt que de figer une valeur intermédiaire.
+ */
+async function attendreLeDecompte(fixture: Awaited<ReturnType<typeof monter>>): Promise<void> {
+  await new Promise((suite) => setTimeout(suite, 1100));
+  fixture.detectChanges();
+}
+
 describe('TableauDeBord', () => {
   afterEach(() => {
     TestBed.inject(HttpTestingController).verify();
@@ -60,6 +69,7 @@ describe('TableauDeBord', () => {
 
   it('affiche les chiffres du serveur dans la devise configurée', async () => {
     const fixture = await monter();
+    await attendreLeDecompte(fixture);
 
     expect(texte(fixture)).toContain('320 000 FCFA');
     expect(texte(fixture)).toContain('4 500 000 FCFA');

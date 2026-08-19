@@ -82,7 +82,7 @@ describe('NouvelleVente', () => {
     );
   });
 
-  it('envoie les lignes et omet le code laissé vide', async () => {
+  it('envoie les lignes sans code : le serveur l’attribue', async () => {
     const fixture = await monter();
     const racine = fixture.nativeElement as HTMLElement;
 

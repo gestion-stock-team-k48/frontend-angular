@@ -27,6 +27,11 @@
     block-size: 100%;
     border-radius: var(--rayon-plein);
     transition: inline-size var(--dur-base) var(--ease-out);
+
+    // La barre se déploie depuis la gauche au premier rendu : le remplissage se voit se
+    // faire, ce qui rend la mesure plus lisible qu'une barre déjà posée.
+    animation: jauge-deploiement var(--dur-slow) var(--ease-out);
+    transform-origin: left center;
   }
 
   // Le repère marque le seuil. Il reste visible par-dessus le remplissage : c'est la
@@ -80,14 +85,17 @@
 
 :host([data-etat='ok']) .jauge__remplissage {
   background-color: var(--stock-ok);
+  box-shadow: 0 0 8px color-mix(in oklab, var(--stock-ok) 45%, transparent);
 }
 
 :host([data-etat='bas']) .jauge__remplissage {
   background-color: var(--stock-low);
+  box-shadow: 0 0 8px color-mix(in oklab, var(--stock-low) 55%, transparent);
 }
 
 :host([data-etat='rupture']) .jauge__remplissage {
   background-color: var(--stock-out);
+  box-shadow: 0 0 8px color-mix(in oklab, var(--stock-out) 55%, transparent);
 }
 
 :host([data-etat='ok']) .jauge__etat {
@@ -107,6 +115,12 @@
 :host([data-etat='rupture']) .jauge__remplissage,
 :host([data-etat='bas']) .jauge__remplissage {
   animation: jauge-alerte 3s var(--ease-in-out) infinite;
+}
+
+@keyframes jauge-deploiement {
+  from {
+    transform: scaleX(0);
+  }
 }
 
 @keyframes jauge-alerte {

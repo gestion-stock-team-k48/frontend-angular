@@ -17,12 +17,11 @@ import {
 import { ApiVentes } from '../vente-api';
 import type { Article } from '../../../core/api/api-types';
 
-/** Longueurs reprises des contraintes portées par `VenteRequest`. */
-const MAX_CODE = 30;
+/** Longueur reprise des contraintes portées par `VenteRequest`. */
 const MAX_COMMENTAIRE = 500;
 
+/** Le code de la vente n'est pas saisi : le serveur l'attribue et garantit son unicité. */
 interface SaisieVente {
-  code: string;
   commentaire: string;
 }
 
@@ -58,12 +57,9 @@ export class NouvelleVente {
 
   protected readonly lignes = signal<LigneSaisie[]>([{ articleId: '', quantite: 1 }]);
 
-  private readonly saisie = signal<SaisieVente>({ code: '', commentaire: '' });
+  private readonly saisie = signal<SaisieVente>({ commentaire: '' });
 
   protected readonly formulaire = form(this.saisie, (champ) => {
-    maxLength(champ.code, MAX_CODE, {
-      message: `Le code ne doit pas dépasser ${MAX_CODE} caractères`,
-    });
     maxLength(champ.commentaire, MAX_COMMENTAIRE, {
       message: `Le commentaire ne doit pas dépasser ${MAX_COMMENTAIRE} caractères`,
     });
@@ -72,10 +68,6 @@ export class NouvelleVente {
   protected readonly message = signal<string | null>(null);
 
   protected readonly enCours = computed(() => this.formulaire().submitting());
-
-  protected readonly erreurCode = computed(() =>
-    this.formulaire.code().touched() ? messageDuChamp(this.formulaire.code().errors()) : null,
-  );
 
   protected readonly erreurCommentaire = computed(() =>
     this.formulaire.commentaire().touched()
@@ -93,12 +85,11 @@ export class NouvelleVente {
 
     await submit(this.formulaire, {
       action: async () => {
-        const { code, commentaire } = this.saisie();
+        const { commentaire } = this.saisie();
 
         try {
           const vente = await firstValueFrom(
             this.api.creer({
-              ...(code.trim() === '' ? {} : { code: code.trim() }),
               ...(commentaire.trim() === '' ? {} : { commentaire: commentaire.trim() }),
               lignes: this.lignes().map((ligne) => ({
                 articleId: Number(ligne.articleId),
@@ -111,7 +102,6 @@ export class NouvelleVente {
           return undefined;
         } catch (erreur) {
           const echec = repartirErreur(erreur, {
-            code: this.formulaire.code,
             commentaire: this.formulaire.commentaire,
           });
           this.message.set(echec.message);

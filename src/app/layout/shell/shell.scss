@@ -2,6 +2,12 @@
   display: flex;
   flex-direction: column;
   min-block-size: 100vh;
+
+  // Halo de marque dans le coin haut : il donne une couleur à l'application sans mettre
+  // de couleur derrière le texte, qui doit rester sur un fond neutre.
+  background-image: var(--degrade-page);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 .shell {
@@ -17,7 +23,8 @@
   &__navigation {
     overflow: hidden;
     border-inline-end: var(--bordure-fine) solid var(--border-subtle);
-    background-color: var(--surface-1);
+    background-color: color-mix(in oklab, var(--surface-1) 88%, transparent);
+    backdrop-filter: var(--flou-calque);
   }
 
   &__voile {

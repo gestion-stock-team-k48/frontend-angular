@@ -18,15 +18,6 @@
   <form class="vente__carte" (submit)="$event.preventDefault(); enregistrer()">
     <div class="vente__groupe">
       <app-champ
-        libelle="Code"
-        identifiant="vente-code"
-        aide="Laisser vide pour que le serveur en attribue un."
-        [erreur]="erreurCode()"
-      >
-        <input id="vente-code" type="text" spellcheck="false" [formField]="formulaire.code" />
-      </app-champ>
-
-      <app-champ
         libelle="Commentaire"
         identifiant="vente-commentaire"
         [erreur]="erreurCommentaire()"

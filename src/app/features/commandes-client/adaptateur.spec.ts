@@ -33,9 +33,8 @@ describe('adaptateur des commandes client', () => {
     expect(vue.lignes).toEqual([]);
   });
 
-  it('omet le code laissé vide pour que le serveur en attribue un', () => {
+  it('n’envoie aucun code : c’est le serveur qui l’attribue', () => {
     const demande = versDemande({
-      code: '   ',
       date: '2026-08-19',
       tiersId: '7',
       lignes: [{ articleId: '4', quantite: 2 }],
@@ -44,16 +43,5 @@ describe('adaptateur des commandes client', () => {
     expect(demande.codeCommande).toBeUndefined();
     expect(demande.idClient).toBe(7);
     expect(demande.lignes).toEqual([{ articleId: 4, quantite: 2 }]);
-  });
-
-  it('conserve un code saisi', () => {
-    const demande = versDemande({
-      code: 'CC-2026-0003',
-      date: '2026-08-19',
-      tiersId: '7',
-      lignes: [{ articleId: '4', quantite: 1 }],
-    });
-
-    expect(demande.codeCommande).toBe('CC-2026-0003');
   });
 });

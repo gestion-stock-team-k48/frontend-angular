@@ -18,7 +18,15 @@
   transition:
     background-color var(--dur-fast) var(--ease-out),
     border-color var(--dur-fast) var(--ease-out),
-    color var(--dur-fast) var(--ease-out);
+    box-shadow var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-instant) var(--ease-out);
+
+  // Le bouton s'enfonce sous le doigt. Un déplacement d'un pixel suffit à donner la
+  // sensation d'un contact ; au-delà, la mise en page bouge.
+  &:active:not(:disabled) {
+    transform: translateY(1px);
+  }
 
   &:disabled {
     cursor: not-allowed;
@@ -57,11 +65,18 @@
   }
 
   &[data-variante='primaire'] {
+    background-image: var(--degrade-marque);
     background-color: var(--brand);
     color: var(--brand-contrast);
+    box-shadow: var(--ombre-marque);
 
     &:hover:not(:disabled) {
       background-color: var(--brand-hover);
+      box-shadow: var(--ombre-marque-forte);
+    }
+
+    &:disabled {
+      box-shadow: none;
     }
   }
 
@@ -91,7 +106,7 @@
     color: var(--text-inverse);
 
     &:hover:not(:disabled) {
-      background-color: var(--rouge-700);
+      background-color: var(--state-danger-hover);
     }
   }
 }

@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { FormField, form, maxLength, required, submit } from '@angular/forms/signals';
+import { FormField, form, required, submit } from '@angular/forms/signals';
 import { firstValueFrom, type Observable } from 'rxjs';
 import { ServiceNotifications } from '../../core/notifications/notifications';
 import { Badge } from '../ui/badge/badge';
@@ -36,9 +36,6 @@ import {
   type SaisieCommande,
 } from './commande';
 import type { Article, EtatCommande } from '../../core/api/api-types';
-
-/** Longueur reprise des contraintes portées par les deux DTO de commande. */
-const MAX_CODE = 30;
 
 /**
  * Écran d'une commande : création, modification, et lecture.
@@ -128,9 +125,6 @@ export class EcranCommande {
   protected readonly lignes = linkedSignal<LigneSaisie[]>(() => this.saisie().lignes);
 
   protected readonly formulaire = form(this.saisie, (champ) => {
-    maxLength(champ.code, MAX_CODE, {
-      message: `Le code ne doit pas dépasser ${MAX_CODE} caractères`,
-    });
     required(champ.date, { message: 'La date de commande est obligatoire' });
     required(champ.tiersId, { message: 'Le tiers est obligatoire' });
   });
@@ -141,7 +135,6 @@ export class EcranCommande {
 
   protected readonly transitionEnCours = signal<EtatCommande | null>(null);
 
-  protected readonly erreurCode = this.erreurDe('code');
   protected readonly erreurDate = this.erreurDe('date');
   protected readonly erreurTiers = this.erreurDe('tiersId');
 
@@ -163,7 +156,6 @@ export class EcranCommande {
           return undefined;
         } catch (erreur) {
           const echec = repartirErreur(erreur, {
-            codeCommande: this.formulaire.code,
             dateCommande: this.formulaire.date,
             [this.champTiers()]: this.formulaire.tiersId,
           });
@@ -195,7 +187,7 @@ export class EcranCommande {
     }
   }
 
-  private erreurDe(nom: 'code' | 'date' | 'tiersId') {
+  private erreurDe(nom: 'date' | 'tiersId') {
     return computed(() => {
       const champ = this.formulaire[nom]();
       return champ.touched() ? messageDuChamp(champ.errors()) : null;

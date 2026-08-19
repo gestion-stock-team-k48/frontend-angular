@@ -303,6 +303,17 @@ non `403` : ce `401` ne signale pas une session expirée. Voir ADR-013.
     un champ `photo`. Le champ n'est donc pas proposé à la saisie : y écrire un nom d'objet à
     la main n'aurait aucun sens.
 
-16. **`Pageable` est déclaré `required: true`** en paramètre de requête sur les listes, alors
+16. **Le code d'une vente est unique globalement, mais généré par entreprise.** La contrainte
+    `uk_ventes_code UNIQUE (code)` ne comprend pas l'entreprise, alors que `generateCode`
+    compte les ventes de l'entreprise courante : la deuxième entreprise produit à son tour
+    `VT-2026-0001` et toute création de vente y échoue en `409`. Les commandes, elles, sont
+    bien contraintes par `(code_commande, entreprise_id)`.
+
+    **C'est bloquant en multi-tenant** : hors de la première entreprise inscrite, aucune vente
+    ne peut être enregistrée tant que la contrainte n'inclut pas l'entreprise. Le jeu de
+    démonstration fournit donc un code explicite pour contourner, ce que l'interface ne fait
+    pas et n'a pas à faire.
+
+17. **`Pageable` est déclaré `required: true`** en paramètre de requête sur les listes, alors
     que Spring applique des valeurs par défaut si le paramètre est absent. Le frontend envoie
     toujours `page` et `size` explicitement, ce qui évite la question.

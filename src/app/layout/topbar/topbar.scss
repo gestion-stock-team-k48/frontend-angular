@@ -12,7 +12,12 @@
   gap: var(--espace-4);
   padding: var(--espace-3) var(--espace-4);
   border-block-end: var(--bordure-fine) solid var(--border-subtle);
-  background-color: var(--surface-1);
+
+  // Le bandeau reste en place au défilement : il est translucide et flouté, pour qu'on
+  // devine le contenu qui passe dessous plutôt que de le voir disparaître sous un bloc opaque.
+  background-color: color-mix(in oklab, var(--surface-1) 82%, transparent);
+  backdrop-filter: var(--flou-calque);
+  box-shadow: var(--ombre-1);
 
   &__bascule {
     padding: var(--espace-1) var(--espace-2);
@@ -76,6 +81,10 @@
   &__action {
     padding: var(--espace-1) var(--espace-3);
     text-decoration: none;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
     border: var(--bordure-fine) solid var(--border-base);
     border-radius: var(--rayon-controle);
     background-color: var(--surface-1);
@@ -84,7 +93,8 @@
     cursor: pointer;
 
     &:hover {
-      border-color: var(--border-strong);
+      border-color: var(--brand);
+      background-color: var(--surface-marque);
       color: var(--text-strong);
     }
   }

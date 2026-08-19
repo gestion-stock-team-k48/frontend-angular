@@ -7,6 +7,7 @@ import { EtatVide } from '../../../shared/ui/etat-vide/etat-vide';
 import { JaugeSeuil } from '../../../shared/ui/jauge-seuil/jauge-seuil';
 import { Squelette } from '../../../shared/ui/squelette/squelette';
 import { MontantPipe } from '../../../shared/pipes/montant';
+import { nombreAnime } from '../../../shared/animations/nombre-anime';
 import { QuantitePipe } from '../../../shared/pipes/quantite';
 import type { AlerteStock, StatistiquesTableauDeBord } from '../../../core/api/api-types';
 
@@ -55,6 +56,15 @@ export class TableauDeBord {
   );
 
   protected readonly alertesChargent = computed(() => this.ressourceAlertes.isLoading());
+
+  // Les quatre mesures courent vers leur valeur : c'est le seul endroit de l'application où
+  // un chiffre s'anime, et c'est celui qu'on vient regarder en ouvrant le matin.
+  protected readonly caMois = nombreAnime(() => this.stats().chiffreAffairesMoisCourant ?? 0);
+  protected readonly caTotal = nombreAnime(() => this.stats().chiffreAffairesTotal ?? 0);
+  protected readonly clientEnCours = nombreAnime(() => this.stats().commandesClientEnCours ?? 0);
+  protected readonly fournisseurEnCours = nombreAnime(
+    () => this.stats().commandesFournisseurEnCours ?? 0,
+  );
 
   protected readonly topArticles = computed(() => this.stats().topArticlesVendus ?? []);
 

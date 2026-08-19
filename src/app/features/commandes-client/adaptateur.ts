@@ -21,11 +21,8 @@ export function versVue(reponse: CommandeClient): CommandeVue {
 }
 
 export function versDemande(saisie: SaisieCommande): DemandeCommandeClient {
-  const code = saisie.code.trim();
-
   return {
-    // Code laissé vide : le serveur en attribue un lui-même.
-    ...(code === '' ? {} : { codeCommande: code }),
+    // Aucun code : c'est le serveur qui l'attribue, et lui seul sait ce qui est déjà pris.
     dateCommande: saisie.date,
     idClient: Number(saisie.tiersId),
     lignes: saisie.lignes.map((ligne) => ({
