@@ -16,7 +16,8 @@
     "check": "./scripts/check.sh",
     "bootstrap": "./scripts/bootstrap.sh",
     "sync:api": "./scripts/sync-api.sh",
-    "etat": "./scripts/etat.sh"
+    "etat": "./scripts/etat.sh",
+    "seed": "./scripts/seed.sh"
   },
   "private": true,
   "packageManager": "npm@11.17.0",

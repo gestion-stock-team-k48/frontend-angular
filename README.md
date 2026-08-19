@@ -31,6 +31,30 @@ docker compose up -d    # PostgreSQL 5433, MinIO 9005, Mailpit 1025
 | `npm run sync:api` | récupère la spécification OpenAPI et régénère les types |
 | `npm run etat`     | état courant : branche, phase, prochaine action         |
 
+## Jeu de démonstration
+
+`npm run seed` remplit le backend par son API publique — les mêmes appels que ferait
+l'interface, donc les mêmes règles métier appliquées par le serveur. Il crée douze
+entreprises, chacune avec ses catégories, ses articles, ses tiers, ses comptes, son stock,
+ses commandes et ses ventes.
+
+Le backend et Mailpit doivent tourner, et la base être vierge :
+
+```bash
+cd ../gestion-stock-backend
+docker compose down -v && docker compose up -d   # base remise à zéro
+./mvnw spring-boot:run
+cd ../frontend-angular && npm run seed
+```
+
+Tous les comptes créés partagent le mot de passe `GestionStock2026!`, y compris ceux à qui le
+serveur avait envoyé un mot de passe temporaire : le script le récupère dans Mailpit et le
+remplace, exactement comme le ferait la personne à sa première connexion.
+
+Réglages par variables d'environnement — `SEED_ENTREPRISES`, `SEED_ARTICLES`,
+`SEED_MOT_DE_PASSE`, `SEED_ETIQUETTE` (suffixe à poser pour ajouter des entreprises à une
+base déjà remplie), et les autres, listées en tête de `scripts/seed.mjs`.
+
 ## Documentation
 
 Tout le pilotage du projet est dans `docs/`, en français.
