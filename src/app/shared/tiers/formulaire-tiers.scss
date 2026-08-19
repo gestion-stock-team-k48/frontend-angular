@@ -1,0 +1,46 @@
+.formulaire-tiers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-4);
+
+  &__groupe {
+    display: grid;
+    gap: var(--espace-4);
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  }
+
+  &__bandeau {
+    padding: var(--espace-3);
+    border: var(--bordure-fine) solid var(--state-danger);
+    border-radius: var(--rayon-controle);
+    background-color: var(--state-danger-surface);
+    color: var(--state-danger-text);
+    font-size: var(--taille-sm);
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--espace-2);
+  }
+
+  &__photo {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-3);
+    padding-block-start: var(--espace-4);
+    border-block-start: var(--bordure-fine) solid var(--border-subtle);
+  }
+
+  &__sous-titre {
+    color: var(--text-strong);
+    font-size: var(--taille-md);
+    font-weight: 600;
+  }
+
+  &__aide {
+    max-inline-size: 60ch;
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+  }
+}
