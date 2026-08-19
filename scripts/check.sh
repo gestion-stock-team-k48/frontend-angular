@@ -31,7 +31,7 @@ etape "Stylelint (SCSS)"
 if npm run --silent lint:styles > "$JOURNAL/styles.txt" 2>&1; then
   consigner "Stylelint" "0 erreur" "OK"
 else
-  ERR_STYLE="$(grep -cE '✖' "$JOURNAL/styles.txt" || true)"
+  ERR_STYLE="$(grep -oE '[0-9]+ error' "$JOURNAL/styles.txt" | tail -1 | grep -oE '[0-9]+' || echo '?')"
   tail -25 "$JOURNAL/styles.txt" | sed 's/^/      /'
   consigner "Stylelint" "$ERR_STYLE erreur(s)" "ÉCHEC"
 fi

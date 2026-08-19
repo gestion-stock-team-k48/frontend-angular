@@ -47,6 +47,15 @@ consigner() {
   esac
 }
 
+# Complète une chaîne à une largeur donnée, en comptant les caractères et non les octets :
+# printf '%-22s' padderait mal « Durée totale », dont le « é » occupe deux octets.
+pad() {
+  local texte="$1" largeur="$2" manque
+  manque=$((largeur - ${#texte}))
+  [ "$manque" -lt 0 ] && manque=0
+  printf '%s%*s' "$texte" "$manque" ''
+}
+
 duree_lisible() {
   local s=$1
   if [ "$s" -lt 60 ]; then printf '%d s' "$s"; else printf '%d m %02d s' $((s / 60)) $((s % 60)); fi
@@ -65,12 +74,13 @@ rapport() {
     case "$statut" in
       OK) couleur="$C_OK" ;; ÉCHEC) couleur="$C_KO" ;; *) couleur="$C_SKIP" ;;
     esac
-    printf ' %-22s : %-20s %s[%s]%s\n' \
-      "${RAPPORT_LIBELLE[$i]}" "${RAPPORT_VALEUR[$i]}" "$couleur" "$statut" "$C_RAZ"
+    printf ' %s : %s %s[%s]%s\n' \
+      "$(pad "${RAPPORT_LIBELLE[$i]}" 22)" "$(pad "${RAPPORT_VALEUR[$i]}" 20)" \
+      "$couleur" "$statut" "$C_RAZ"
   done
   printf '%s\n' "$(printf -- '-%.0s' $(seq 1 $largeur))"
-  printf ' %-22s : %s\n' "Durée totale" "$(duree_lisible $((SECONDS - DEBUT)))"
-  printf ' %-22s : %d/%d' "Étapes réussies" "$NB_OK" "${#RAPPORT_LIBELLE[@]}"
+  printf ' %s : %s\n' "$(pad 'Durée totale' 22)" "$(duree_lisible $((SECONDS - DEBUT)))"
+  printf ' %s : %d/%d' "$(pad 'Étapes réussies' 22)" "$NB_OK" "${#RAPPORT_LIBELLE[@]}"
   [ "$NB_IGNORE" -gt 0 ] && printf '   (%d ignorée(s))' "$NB_IGNORE"
   printf '\n'
   printf '%s%s%s\n\n' "$C_TITRE" "$(printf '=%.0s' $(seq 1 $largeur))" "$C_RAZ"

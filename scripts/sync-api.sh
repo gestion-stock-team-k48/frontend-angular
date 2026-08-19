@@ -9,6 +9,10 @@ cd "$RACINE" || exit 1
 ETAPES_TOTAL=4
 URL_API="${API_BASE_URL:-http://localhost:8080/api/v1}"
 CIBLE="src/app/core/api/generated/api.ts"
+# openapi-typescript exige encore typescript@^5.x alors que le projet est en TypeScript 6.
+# Il est donc exécuté via npx dans un environnement isolé, jamais installé dans le projet.
+# Version figée pour que la génération soit reproductible (voir ADR-007).
+VERSION_GENERATEUR="7.13.0"
 
 titre "SYNCHRONISATION DU CONTRAT API"
 detail "Backend : $URL_API"
@@ -43,9 +47,9 @@ else
 fi
 
 # ── 3. Génération des types ────────────────────────────────────────────────────
-etape "Génération des types TypeScript"
+etape "Génération des types TypeScript (openapi-typescript $VERSION_GENERATEUR, isolé)"
 mkdir -p "$(dirname "$CIBLE")"
-if npx --yes openapi-typescript openapi.json --output "$CIBLE" 2>&1 | sed 's/^/      /'; then
+if npx --yes "openapi-typescript@$VERSION_GENERATEUR" openapi.json --output "$CIBLE" 2>&1 | sed 's/^/      /'; then
   NB_LIGNES="$(wc -l < "$CIBLE" | tr -d ' ')"
   consigner "Types générés" "$NB_LIGNES lignes" "OK"
 else
