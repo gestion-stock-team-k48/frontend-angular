@@ -1,0 +1,74 @@
+<section class="carte-auth">
+  <h1 class="carte-auth__titre">Changer le mot de passe</h1>
+
+  @if (impose()) {
+    <p class="carte-auth__intro">
+      Ce compte utilise encore le mot de passe temporaire transmis par email. Le remplacer donne
+      accès au reste de l'application.
+    </p>
+  } @else {
+    <p class="carte-auth__intro">
+      Le nouveau mot de passe doit contenir au moins {{ longueurMinimale }} caractères.
+    </p>
+  }
+
+  @if (message(); as texte) {
+    <p class="carte-auth__bandeau" role="alert">{{ texte }}</p>
+  }
+
+  <form class="carte-auth__formulaire" (submit)="$event.preventDefault(); changer()">
+    <app-champ
+      libelle="Mot de passe actuel"
+      identifiant="mdp-actuel"
+      [requis]="true"
+      [erreur]="erreurAncien()"
+    >
+      <input
+        id="mdp-actuel"
+        type="password"
+        autocomplete="current-password"
+        [formField]="formulaire.oldPassword"
+      />
+    </app-champ>
+
+    <app-champ
+      libelle="Nouveau mot de passe"
+      identifiant="mdp-nouveau"
+      [requis]="true"
+      [erreur]="erreurNouveau()"
+    >
+      <input
+        id="mdp-nouveau"
+        type="password"
+        autocomplete="new-password"
+        [formField]="formulaire.newPassword"
+      />
+    </app-champ>
+
+    <app-champ
+      libelle="Confirmer le nouveau mot de passe"
+      identifiant="mdp-confirmation"
+      [requis]="true"
+      [erreur]="erreurConfirmation()"
+    >
+      <input
+        id="mdp-confirmation"
+        type="password"
+        autocomplete="new-password"
+        [formField]="formulaire.confirmation"
+      />
+    </app-champ>
+
+    <div class="carte-auth__actions">
+      <app-bouton type="submit" variante="primaire" [pleineLargeur]="true" [chargement]="enCours()">
+        Enregistrer le mot de passe
+      </app-bouton>
+    </div>
+  </form>
+
+  @if (!impose()) {
+    <p class="carte-auth__liens">
+      <a class="carte-auth__lien" routerLink="/">Revenir à l'application</a>
+    </p>
+  }
+</section>
