@@ -37,20 +37,6 @@
       <form class="commande__carte" (submit)="$event.preventDefault(); soumettre()">
         <div class="commande__groupe">
           <app-champ
-            libelle="Code"
-            identifiant="commande-code"
-            aide="Laisser vide pour que le serveur en attribue un."
-            [erreur]="erreurCode()"
-          >
-            <input
-              id="commande-code"
-              type="text"
-              spellcheck="false"
-              [formField]="formulaire.code"
-            />
-          </app-champ>
-
-          <app-champ
             libelle="Date de commande"
             identifiant="commande-date"
             [requis]="true"

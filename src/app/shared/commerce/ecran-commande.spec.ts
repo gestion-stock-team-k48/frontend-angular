@@ -136,7 +136,6 @@ describe('EcranCommande', () => {
     await envoyer(fixture);
 
     expect(fixture.componentInstance.saisieRecue()).toEqual({
-      code: '',
       date: '2026-08-19',
       tiersId: '7',
       lignes: [{ articleId: '4', quantite: 3 }],

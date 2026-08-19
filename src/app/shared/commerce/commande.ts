@@ -30,9 +30,13 @@ export interface CommandeVue {
   readonly lignes: readonly LigneCommandeVue[];
 }
 
-/** Ce que l'écran de saisie produit. Le module le traduit ensuite dans son propre DTO. */
+/**
+ * Ce que l'écran de saisie produit. Le module le traduit ensuite dans son propre DTO.
+ *
+ * Le code de commande n'y figure pas : c'est le serveur qui l'attribue, et lui seul peut
+ * garantir qu'il est unique dans l'entreprise.
+ */
 export interface SaisieCommande {
-  code: string;
   date: string;
   tiersId: string;
   lignes: LigneSaisie[];
@@ -56,7 +60,6 @@ export function aujourdHui(): string {
 
 export function saisieDepuis(commande: CommandeVue | null): SaisieCommande {
   return {
-    code: commande?.code ?? '',
     date: commande?.date ?? aujourdHui(),
     tiersId: commande?.tiersId === undefined ? '' : String(commande.tiersId),
     lignes: (commande?.lignes ?? []).map((ligne) => ({
