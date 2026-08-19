@@ -1,48 +1,25 @@
 # État courant
 
 - Dernière mise à jour : 2026-08-19 — session 1
-- Phase en cours : 10 · Administration — **écrans écrits, tests et docs à faire**
-- Branche de travail : feat/administration (phase 9 fusionnée dans `develop`)
-- Dernier commit : voir `git log -1` — écrans entreprise, utilisateurs et profil
+- Phase en cours : 10 · Administration — terminée, en attente de vérification visuelle
+- Branche de travail : feat/administration
+- Dernier commit : voir `git log -1` — tests et documentation de la phase 10
 - Backend requis démarré : oui — `http://localhost:8080/api/v1`
-- Prochaine action précise : écrire les tests de la phase 10 (liste des utilisateurs,
-  formulaire d'utilisateur avec ses rôles, écran entreprise, profil), puis les entrées
-  `07-DECISIONS.md` / `06-API-CONTRAT.md` / `08-JOURNAL.md`, puis la vérification visuelle.
-
-## Phase 10 — état exact
-
-Écrit et vérifié par `./scripts/check.sh` (5/5, 208 tests, aucun test propre à la phase) :
-
-- `/entreprise` — fiche de l'entreprise courante, réservée aux administrateurs.
-- `/utilisateurs` — liste paginée, création, modification, suppression. Aucun mot de passe
-  n'est saisi : le serveur en génère un temporaire et l'envoie par email. Un compte encore
-  porteur de ce mot de passe est signalé dans la liste.
-- `/profil` — « Mon profil » : nom, prénom, date de naissance, adresse, et envoi de photo.
-  L'email et les rôles y sont en lecture seule — `PUT /utilisateurs/me` ne les accepte pas.
-- Le nom dans le bandeau mène désormais au profil ; l'entrée « Mon profil » est dans la
-  navigation.
-
-Reste à faire, dans l'ordre :
-
-1. Tests des quatre écrans, sur le modèle des phases précédentes.
-2. ADR-020 : la suppression de son propre compte est refusée par l'interface (le backend
-   l'accepte, et l'administrateur se fermerait la porte au nez) ; l'envoi de photo n'est
-   proposé que sur son propre compte, le backend refusant celle d'autrui.
-3. Écarts à consigner dans `06-API-CONTRAT.md` : `DELETE /utilisateurs/{id}` ne protège ni
-   le compte courant ni le dernier administrateur ; aucun endpoint n'envoie de logo
-   d'entreprise alors que `EntrepriseRequest` porte un champ `photo`.
-4. Entrée de journal, puis vérification visuelle et merge.
+- Prochaine action précise : vérifier les écrans d'administration à la main (voir
+  « À vérifier »), puis fusionner dans `develop` et ouvrir la phase 11 · Tableau de bord.
 
 ## Fait dans cette phase
 
-- `shared/commerce` : états et transitions déclarés une fois, éditeur de lignes, liste et
-  écran de commande communs aux deux modules (ADR-019).
-- Commandes client et commandes fournisseur : liste paginée, création, modification tant que
-  la commande est en préparation, transitions d'état, suppression sauf commande livrée.
-- Ventes : liste paginée, recherche par code, enregistrement, fiche en lecture seule.
-- Entrées « Commandes client », « Commandes fournisseur » et « Ventes » ouvertes dans la
-  navigation.
-- 208 tests.
+- `/entreprise` — fiche de l'entreprise courante, réservée aux administrateurs. Pas de logo :
+  aucun endpoint ne l'envoie.
+- `/utilisateurs` — liste paginée, création, modification, suppression. Aucun mot de passe
+  n'est saisi : le serveur en génère un temporaire et l'envoie par email. Les comptes encore
+  porteurs de ce mot de passe sont signalés.
+- `/profil` — « Mon profil » : identité, adresse, envoi de photo. Email et rôles en lecture
+  seule. Le nom dans le bandeau y mène désormais.
+- Deux garde-fous d'interface : pas de suppression de son propre compte, photo limitée au
+  sien (ADR-020).
+- 225 tests.
 
 ## Reste à faire dans cette phase
 
@@ -52,26 +29,22 @@ Reste à faire, dans l'ordre :
 
     nvm use && npm start
 
-Puis, sur `http://localhost:4200`, connecté, avec un client, un fournisseur et un article
-disposant de stock :
+Connecté avec un compte administrateur :
 
-1. `/commandes-client` → « Nouvelle commande » : laisser le code vide, choisir un client, une
-   date, ajouter une ligne. Le total estimé s'affiche pendant la saisie.
-2. Enregistrer → la commande apparaît en « En préparation », avec un code attribué par le
-   serveur.
-3. L'ouvrir → « Valider la commande ». L'écran passe en lecture seule : plus de formulaire,
-   et seules « Marquer livrée » et « Annuler la commande » restent proposées.
-4. « Marquer livrée » → la commande passe en « Livrée », et le stock de l'article a baissé
-   (`/mouvements-stock/article/:id` : une ligne « Sortie · Commande client »).
-5. Tenter de livrer une commande dont la quantité dépasse le stock → message du backend
-   « Stock insuffisant… », et l'écran se recharge sur l'état réel, sans rester bloqué.
-6. Une commande livrée ne propose plus « Supprimer » dans la liste.
-7. `/commandes-fournisseur` → même parcours ; à la livraison, le stock **monte**.
-8. `/ventes/nouvelle` → l'avertissement d'écriture définitive est visible avant l'envoi.
-   Enregistrer, puis vérifier la sortie de stock correspondante.
-9. `/ventes` → rechercher la vente par son code : l'écran l'ouvre. Un code inconnu affiche
-   « Aucune vente ne porte le code … ».
-10. Une vente ouverte ne propose ni modification ni suppression.
+1. `/entreprise` → la fiche est pré-remplie ; modifier la ville, enregistrer, recharger la
+   page : la valeur tient. Un code fiscal déjà pris affiche le message du backend sous le champ.
+2. `/utilisateurs` → créer un compte : aucun champ mot de passe, et le message l'explique.
+   Après création, l'email de mot de passe temporaire arrive dans Mailpit
+   (`http://localhost:8025`).
+3. Le nouveau compte apparaît avec la pastille « Temporaire ».
+4. Se déconnecter, se connecter avec ce compte → l'application impose le changement de mot
+   de passe, puis s'ouvre. Sa ligne passe à « Choisi ».
+5. Avec ce compte non administrateur : `/utilisateurs` et `/entreprise` renvoient vers
+   `/acces-refuse`, et les entrées correspondantes n'apparaissent pas dans la navigation.
+6. `/profil` → modifier le prénom, enregistrer : le bandeau applicatif se met à jour aussitôt.
+7. Envoyer une photo depuis le profil → « Photo enregistrée ». L'image ne peut pas être
+   affichée (écart backend nº 6).
+8. Sur `/utilisateurs`, la ligne du compte courant ne propose pas « Supprimer ».
 
 ## Points bloquants / en attente de ma validation
 
@@ -84,8 +57,10 @@ disposant de stock :
    intermédiaire.
 4. **Écrans partagés** (ADR-018, ADR-019) — tiers et commandes mis en commun parce que leurs
    DTO ne diffèrent que par un nom. À confirmer, ou à défaire si les modules doivent diverger.
-5. **Modification d'une commande bornée à `EN_PREPARATION`** (ADR-019) — restriction
-   d'interface, faute de contrôle côté serveur. À faire remonter à l'équipe backend.
+5. **Restrictions d'interface faute de contrôle serveur** — modification d'une commande
+   bornée à `EN_PREPARATION` (ADR-019), suppression de son propre compte refusée (ADR-020).
+   À faire remonter à l'équipe backend : le second cas laisse aussi supprimer le dernier
+   administrateur de l'entreprise, ce que l'interface ne peut pas empêcher.
 6. **Visibilité du dépôt** — passage en public refusé : rôle Maintainer, GitLab exige Owner.
 7. **`@types/node` ajouté sans validation** (ADR-010).
 
@@ -104,5 +79,7 @@ disposant de stock :
 - `PUT` sur une commande ne vérifie pas son état (ADR-019).
 - `DELETE /ventes/{id}` échoue toujours : l'endpoint est publié mais ne peut pas aboutir.
 - `VenteResponse` ne porte aucun total, contrairement aux commandes.
+- `DELETE /utilisateurs/{id}` ne protège ni le compte courant ni le dernier administrateur.
+- Aucun endpoint n'envoie de logo d'entreprise, alors que le DTO porte un champ `photo`.
 
 Détail dans `06-API-CONTRAT.md`, section « Écarts constatés ».
