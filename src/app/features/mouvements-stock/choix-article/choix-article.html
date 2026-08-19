@@ -1,0 +1,61 @@
+<section class="liste">
+  <header class="liste__entete">
+    <div>
+      <h1 class="liste__titre">Mouvements de stock</h1>
+      <p class="liste__sous-titre">
+        Le stock se suit article par article. Choisir un article pour voir son stock réel, son
+        historique, et y enregistrer une entrée, une sortie ou une correction.
+      </p>
+    </div>
+
+    <a class="liste__lien-fort" routerLink="/mouvements-stock/alertes">Voir les alertes de seuil</a>
+  </header>
+
+  <app-tableau
+    [colonnes]="colonnes"
+    [etat]="etat()"
+    [tri]="tri()"
+    libelleActions="Stock"
+    (triChange)="changerTri($event)"
+  >
+    @for (article of articles(); track article.id) {
+      <tr>
+        <td data-numerique>{{ article.code }}</td>
+        <td>{{ article.designation }}</td>
+        <td data-alignement="fin" data-numerique>{{ article.seuilMinimum | quantite }}</td>
+        <td data-alignement="fin">
+          <a class="liste__lien" [routerLink]="['/mouvements-stock/article', article.id]">
+            Voir le stock
+          </a>
+        </td>
+      </tr>
+    }
+
+    <div zoneEtat>
+      @if (etat() === 'erreur') {
+        <app-etat-vide
+          titre="Le catalogue n'a pas pu être chargé"
+          message="Le serveur n'a pas répondu comme attendu."
+          ton="erreur"
+        >
+          <button type="button" class="liste__lien-fort" (click)="reessayer()">Réessayer</button>
+        </app-etat-vide>
+      } @else {
+        <app-etat-vide
+          titre="Aucun article"
+          message="Le stock se tient sur des articles : en créer un d'abord."
+        >
+          <a class="liste__lien-fort" routerLink="/articles/nouveau">Nouvel article</a>
+        </app-etat-vide>
+      }
+    </div>
+  </app-tableau>
+
+  @if (etat() === 'pret') {
+    <app-pagination
+      [etat]="etatPage()"
+      (pageChange)="page.set($event)"
+      (tailleChange)="changerTaille($event)"
+    />
+  }
+</section>
