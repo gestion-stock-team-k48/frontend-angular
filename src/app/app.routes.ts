@@ -67,6 +67,27 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'entreprise',
+        loadChildren: () =>
+          import('./features/entreprise/entreprise.routes').then(
+            (module) => module.routesEntreprise,
+          ),
+      },
+      {
+        path: 'utilisateurs',
+        loadChildren: () =>
+          import('./features/utilisateurs/utilisateurs.routes').then(
+            (module) => module.routesUtilisateurs,
+          ),
+      },
+      {
+        path: 'profil',
+        loadChildren: () =>
+          import('./features/utilisateurs/utilisateurs.routes').then(
+            (module) => module.routesProfil,
+          ),
+      },
+      {
         path: 'parametres',
         loadChildren: () =>
           import('./features/parametres/parametres.routes').then(

@@ -58,8 +58,9 @@ export const NAVIGATION: readonly GroupeNavigation[] = [
   {
     titre: 'Administration',
     entrees: [
-      { libelle: 'Entreprise', chemin: '/entreprise', role: ROLE_ADMIN, disponible: false },
-      { libelle: 'Utilisateurs', chemin: '/utilisateurs', role: ROLE_ADMIN, disponible: false },
+      { libelle: 'Entreprise', chemin: '/entreprise', role: ROLE_ADMIN, disponible: true },
+      { libelle: 'Utilisateurs', chemin: '/utilisateurs', role: ROLE_ADMIN, disponible: true },
+      { libelle: 'Mon profil', chemin: '/profil', disponible: true },
       { libelle: 'Apparence', chemin: '/parametres/apparence', disponible: true },
     ],
   },

@@ -34,7 +34,7 @@
     </button>
 
     @if (auth.utilisateur(); as utilisateur) {
-      <a class="topbar__action" routerLink="/changer-mot-de-passe">
+      <a class="topbar__action" routerLink="/profil">
         {{ utilisateur.prenom }} {{ utilisateur.nom }}
       </a>
     }

@@ -1,12 +1,37 @@
 # État courant
 
 - Dernière mise à jour : 2026-08-19 — session 1
-- Phase en cours : 9 · Commerce — terminée, en attente de vérification visuelle
-- Branche de travail : feat/commandes-ventes
-- Dernier commit : 17f8d8a — feat(layout): open the commerce entries in the navigation
+- Phase en cours : 10 · Administration — **écrans écrits, tests et docs à faire**
+- Branche de travail : feat/administration (phase 9 fusionnée dans `develop`)
+- Dernier commit : voir `git log -1` — écrans entreprise, utilisateurs et profil
 - Backend requis démarré : oui — `http://localhost:8080/api/v1`
-- Prochaine action précise : vérifier les écrans de commerce à la main (voir « À vérifier »),
-  puis fusionner dans `develop` et ouvrir la phase 10 · Administration.
+- Prochaine action précise : écrire les tests de la phase 10 (liste des utilisateurs,
+  formulaire d'utilisateur avec ses rôles, écran entreprise, profil), puis les entrées
+  `07-DECISIONS.md` / `06-API-CONTRAT.md` / `08-JOURNAL.md`, puis la vérification visuelle.
+
+## Phase 10 — état exact
+
+Écrit et vérifié par `./scripts/check.sh` (5/5, 208 tests, aucun test propre à la phase) :
+
+- `/entreprise` — fiche de l'entreprise courante, réservée aux administrateurs.
+- `/utilisateurs` — liste paginée, création, modification, suppression. Aucun mot de passe
+  n'est saisi : le serveur en génère un temporaire et l'envoie par email. Un compte encore
+  porteur de ce mot de passe est signalé dans la liste.
+- `/profil` — « Mon profil » : nom, prénom, date de naissance, adresse, et envoi de photo.
+  L'email et les rôles y sont en lecture seule — `PUT /utilisateurs/me` ne les accepte pas.
+- Le nom dans le bandeau mène désormais au profil ; l'entrée « Mon profil » est dans la
+  navigation.
+
+Reste à faire, dans l'ordre :
+
+1. Tests des quatre écrans, sur le modèle des phases précédentes.
+2. ADR-020 : la suppression de son propre compte est refusée par l'interface (le backend
+   l'accepte, et l'administrateur se fermerait la porte au nez) ; l'envoi de photo n'est
+   proposé que sur son propre compte, le backend refusant celle d'autrui.
+3. Écarts à consigner dans `06-API-CONTRAT.md` : `DELETE /utilisateurs/{id}` ne protège ni
+   le compte courant ni le dernier administrateur ; aucun endpoint n'envoie de logo
+   d'entreprise alors que `EntrepriseRequest` porte un champ `photo`.
+4. Entrée de journal, puis vérification visuelle et merge.
 
 ## Fait dans cette phase
 
