@@ -1,14 +1,15 @@
 # État courant
 
 - Dernière mise à jour : 2026-08-19 — session 1
-- Phase en cours : affinage — visuel, alignement des tableaux, jeu de démonstration. Les onze
-  phases du plan déduit (ADR-015) sont terminées et fusionnées dans `develop`.
-- Branche de travail : feat/theme-affinage
+- Phase en cours : aucune. Les onze phases du plan déduit (ADR-015) et l'affinage — visuel,
+  alignement des tableaux, jeu de démonstration — sont fusionnés dans `develop`.
+- Branche de travail : `develop`, à jour
 - Dernier commit : voir `git log -1` — tableau de bord et documentation
 - Backend requis démarré : oui — `http://localhost:8080/api/v1`
-- Prochaine action précise : regarder l'application à l'écran (voir « À vérifier »), puis
-  fusionner dans `develop`. Ensuite : relecture d'ensemble, fusion dans `main` et tag, ou
-  reprise des écarts backend signalés.
+- Prochaine action précise : regarder l'application à l'écran, avec le jeu de démonstration
+  en place (voir « À vérifier »). Ensuite, au choix : relecture d'ensemble des phases 2 à 11,
+  fusion dans `main` et tag `v1.0.0`, ou remontée des seize écarts backend à l'équipe
+  concernée — l'écart nº 16 bloque les ventes hors de la première entreprise.
 
 ## Fait depuis la dernière entrée
 
