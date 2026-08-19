@@ -107,6 +107,23 @@ pour les erreurs de champ. Tableau de correspondance dans `06-API-CONTRAT.md`.
 directement par les composants. Les mutations passent par le service API de la feature, qui
 invalide ou recharge la ressource concernée.
 
+## Listes et pagination
+
+`core/api/pagination.ts` porte la conversion entre l'enveloppe du backend et ce qu'un écran
+affiche : `page` et `size` toujours envoyés explicitement, `sort` au format `champ,sens`,
+`premiere` et `nombreElements` dérivés — le backend ne les renvoie pas. Le type de
+l'enveloppe est déduit du schéma généré, jamais réécrit à la main.
+
+`shared/ui/tableau` tient la structure et l'accessibilité d'un tableau : en-têtes, état de
+tri annoncé par `aria-sort`, lignes de chargement, place réservée à l'état vide. Il ne
+connaît ni les données ni l'API — les lignes sont projetées par l'écran, seul à savoir ce
+qu'une ligne contient. `shared/ui/pagination` compte les pages à partir de 1 pour le lecteur,
+là où le backend compte à partir de 0.
+
+Une notification globale est supprimée par le marqueur `SANS_NOTIFICATION_ERREUR` sur les
+requêtes dont l'écran affiche déjà l'erreur — un formulaire n'a pas besoin d'écrire deux fois
+le même refus.
+
 ## Écrans d'authentification
 
 Connexion, inscription, mot de passe oublié, réinitialisation et changement de mot de passe
