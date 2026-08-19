@@ -1,0 +1,17 @@
+<label class="champ__libelle" [attr.for]="identifiant()">
+  {{ libelle() }}
+  @if (requis()) {
+    <span class="champ__requis" aria-hidden="true">*</span>
+    <span class="champ__lecture-seule-vocale">obligatoire</span>
+  }
+</label>
+
+<div class="champ__controle" [class.champ__controle--invalide]="invalide()">
+  <ng-content />
+</div>
+
+@if (invalide()) {
+  <p class="champ__erreur" [id]="identifiantErreur()" role="alert">{{ erreur() }}</p>
+} @else if (aide()) {
+  <p class="champ__aide" [id]="identifiantAide()">{{ aide() }}</p>
+}

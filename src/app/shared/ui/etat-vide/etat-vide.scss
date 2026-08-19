@@ -1,0 +1,32 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espace-2);
+  padding: var(--espace-7) var(--espace-4);
+  text-align: center;
+}
+
+.etat-vide {
+  &__titre {
+    color: var(--text-strong);
+    font-family: var(--police-display);
+    font-size: var(--taille-lg);
+  }
+
+  &__message {
+    max-inline-size: 42ch;
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+  }
+
+  &__actions:not(:empty) {
+    margin-block-start: var(--espace-2);
+    display: flex;
+    gap: var(--espace-2);
+  }
+}
+
+:host([data-ton='erreur']) .etat-vide__titre {
+  color: var(--state-danger-text);
+}

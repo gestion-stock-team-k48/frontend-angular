@@ -1,0 +1,76 @@
+.modale {
+  max-inline-size: min(38rem, calc(100vw - var(--espace-6)));
+  padding: 0;
+  border: none;
+  background: transparent;
+
+  &::backdrop {
+    background-color: oklch(0 0 0 / 0.45);
+    animation: modale-voile var(--dur-fast) var(--ease-out);
+  }
+
+  &[open] .modale__panneau {
+    animation: modale-entree var(--dur-base) var(--ease-out);
+  }
+
+  &__panneau {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-4);
+    padding: var(--espace-5);
+    border: var(--bordure-fine) solid var(--border-subtle);
+    border-radius: var(--rayon-carte);
+    background-color: var(--surface-1);
+    box-shadow: var(--ombre-3);
+  }
+
+  &__entete {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--espace-4);
+  }
+
+  &__titre {
+    font-size: var(--taille-xl);
+  }
+
+  &__fermer {
+    padding: var(--espace-1) var(--espace-2);
+    border: none;
+    border-radius: var(--rayon-controle);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: var(--taille-lg);
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--surface-2);
+      color: var(--text-strong);
+    }
+  }
+
+  &__corps {
+    color: var(--text-base);
+  }
+
+  &__pied:not(:empty) {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--espace-2);
+  }
+}
+
+@keyframes modale-voile {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes modale-entree {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}

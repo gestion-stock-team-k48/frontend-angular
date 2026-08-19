@@ -1,0 +1,69 @@
+.notifications {
+  position: fixed;
+  inset-block-end: var(--espace-4);
+  inset-inline-end: var(--espace-4);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-2);
+  max-inline-size: min(28rem, calc(100vw - var(--espace-6)));
+
+  &__element {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--espace-3);
+    padding: var(--espace-3) var(--espace-4);
+    border: var(--bordure-fine) solid var(--border-subtle);
+    border-inline-start-width: var(--espace-1);
+    border-radius: var(--rayon-carte);
+    background-color: var(--surface-1);
+    box-shadow: var(--ombre-2);
+    animation: notification-entree var(--dur-base) var(--ease-out);
+  }
+
+  &__message {
+    color: var(--text-strong);
+    font-size: var(--taille-sm);
+  }
+
+  &__detail {
+    color: var(--text-muted);
+    font-size: var(--taille-xs);
+  }
+
+  &__fermer {
+    margin-inline-start: auto;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--text-strong);
+    }
+  }
+
+  &__element[data-niveau='succes'] {
+    border-inline-start-color: var(--state-success);
+  }
+
+  &__element[data-niveau='avertissement'] {
+    border-inline-start-color: var(--state-warning);
+  }
+
+  &__element[data-niveau='erreur'] {
+    border-inline-start-color: var(--state-danger);
+  }
+
+  &__element[data-niveau='information'] {
+    border-inline-start-color: var(--state-info);
+  }
+}
+
+@keyframes notification-entree {
+  from {
+    opacity: 0;
+    transform: translateY(var(--espace-2));
+  }
+}
