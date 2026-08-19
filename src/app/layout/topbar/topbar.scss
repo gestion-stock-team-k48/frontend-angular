@@ -71,8 +71,11 @@
     margin-inline-start: auto;
   }
 
+  // Bouton comme lien : le compte mène à un écran, la déconnexion et le thème agissent
+  // sur place. Ils se ressemblent parce qu'ils occupent le même rang dans le bandeau.
   &__action {
     padding: var(--espace-1) var(--espace-3);
+    text-decoration: none;
     border: var(--bordure-fine) solid var(--border-base);
     border-radius: var(--rayon-controle);
     background-color: var(--surface-1);

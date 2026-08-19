@@ -3,6 +3,8 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import localeFr from '@angular/common/locales/fr';
 import {
   LOCALE_ID,
+  inject,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   type ApplicationConfig,
 } from '@angular/core';
@@ -10,6 +12,7 @@ import { provideRouter, withInMemoryScrolling, withViewTransitions } from '@angu
 
 import { routes } from './app.routes';
 import { provideAppConfig } from './core/config/app-config';
+import { ServiceAuthentification } from './core/auth/auth';
 import { intercepteurAuthentification } from './core/auth/auth-interceptor';
 import { intercepteurRafraichissement } from './core/auth/refresh-interceptor';
 import { intercepteurErreurs } from './core/http/error-interceptor';
@@ -46,5 +49,11 @@ export const appConfig: ApplicationConfig = {
         intercepteurRafraichissement,
       ]),
     ),
+    // Rejoué avant le premier affichage : le jeton d'accès n'a pas survécu au rechargement,
+    // seul le jeton de rafraîchissement subsiste. Sans cette étape, les gardes trancheraient
+    // sur une session qu'elles croiraient fermée et renverraient vers la connexion un
+    // utilisateur qui ne l'a jamais quittée. L'échec est absorbé par le service : on démarre
+    // alors déconnecté, sans bloquer l'application.
+    provideAppInitializer(() => inject(ServiceAuthentification).restaurerSession()),
   ],
 };
