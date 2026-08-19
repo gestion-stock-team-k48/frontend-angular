@@ -201,3 +201,47 @@ la retirer supposerait de renoncer au test anti-divergence, ou de générer
 
 La comparaison du test porte sur les nombres et non sur le texte : le formateur supprime les
 zéros terminaux (`0.130` devient `0.13`) sans changer la couleur.
+
+---
+
+## ADR-011 — Angular Aria n'est utilisé que là où il existe
+
+**Contexte.** Le brief cite Angular Aria « pour les primitives (menu, combobox, tabs, tree,
+dialog…) ». Le paquet `@angular/aria@22.1.2` expose en réalité : `accordion`, `combobox`,
+`grid`, `listbox`, `menu`, `tabs`, `toolbar`, `tree`. Il ne fournit ni bouton, ni champ de
+formulaire, ni boîte de dialogue.
+
+**Décision.**
+
+- Les composants couverts par Aria s'appuient dessus. L'écran « Apparence » utilise déjà
+  `ngTabs`, `ngTabList`, `ngTab`, `ngTabPanel` et `ngTabContent`.
+- Le bouton, le champ, la pastille, la jauge et le squelette sont du HTML natif : `button`,
+  `label` associé à son contrôle, `role="meter"`. Ils n'ont besoin d'aucune mécanique de
+  navigation au clavier — le navigateur la fournit déjà.
+- La modale s'appuie sur l'élément natif `<dialog>` et sa méthode `showModal()`, qui
+  apportent le piège de focus, la fermeture par Échap, le voile et l'inertie du reste de la
+  page. Reconstruire cela en JavaScript coûterait des défauts d'accessibilité sans contrepartie.
+
+**Conséquence.** Aria couvrira les menus, listes déroulantes et arbres des phases suivantes.
+Le socle du design system, lui, ne dépend que de la plateforme.
+
+Effet de bord assumé : la règle ESLint `click-events-have-key-events` signale le clic posé sur
+le voile du `<dialog>`. L'écouteur est donc attaché en code plutôt que dans le gabarit — il
+ne s'agit pas d'un élément interactif à rendre focusable, et le clavier ferme la modale par
+Échap, via l'événement `cancel`.
+
+---
+
+## ADR-012 — `shared/ui` ne consomme aucun service, à une exception près
+
+**Contexte.** `04-ARCHITECTURE.md` interdit à `shared/ui` de consommer un service. Or la
+pile de notifications doit afficher une file tenue par `core`.
+
+**Décision.** `ZoneNotifications` injecte `ServiceNotifications`. C'est la seule exception,
+et elle est bornée : le composant n'a aucune logique métier, il rend une liste et propose de
+fermer un élément.
+
+**Conséquence.** L'alternative — passer la liste en entrée — obligerait chaque écran de
+l'application à relayer une donnée qui ne le concerne pas. La règle ESLint qui empêche
+`shared` d'importer une feature reste en place ; c'est elle qui compte, et elle n'est pas
+touchée.
