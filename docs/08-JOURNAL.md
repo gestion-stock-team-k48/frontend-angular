@@ -501,3 +501,54 @@ et ADR-019, et un jeton GitLab valide pour pousser.
 **En attente.** Vérification visuelle du tableau de bord. Le plan déduit en ADR-015 s'achève
 ici : la suite appartient au mainteneur — relecture d'ensemble, fusion dans `main` et tag, ou
 reprise des seize écarts backend consignés dans `06-API-CONTRAT.md`.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Affinage visuel
+
+**Branche** : `feat/theme-affinage` (depuis `develop`, phases 1 à 11 fusionnées)
+
+**Demande.** L'interface est jugée trop plate : plus de couleur, plus de mouvement, plus
+agréable à l'usage.
+
+**Constat de départ.** Le document de design décrivait déjà, depuis la phase 2, la liste des
+micro-interactions attendues — cascade des lignes, transitions de modale et de toasts,
+compteur animé des KPI, pulsation des alertes. Presque rien n'avait été posé. L'affinage n'a
+donc pas inventé une direction : il a livré celle qui était écrite.
+
+**Fait.**
+
+- Trois familles de tokens sémantiques bâties sur `color-mix` de `--brand` : surfaces
+  teintées, dégradés, ombres de marque, flou de calque. Tout suit la couleur d'amorce de
+  l'entreprise sans qu'aucun effet ne soit recalculé.
+- Feuille `styles/_animations.scss` : images clés partagées et deux classes utilitaires.
+- Mouvement posé sur le tableau, la modale, les notifications, la jauge, la navigation, les
+  tuiles du tableau de bord et l'écran de connexion.
+- 232 tests.
+
+**Découvert en route.**
+
+- Les styles de ligne de tableau ne s'appliquaient pas depuis la phase 6 : les lignes sont
+  projetées, donc marquées par l'encapsulation du parent, hors de portée de `tableau.scss`.
+  Déplacés dans une feuille globale, comme le style des champs.
+- Même piège pour l'animation d'entrée d'écran : le composant rendu par le routeur ne porte
+  pas l'attribut d'encapsulation de la coquille.
+- Le compteur animé lisait l'horodatage passé par `requestAnimationFrame`, dont l'origine
+  diffère de `performance.now()` selon l'environnement : l'avancement partait en négatif et
+  les chiffres descendaient sous zéro. L'horloge est relue à chaque image.
+
+**Choix de conception.**
+
+- Un seul chiffre animé dans toute l'application, sur le tableau de bord. Un montant de
+  facture qui défile serait une coquetterie.
+- Le survol d'une ligne pose un liseré de marque plutôt qu'un fond appuyé : les chiffres de
+  la ligne restent lisibles pendant qu'on la désigne.
+- La cascade des lignes plafonne son retard à huit lignes. Sur cent lignes, un retard
+  proportionnel ferait attendre le bas du tableau plusieurs secondes.
+- Aucune durée n'a été écrite hors des tokens : `prefers-reduced-motion` continue d'éteindre
+  toute l'application d'une seule surcharge.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+232 tests passés, build de production 328,27 ko.
+
+**En attente.** Un regard sur l'écran : le mouvement se juge en le voyant, pas en le lisant.

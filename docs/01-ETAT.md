@@ -1,39 +1,61 @@
 # État courant
 
 - Dernière mise à jour : 2026-08-19 — session 1
-- Phase en cours : 11 · Tableau de bord — terminée, en attente de vérification visuelle.
-  **C'est la dernière phase du plan déduit (ADR-015).**
-- Branche de travail : feat/tableau-de-bord
+- Phase en cours : affinage visuel — couleur, relief et mouvement. Les onze phases du plan
+  déduit (ADR-015) sont terminées et fusionnées dans `develop`.
+- Branche de travail : feat/theme-affinage
 - Dernier commit : voir `git log -1` — tableau de bord et documentation
 - Backend requis démarré : oui — `http://localhost:8080/api/v1`
-- Prochaine action précise : vérifier le tableau de bord à la main (voir « À vérifier »),
-  fusionner dans `develop`, puis décider de la suite — relecture d'ensemble des phases 2 à 11,
-  fusion dans `main` et tag, ou reprise des écarts backend signalés.
+- Prochaine action précise : regarder l'application à l'écran (voir « À vérifier »), puis
+  fusionner dans `develop`. Ensuite : relecture d'ensemble, fusion dans `main` et tag, ou
+  reprise des écarts backend signalés.
 
-## Fait dans cette phase
+## Fait dans cet affinage
 
-- `/tableau-de-bord` : chiffre d'affaires du mois et total, commandes client et fournisseur
-  par état, classement des articles les plus vendus, aperçu des alertes de seuil.
-- La racine de l'application mène désormais au tableau de bord.
-- Dernière entrée de navigation ouverte : plus aucun écran annoncé n'est inerte.
-- 230 tests.
+Le mouvement décrit depuis la phase 2 dans `05-DESIGN-SYSTEM.md` n'avait jamais été posé.
+Il l'est, entièrement piloté par les tokens de durée existants — `prefers-reduced-motion`
+éteint donc toujours l'application d'un bloc.
 
-## Reste à faire dans cette phase
+- **Couleur** : trois familles de tokens sémantiques bâties sur `color-mix` de `--brand`,
+  donc portées par la couleur d'amorce de l'entreprise — surfaces teintées pour le survol et
+  l'entrée de navigation active, dégradé de marque pour les actions et les filets de tête,
+  ombre teintée pour ce qui est cliquable, halo de fond sur la coquille et l'écran de
+  connexion.
+- **Relief** : entêtes de tableau collants et dégradés, calques floutés (bandeau, voile de
+  modale, tiroir), tuiles du tableau de bord qui se soulèvent au survol.
+- **Mouvement** : apparition en cascade des lignes de tableau, modale en fondu et échelle,
+  notifications qui entrent par le bord où elles se posent, jauge de seuil qui se déploie,
+  mesures du tableau de bord qui courent vers leur valeur, entrée de navigation qui avance
+  d'un cran sous le curseur.
+- 232 tests.
 
-- Rien de code. La vérification visuelle appartient au mainteneur.
+## Deux défauts trouvés en chemin
+
+1. **Les styles de ligne de tableau ne s'appliquaient pas.** Les lignes sont projetées dans
+   `app-tableau` par l'écran appelant : elles portent l'attribut d'encapsulation du parent,
+   et aucune règle de `tableau.scss` ne pouvait les atteindre. Le survol posé en phase 6
+   n'avait donc jamais rien fait. Les règles vivent maintenant dans `styles/_tableau.scss`,
+   pour la même raison qui met le style des champs dans `_base.scss`.
+2. **Le compteur animé lisait une horloge décalée.** `requestAnimationFrame` passe un
+   horodatage dont l'origine diffère de `performance.now()` selon l'environnement, ce qui
+   produisait un avancement négatif. L'horloge est relue à chaque image.
 
 ## À vérifier à la main
 
     nvm use && npm start
 
-1. `/` redirige vers `/tableau-de-bord`.
-2. Les quatre tuiles affichent les chiffres du serveur ; le chiffre d'affaires du mois est
-   mis en avant par la couleur de marque.
-3. Le classement des ventes met le meilleur article à pleine largeur, les autres au prorata.
-4. Un article sous son seuil apparaît dans les alertes, avec sa jauge ; « Tout voir » mène à
-   `/mouvements-stock/alertes`, et cliquer un article mène à son stock.
-5. Sans aucune vente ni aucune alerte, les deux cartes le disent au lieu d'afficher du vide.
-6. La navigation ne contient plus aucune entrée grisée.
+1. Écran de connexion : deux halos de marque en fond, carte avec filet de marque en tête.
+2. Une liste : les lignes arrivent en cascade, le survol pose un liseré de marque à gauche,
+   l'entête reste visible en défilant.
+3. Le bandeau et le tiroir de navigation laissent deviner le contenu qui passe dessous.
+4. Ouvrir une modale : fondu, léger agrandissement, arrière-plan flouté ; la croix pivote au
+   survol.
+5. Enregistrer quelque chose : la notification entre par la droite, teintée selon son niveau.
+6. Tableau de bord : les quatre mesures courent vers leur valeur, les barres du classement se
+   déploient, la tuile du mois porte l'ombre de marque.
+7. `/parametres/apparence` : changer la couleur d'amorce recolore tout ce qui précède, y
+   compris les ombres et les dégradés.
+8. Système réglé sur « animations réduites » : plus rien ne bouge, tout reste lisible.
 
 ## Points bloquants / en attente de ma validation
 

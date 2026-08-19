@@ -43,12 +43,6 @@
     &:focus {
       outline: none;
     }
-
-    // L'écran arrive en fondu montant. C'est la seule animation d'entrée de la coquille :
-    // elle donne le rythme, les écrans n'ont rien à ajouter.
-    > * {
-      animation: apparition var(--dur-base) var(--ease-out) both;
-    }
   }
 }
 
