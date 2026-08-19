@@ -102,3 +102,41 @@ du projet et un builder `@angular/build:unit-test`.
 **Conséquence.** Pas de `karma.conf.js`, pas de `vitest.config.ts` à maintenir : la
 configuration vit dans `angular.json`. Si un besoin dépasse ce que le builder expose, la
 question est posée avant d'ajouter un fichier de configuration parallèle.
+
+---
+
+## ADR-007 — `openapi-typescript` exécuté en isolation, pas installé
+
+**Contexte.** Le brief impose de générer les types API avec `openapi-typescript`. Sa dernière
+version (7.13.0) déclare `peerDependencies: { typescript: "^5.x" }` alors que le projet est en
+TypeScript 6.0.3. Aucune version publiée ne supporte encore TypeScript 6 ; l'installer dans le
+projet imposerait `--legacy-peer-deps` et deux versions de TypeScript dans `node_modules`.
+
+**Décision.** Ne pas l'ajouter aux `devDependencies`. `scripts/sync-api.sh` l'exécute via
+`npx --yes openapi-typescript@7.13.0`, dans un environnement isolé qui embarque son propre
+TypeScript 5. La sortie générée est du TypeScript ordinaire, parfaitement lisible par le
+compilateur 6 du projet.
+
+**Conséquence.** La génération demande un accès réseau, ou un cache npm chaud — mais elle
+n'est nécessaire que lorsque le contrat backend change, jamais au build. La version du
+générateur est figée dans le script pour rester reproductible. Réévaluer lorsqu'une version
+compatible TypeScript 6 sortira : elle rejoindra alors les `devDependencies`.
+
+---
+
+## ADR-008 — Hooks git dans `.githooks`, sans husky
+
+**Contexte.** Le brief impose husky au §4 et, au §3.3, l'activation des hooks par
+`git config core.hooksPath .githooks`. Ces deux exigences sont incompatibles : husky pose
+lui-même `core.hooksPath` sur `.husky/_`, et un dépôt git n'a qu'un seul `hooksPath`.
+
+**Décision.** Conserver `.githooks`, qui porte le verrou anti-mentions d'IA — l'exigence la
+plus spécifique du brief — et retirer husky. `lint-staged` et `commitlint` sont conservés :
+ce sont eux qui font le travail ; husky ne servait qu'à installer les hooks.
+`.githooks/pre-commit` appelle `lint-staged`, `.githooks/commit-msg` applique la règle
+anti-IA puis délègue à `commitlint`.
+
+**Conséquence.** Les hooks ne s'installent pas tout seuls après un `git clone` : il faut
+lancer `./scripts/bootstrap.sh`, qui pose `core.hooksPath` et rend les hooks exécutables.
+C'est la contrepartie de la suppression de husky, et l'étape 5 du bootstrap l'affiche
+explicitement. À trancher par le mainteneur s'il préfère l'inverse.
