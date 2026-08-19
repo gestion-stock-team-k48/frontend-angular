@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Rejette tout message de commit mentionnant un outil d'IA ou contenant un emoji.
+# Contrôle du message de commit, en deux passes :
+#   1. interdiction des mentions d'outils d'IA et des emoji (règle du projet) ;
+#   2. conformité Conventional Commits, déléguée à commitlint.
 # Activation : git config core.hooksPath .githooks
 set -uo pipefail
 
@@ -7,7 +9,6 @@ MSG_FILE="${1:?chemin du fichier de message attendu}"
 
 ROUGE=$'\033[0;31m'; JAUNE=$'\033[0;33m'; GRIS=$'\033[0;90m'; RAZ=$'\033[0m'
 
-# Motifs interdits : expression régulière étendue, insensible à la casse.
 MOTIFS_INTERDITS=(
   'co-authored-by'
   'generated with'
@@ -27,15 +28,14 @@ MOTIFS_INTERDITS=(
   'llm-generated'
 )
 
-# Emoji : plages Unicode usuelles (pictogrammes, symboles, drapeaux, robot).
+# Emoji : plages Unicode usuelles (pictogrammes, symboles, drapeaux).
 MOTIF_EMOJI='[\x{1F000}-\x{1FAFF}\x{2190}-\x{21FF}\x{2600}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{1F1E6}-\x{1F1FF}]'
 
 fautes=0
 
 signaler() {
-  local ligne_num="$1" ligne_txt="$2" raison="$3"
-  printf '%s  ligne %s%s : %s\n' "$ROUGE" "$ligne_num" "$RAZ" "$raison"
-  printf '%s    %s%s\n' "$GRIS" "$ligne_txt" "$RAZ"
+  printf '%s  ligne %s%s : %s\n' "$ROUGE" "$1" "$RAZ" "$3"
+  printf '%s    %s%s\n' "$GRIS" "$2" "$RAZ"
   fautes=$((fautes + 1))
 }
 
@@ -66,6 +66,16 @@ if [ "$fautes" -gt 0 ]; then
   printf "  L'historique Git ne mentionne jamais d'outil d'IA, et ne contient aucun emoji.\n"
   printf '  Corrige le message ci-dessus, puis relance le commit.\n\n'
   exit 1
+fi
+
+# Passe 2 — Conventional Commits. Ignorée si les dépendances ne sont pas installées.
+if [ -x node_modules/.bin/commitlint ]; then
+  if ! node_modules/.bin/commitlint --edit "$MSG_FILE"; then
+    printf '\n%sCOMMIT REFUSÉ — message non conforme à Conventional Commits.%s\n' "$ROUGE" "$RAZ"
+    printf 'Format attendu : type(scope): sujet à l'\''impératif, minuscule, sans point final.\n'
+    printf 'Types et scopes autorisés : voir commitlint.config.js et docs/02-CONVENTIONS.md.\n\n'
+    exit 1
+  fi
 fi
 
 exit 0
