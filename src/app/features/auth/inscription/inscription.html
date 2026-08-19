@@ -1,0 +1,149 @@
+<section class="carte-auth">
+  <h1 class="carte-auth__titre">Inscrire une entreprise</h1>
+  <p class="carte-auth__intro">
+    L'inscription crée l'entreprise et son premier compte administrateur. Adresse, téléphone et site
+    web se renseignent ensuite depuis l'écran Entreprise.
+  </p>
+
+  @if (message(); as texte) {
+    <p class="carte-auth__bandeau" role="alert">{{ texte }}</p>
+  }
+
+  <form class="carte-auth__formulaire" (submit)="$event.preventDefault(); inscrire()">
+    <fieldset class="carte-auth__section">
+      <legend class="carte-auth__section-titre">Entreprise</legend>
+
+      <div class="carte-auth__groupe">
+        <app-champ
+          libelle="Nom de l'entreprise"
+          identifiant="inscription-nom-entreprise"
+          [requis]="true"
+          [erreur]="erreurNomEntreprise()"
+        >
+          <input
+            id="inscription-nom-entreprise"
+            type="text"
+            autocomplete="organization"
+            [formField]="formulaire.nomEntreprise"
+          />
+        </app-champ>
+
+        <app-champ
+          libelle="Code fiscal"
+          identifiant="inscription-code-fiscal"
+          [requis]="true"
+          [erreur]="erreurCodeFiscal()"
+        >
+          <input
+            id="inscription-code-fiscal"
+            type="text"
+            spellcheck="false"
+            [formField]="formulaire.codeFiscal"
+          />
+        </app-champ>
+
+        <app-champ
+          libelle="Email de l'entreprise"
+          identifiant="inscription-email"
+          [requis]="true"
+          [erreur]="erreurEmail()"
+        >
+          <input
+            id="inscription-email"
+            type="email"
+            autocomplete="email"
+            [formField]="formulaire.email"
+          />
+        </app-champ>
+      </div>
+    </fieldset>
+
+    <fieldset class="carte-auth__section">
+      <legend class="carte-auth__section-titre">Administrateur</legend>
+
+      <div class="carte-auth__groupe">
+        <app-champ
+          libelle="Nom"
+          identifiant="inscription-nom-admin"
+          [requis]="true"
+          [erreur]="erreurNomAdmin()"
+        >
+          <input
+            id="inscription-nom-admin"
+            type="text"
+            autocomplete="family-name"
+            [formField]="formulaire.nomAdmin"
+          />
+        </app-champ>
+
+        <app-champ
+          libelle="Prénom"
+          identifiant="inscription-prenom-admin"
+          [requis]="true"
+          [erreur]="erreurPrenomAdmin()"
+        >
+          <input
+            id="inscription-prenom-admin"
+            type="text"
+            autocomplete="given-name"
+            [formField]="formulaire.prenomAdmin"
+          />
+        </app-champ>
+
+        <app-champ
+          libelle="Email de connexion"
+          identifiant="inscription-email-admin"
+          [requis]="true"
+          aide="C'est cet email qui servira à se connecter."
+          [erreur]="erreurEmailAdmin()"
+        >
+          <input
+            id="inscription-email-admin"
+            type="email"
+            autocomplete="username"
+            [formField]="formulaire.emailAdmin"
+          />
+        </app-champ>
+
+        <app-champ
+          libelle="Mot de passe"
+          identifiant="inscription-mot-de-passe"
+          [requis]="true"
+          [aide]="'Au moins ' + longueurMinimale + ' caractères.'"
+          [erreur]="erreurMotDePasse()"
+        >
+          <input
+            id="inscription-mot-de-passe"
+            type="password"
+            autocomplete="new-password"
+            [formField]="formulaire.motDePasse"
+          />
+        </app-champ>
+
+        <app-champ
+          libelle="Confirmer le mot de passe"
+          identifiant="inscription-confirmation"
+          [requis]="true"
+          [erreur]="erreurConfirmation()"
+        >
+          <input
+            id="inscription-confirmation"
+            type="password"
+            autocomplete="new-password"
+            [formField]="formulaire.confirmation"
+          />
+        </app-champ>
+      </div>
+    </fieldset>
+
+    <div class="carte-auth__actions">
+      <app-bouton type="submit" variante="primaire" [pleineLargeur]="true" [chargement]="enCours()">
+        Inscrire l'entreprise
+      </app-bouton>
+    </div>
+  </form>
+
+  <p class="carte-auth__liens">
+    <a class="carte-auth__lien" routerLink="/connexion">J'ai déjà un compte</a>
+  </p>
+</section>
