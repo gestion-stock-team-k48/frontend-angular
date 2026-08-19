@@ -1,0 +1,169 @@
+<section class="commande">
+  <header class="commande__entete">
+    <div>
+      <p class="commande__fil">
+        <a class="commande__lien" [routerLink]="[cheminBase()]">Retour à la liste</a>
+      </p>
+      <h1 class="commande__titre">
+        @if (creation()) {
+          Nouvelle commande
+        } @else {
+          Commande {{ commande()?.code }}
+        }
+      </h1>
+    </div>
+
+    @if (commande(); as commande) {
+      <app-badge [ton]="tonEtat(commande.etat)">{{ libelleEtat(commande.etat) }}</app-badge>
+    }
+  </header>
+
+  @if (introuvable()) {
+    <app-etat-vide
+      titre="Cette commande n'existe plus, ou n'est pas accessible"
+      message="Elle a peut-être été supprimée."
+      ton="erreur"
+    >
+      <a class="commande__lien" [routerLink]="[cheminBase()]">Revenir à la liste</a>
+    </app-etat-vide>
+  } @else if (chargement()) {
+    <p class="commande__aide">Chargement…</p>
+  } @else {
+    @if (message(); as texte) {
+      <p class="commande__bandeau" role="alert">{{ texte }}</p>
+    }
+
+    @if (ouvertALaSaisie()) {
+      <form class="commande__carte" (submit)="$event.preventDefault(); soumettre()">
+        <div class="commande__groupe">
+          <app-champ
+            libelle="Code"
+            identifiant="commande-code"
+            aide="Laisser vide pour que le serveur en attribue un."
+            [erreur]="erreurCode()"
+          >
+            <input
+              id="commande-code"
+              type="text"
+              spellcheck="false"
+              [formField]="formulaire.code"
+            />
+          </app-champ>
+
+          <app-champ
+            libelle="Date de commande"
+            identifiant="commande-date"
+            [requis]="true"
+            [erreur]="erreurDate()"
+          >
+            <input id="commande-date" type="date" [formField]="formulaire.date" />
+          </app-champ>
+
+          <app-champ
+            [libelle]="libelleTiers()"
+            identifiant="commande-tiers"
+            [requis]="true"
+            [erreur]="erreurTiers()"
+          >
+            <select id="commande-tiers" [formField]="formulaire.tiersId">
+              <option value="">Choisir un {{ libelleTiers().toLowerCase() }}</option>
+              @for (option of tiers(); track option.id) {
+                <option [value]="option.id">{{ nomDuTiers(option) }}</option>
+              }
+            </select>
+          </app-champ>
+        </div>
+
+        @if (tiersTronques()) {
+          <p class="commande__avertissement" role="status">
+            Seuls les {{ libelleTiers().toLowerCase() }}s des premières pages sont proposés : le
+            backend n'expose aucune recherche sur cette liste.
+          </p>
+        }
+
+        <app-editeur-lignes
+          [articles]="articles()"
+          [catalogueTronque]="catalogueTronque()"
+          [(lignes)]="lignes"
+          [desactive]="enCours()"
+        />
+
+        <div class="commande__actions">
+          <a class="commande__lien" [routerLink]="[cheminBase()]">Annuler</a>
+          <app-bouton type="submit" variante="primaire" [chargement]="enCours()">
+            {{ creation() ? 'Créer la commande' : 'Enregistrer' }}
+          </app-bouton>
+        </div>
+      </form>
+    } @else if (commande(); as commande) {
+      <section class="commande__carte">
+        <dl class="commande__resume">
+          <div>
+            <dt>{{ libelleTiers() }}</dt>
+            <dd>{{ commande.tiersNom || '—' }}</dd>
+          </div>
+          <div>
+            <dt>Date</dt>
+            <dd data-numerique>{{ commande.date | date: 'longDate' }}</dd>
+          </div>
+          <div>
+            <dt>Total HT</dt>
+            <dd data-numerique>{{ commande.totalHt | montant }}</dd>
+          </div>
+          <div>
+            <dt>Total TTC</dt>
+            <dd data-numerique>{{ commande.totalTtc | montant }}</dd>
+          </div>
+        </dl>
+
+        <table class="commande__lignes">
+          <caption class="commande__legende">
+            Lignes de la commande
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Article</th>
+              <th scope="col" class="commande__fin">Quantité</th>
+              <th scope="col" class="commande__fin">Prix unitaire TTC</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ligne of commande.lignes; track ligne.articleId) {
+              <tr>
+                <td>{{ ligne.articleDesignation }}</td>
+                <td class="commande__fin" data-numerique>{{ ligne.quantite }}</td>
+                <td class="commande__fin" data-numerique>{{ ligne.prixUnitaireTtc | montant }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <p class="commande__aide">
+          Une commande ne se modifie plus une fois validée : ses lignes ont déjà servi à décider des
+          mouvements de stock.
+        </p>
+      </section>
+    }
+
+    @if (transitions().length > 0) {
+      <section class="commande__transitions">
+        <h2 class="commande__sous-titre">Suite</h2>
+        <div class="commande__actions commande__actions--debut">
+          @for (etat of transitions(); track etat) {
+            <app-bouton
+              [variante]="etat === 'ANNULEE' ? 'danger' : 'primaire'"
+              [chargement]="transitionEnCours() === etat"
+              [desactive]="transitionEnCours() !== null"
+              (presse)="appliquer(etat)"
+            >
+              {{ actionVers(etat).bouton }}
+            </app-bouton>
+          }
+        </div>
+        <p class="commande__aide">
+          Marquer une commande livrée déclenche ses mouvements de stock côté serveur.
+        </p>
+      </section>
+    }
+  }
+</section>
