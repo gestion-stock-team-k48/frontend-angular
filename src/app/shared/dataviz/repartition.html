@@ -1,0 +1,29 @@
+<figure class="graphique">
+  <figcaption class="graphique__titre">{{ titre() }}</figcaption>
+
+  @if (total() === 0) {
+    <p class="graphique__sous-titre">Aucune commande enregistrée.</p>
+  } @else {
+    <div class="graphique__repartition" role="img" [attr.aria-label]="titre()">
+      @for (part of presentes(); track part.libelle) {
+        <span
+          class="graphique__part"
+          [attr.data-ton]="part.ton"
+          [style.flex-grow]="part.valeur"
+        ></span>
+      }
+    </div>
+
+    <ul class="graphique__legende">
+      @for (part of parts(); track part.libelle) {
+        <li class="graphique__legende-element">
+          <span class="graphique__pastille" [attr.data-ton]="part.ton" aria-hidden="true"></span>
+          {{ part.libelle }}
+          <span class="graphique__legende-valeur" data-numerique>
+            {{ part.valeur }} · {{ pourcentage(part.valeur) }} %
+          </span>
+        </li>
+      }
+    </ul>
+  }
+</figure>

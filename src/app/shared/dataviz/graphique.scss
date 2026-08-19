@@ -1,0 +1,288 @@
+// Feuille commune aux graphiques. Les couleurs viennent des tokens : un changement de thème
+// ou de couleur d'amorce repeint le dessin sans qu'une ligne de code s'exécute.
+
+.graphique {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-3);
+  margin: 0;
+
+  &__titre {
+    color: var(--text-strong);
+    font-size: var(--taille-md);
+    font-weight: 600;
+  }
+
+  &__sous-titre {
+    color: var(--text-muted);
+    font-size: var(--taille-xs);
+  }
+
+  &__zone {
+    position: relative;
+  }
+
+  &__dessin {
+    display: block;
+    inline-size: 100%;
+    block-size: auto;
+  }
+
+  // Trame et axes : présents, jamais bavards.
+  &__graduation {
+    line {
+      stroke: var(--border-subtle);
+      stroke-width: 1;
+    }
+
+    text {
+      fill: var(--text-muted);
+      font-family: var(--police-mono);
+      font-size: 11px;
+    }
+  }
+
+  &__abscisse {
+    fill: var(--text-muted);
+    font-size: 11px;
+  }
+
+  &__ligne {
+    fill: none;
+    stroke: var(--brand);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  // Lavis sous la courbe : la couleur de la série, très diluée.
+  &__aire {
+    fill: color-mix(in oklab, var(--brand) 14%, transparent);
+    stroke: none;
+  }
+
+  // Anneau à la couleur de la surface : le point reste lisible là où il croise la ligne.
+  // Le grossissement au survol passe par une échelle et non par le rayon : `r` n'est pas
+  // une propriété CSS partout, et stylelint a raison de le refuser.
+  &__point {
+    fill: var(--brand);
+    stroke: var(--surface-1);
+    stroke-width: 2;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform var(--dur-fast) var(--ease-spring);
+
+    &--actif {
+      transform: scale(1.5);
+    }
+  }
+
+  &__colonne {
+    fill: var(--brand);
+    transition: fill var(--dur-fast) var(--ease-out);
+
+    &--active {
+      fill: var(--brand-hover);
+    }
+  }
+
+  &__cible {
+    fill: transparent;
+    cursor: crosshair;
+  }
+
+  &__infobulle {
+    position: absolute;
+    inset-block-start: 0;
+    display: flex;
+    flex-direction: column;
+    padding: var(--espace-2) var(--espace-3);
+    border: var(--bordure-fine) solid var(--border-subtle);
+    border-radius: var(--rayon-controle);
+    background-color: var(--surface-1);
+    box-shadow: var(--ombre-2);
+    font-size: var(--taille-xs);
+    pointer-events: none;
+    transform: translateX(-50%);
+    animation: apparition var(--dur-fast) var(--ease-out) both;
+  }
+
+  &__infobulle-libelle {
+    color: var(--text-muted);
+  }
+
+  &__infobulle-valeur {
+    color: var(--text-strong);
+    font-weight: 600;
+  }
+
+  &__vide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+  }
+
+  // La table de données double le dessin : elle sert au lecteur d'écran, à l'impression et
+  // à qui veut le chiffre exact plutôt que la forme.
+  &__donnees {
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+
+    summary {
+      cursor: pointer;
+    }
+
+    table {
+      inline-size: 100%;
+      margin-block-start: var(--espace-2);
+    }
+
+    th,
+    td {
+      padding: var(--espace-1) var(--espace-2);
+      border-block-end: var(--bordure-fine) solid var(--border-subtle);
+      text-align: start;
+    }
+  }
+
+  &__fin {
+    text-align: end;
+  }
+
+  // Barres horizontales : le libellé à gauche, la valeur à droite, la barre entre les deux.
+  &__barres {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-3);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  &__barre {
+    display: grid;
+    align-items: center;
+    gap: var(--espace-3);
+    grid-template-columns: minmax(6rem, 1fr) minmax(4rem, 2fr) auto;
+  }
+
+  &__barre-nom {
+    overflow: hidden;
+    color: var(--text-base);
+    font-size: var(--taille-sm);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__barre-piste {
+    block-size: var(--espace-3);
+    border-radius: var(--rayon-plein);
+    background-color: var(--surface-2);
+  }
+
+  &__barre-part {
+    display: block;
+    block-size: 100%;
+    border-radius: var(--rayon-plein);
+    background-color: var(--brand);
+    animation: barre-deploiement var(--dur-slow) var(--ease-out);
+    transform-origin: left center;
+  }
+
+  &__barre-valeur {
+    color: var(--text-strong);
+    font-size: var(--taille-sm);
+    font-weight: 500;
+  }
+
+  // Répartition : une seule barre empilée, séparée par du vide et non par des traits.
+  &__repartition {
+    display: flex;
+    gap: 2px;
+    overflow: hidden;
+    block-size: var(--espace-4);
+    border-radius: var(--rayon-plein);
+  }
+
+  &__part {
+    block-size: 100%;
+    transition: flex-grow var(--dur-base) var(--ease-out);
+
+    &[data-ton='neutre'] {
+      background-color: var(--border-strong);
+    }
+
+    &[data-ton='information'] {
+      background-color: var(--state-info);
+    }
+
+    &[data-ton='succes'] {
+      background-color: var(--state-success);
+    }
+
+    &[data-ton='avertissement'] {
+      background-color: var(--state-warning);
+    }
+
+    &[data-ton='danger'] {
+      background-color: var(--state-danger);
+    }
+  }
+
+  &__legende {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--espace-2) var(--espace-4);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  &__legende-element {
+    display: flex;
+    align-items: center;
+    gap: var(--espace-2);
+    color: var(--text-base);
+    font-size: var(--taille-sm);
+  }
+
+  &__pastille {
+    inline-size: var(--espace-2);
+    block-size: var(--espace-2);
+    border-radius: var(--rayon-plein);
+
+    &[data-ton='neutre'] {
+      background-color: var(--border-strong);
+    }
+
+    &[data-ton='information'] {
+      background-color: var(--state-info);
+    }
+
+    &[data-ton='succes'] {
+      background-color: var(--state-success);
+    }
+
+    &[data-ton='avertissement'] {
+      background-color: var(--state-warning);
+    }
+
+    &[data-ton='danger'] {
+      background-color: var(--state-danger);
+    }
+  }
+
+  &__legende-valeur {
+    color: var(--text-muted);
+  }
+}
+
+@keyframes barre-deploiement {
+  from {
+    transform: scaleX(0);
+  }
+}

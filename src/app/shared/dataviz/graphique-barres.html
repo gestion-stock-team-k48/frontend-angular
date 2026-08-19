@@ -1,0 +1,21 @@
+<figure class="graphique">
+  <figcaption class="graphique__titre">{{ titre() }}</figcaption>
+
+  @if (barres().length === 0) {
+    <p class="graphique__sous-titre">Aucune donnée pour l'instant.</p>
+  } @else {
+    <ul class="graphique__barres">
+      @for (barre of barres(); track barre.libelle) {
+        <li class="graphique__barre">
+          <span class="graphique__barre-nom" [title]="barre.detail ?? barre.libelle">
+            {{ barre.libelle }}
+          </span>
+          <span class="graphique__barre-piste" aria-hidden="true">
+            <span class="graphique__barre-part" [style.inline-size.%]="barre.proportion"></span>
+          </span>
+          <span class="graphique__barre-valeur" data-numerique>{{ formater()(barre.valeur) }}</span>
+        </li>
+      }
+    </ul>
+  }
+</figure>
