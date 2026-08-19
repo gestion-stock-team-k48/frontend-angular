@@ -15,6 +15,10 @@ import { API_BASE_URL } from '../config/app-config';
 import { SANS_JETON, SANS_RAFRAICHISSEMENT } from '../http/http-contexte';
 import type {
   DemandeAuthentification,
+  DemandeChangementMotDePasse,
+  DemandeInscription,
+  DemandeMotDePasseOublie,
+  DemandeReinitialisationMotDePasse,
   ReponseAuthentification,
   Role,
   Utilisateur,
@@ -54,6 +58,15 @@ export class ServiceAuthentification {
 
   readonly estAdministrateur = computed(() => this.roles().includes('ROLE_ADMIN'));
 
+  /**
+   * Vrai tant que l'utilisateur n'a pas remplacé le mot de passe temporaire que lui a
+   * attribué son administrateur. Le backend porte l'information sur le profil ; l'interface
+   * se contente de la relayer à la garde qui bloque le reste de l'application.
+   */
+  readonly doitChangerMotDePasse = computed(
+    () => this.utilisateurCourant()?.mustChangePassword === true,
+  );
+
   /** Entreprise de l'utilisateur connecté, affichée dans le bandeau applicatif. */
   readonly entreprise = computed(() => {
     const utilisateur = this.utilisateurCourant();
@@ -76,12 +89,64 @@ export class ServiceAuthentification {
   authentifier(identifiants: DemandeAuthentification): Observable<Utilisateur> {
     return this.http
       .post<ReponseAuthentification>(`${this.baseUrl}/auth/authenticate`, identifiants, {
-        context: new HttpContext().set(SANS_JETON, true).set(SANS_RAFRAICHISSEMENT, true),
+        context: contexteHorsSession(),
       })
       .pipe(
         tap((reponse) => this.appliquerJetons(reponse)),
         switchMap(() => this.chargerUtilisateur()),
       );
+  }
+
+  /**
+   * Inscrit une entreprise et son premier administrateur.
+   *
+   * Le backend renvoie directement un couple de jetons : l'inscription ouvre donc la
+   * session, sans repasser par l'écran de connexion.
+   */
+  inscrire(demande: DemandeInscription): Observable<Utilisateur> {
+    return this.http
+      .post<ReponseAuthentification>(`${this.baseUrl}/auth/register`, demande, {
+        context: contexteHorsSession(),
+      })
+      .pipe(
+        tap((reponse) => this.appliquerJetons(reponse)),
+        switchMap(() => this.chargerUtilisateur()),
+      );
+  }
+
+  /**
+   * Demande l'envoi d'un code de réinitialisation.
+   *
+   * Le backend répond de la même façon que l'email soit connu ou non : l'interface ne peut
+   * donc pas — et ne doit pas — dire à l'utilisateur si le compte existe.
+   */
+  demanderReinitialisation(demande: DemandeMotDePasseOublie): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/auth/forgot-password`, demande, {
+      context: contexteHorsSession(),
+    });
+  }
+
+  /** Définit un nouveau mot de passe à partir du code reçu par email. */
+  reinitialiser(demande: DemandeReinitialisationMotDePasse): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/auth/reset-password`, demande, {
+      context: contexteHorsSession(),
+    });
+  }
+
+  /**
+   * Change le mot de passe de l'utilisateur connecté, puis recharge son profil — c'est lui
+   * qui porte `mustChangePassword`, et la garde s'appuie dessus.
+   *
+   * Le rafraîchissement est désactivé sur cet appel : un `401` y signifie « ancien mot de
+   * passe incorrect », pas « session expirée ». Sans cette exclusion, une faute de frappe
+   * déconnecterait l'utilisateur au lieu de lui afficher l'erreur.
+   */
+  changerMotDePasse(demande: DemandeChangementMotDePasse): Observable<Utilisateur> {
+    return this.http
+      .post<void>(`${this.baseUrl}/utilisateurs/change-password`, demande, {
+        context: new HttpContext().set(SANS_RAFRAICHISSEMENT, true),
+      })
+      .pipe(switchMap(() => this.chargerUtilisateur()));
   }
 
   /** Recharge le profil courant. Source de vérité des rôles et de l'entreprise. */
@@ -150,7 +215,7 @@ export class ServiceAuthentification {
     // de requête. Ce détail n'est pas décrit par la spécification, voir docs/06-API-CONTRAT.
     return this.http.post<ReponseAuthentification>(`${this.baseUrl}/auth/refresh-token`, null, {
       headers: { Authorization: `Bearer ${jeton}` },
-      context: new HttpContext().set(SANS_JETON, true).set(SANS_RAFRAICHISSEMENT, true),
+      context: contexteHorsSession(),
     });
   }
 
@@ -160,4 +225,12 @@ export class ServiceAuthentification {
       localStorage.setItem(CLE_JETON_RAFRAICHISSEMENT, reponse.refreshToken);
     }
   }
+}
+
+/**
+ * Contexte des appels qui n'ont pas de session à présenter : ni jeton attaché, ni tentative
+ * de rafraîchissement si le serveur refuse — le refus est alors la réponse attendue.
+ */
+function contexteHorsSession(): HttpContext {
+  return new HttpContext().set(SANS_JETON, true).set(SANS_RAFRAICHISSEMENT, true);
 }

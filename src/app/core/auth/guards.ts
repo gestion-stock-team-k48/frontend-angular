@@ -41,3 +41,17 @@ export const gardeInvite: CanActivateFn = () => {
 
   return auth.estAuthentifie() ? router.createUrlTree(['/']) : true;
 };
+
+/**
+ * Bloque l'application tant qu'un mot de passe temporaire n'a pas été remplacé.
+ *
+ * L'administrateur qui crée un compte y met un mot de passe généré, transmis par email.
+ * Laisser cet utilisateur circuler avec ce mot de passe reviendrait à laisser un secret
+ * connu de deux personnes ouvrir la porte indéfiniment.
+ */
+export const gardeMotDePasse: CanActivateFn = () => {
+  const auth = inject(ServiceAuthentification);
+  const router = inject(Router);
+
+  return auth.doitChangerMotDePasse() ? router.createUrlTree(['/changer-mot-de-passe']) : true;
+};
