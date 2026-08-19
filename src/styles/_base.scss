@@ -89,3 +89,40 @@ textarea {
   font: inherit;
   color: inherit;
 }
+
+// Apparence des contrôles de saisie. Globale, parce qu'un champ se ressemble d'un écran
+// à l'autre : la porter dans le composant d'enveloppe obligerait à percer son
+// encapsulation pour atteindre le contrôle projeté.
+input:not([type='range'], [type='checkbox'], [type='radio']),
+select,
+textarea {
+  inline-size: 100%;
+  padding: var(--espace-2) var(--espace-3);
+  border: var(--bordure-fine) solid var(--bordure-controle, var(--border-base));
+  border-radius: var(--rayon-controle);
+  background-color: var(--surface-1);
+  color: var(--text-strong);
+  transition: border-color var(--dur-fast) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    border-color: var(--border-strong);
+  }
+
+  &:disabled {
+    background-color: var(--surface-2);
+    color: var(--text-muted);
+    cursor: not-allowed;
+  }
+}
+
+// Les colonnes numériques s'alignent : chiffres à chasse fixe dès la saisie.
+input[type='number'],
+input[inputmode='numeric'] {
+  font-family: var(--police-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+input[type='range'] {
+  inline-size: 100%;
+  accent-color: var(--brand);
+}

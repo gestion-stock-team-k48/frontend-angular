@@ -121,3 +121,35 @@ jour à chaque étape, pour qu'une interruption ne laisse jamais un état illisi
 57 tests passés, build de production 252,36 ko.
 
 **En attente.** Visibilité du dépôt, confirmation de `@types/node`.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 3 · Design system
+
+**Branche** : `feat/ui-design-system` (depuis `develop`)
+
+**Fait.**
+
+- Huit primitives dans `shared/ui`, dont la jauge de seuil, élément signature de
+  l'application.
+- Écran « Apparence » sur les onglets d'Angular Aria, servant aussi de page de démonstration.
+- 73 tests.
+
+**Découvert en route.**
+
+- `@angular/aria@22.1.2` n'expose ni bouton, ni champ, ni boîte de dialogue, contrairement à
+  ce que laissait entendre le brief. Ce qu'il couvre est utilisé ; le reste s'appuie sur la
+  plateforme, `<dialog>` compris (ADR-011).
+- La règle `click-events-have-key-events` signalait le clic sur le voile du `<dialog>`.
+  L'écouteur est passé en code : ce n'est pas un élément interactif à rendre focusable, et
+  Échap ferme déjà la modale.
+- `::ng-deep` était nécessaire pour styler un contrôle projeté. Le style des champs a été
+  déplacé dans la feuille de base, où il a naturellement sa place : plus aucun `::ng-deep`
+  dans le projet.
+- La page d'attente de la phase 2 a été retirée, remplacée par l'écran « Apparence ».
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+73 tests passés, build de production 270,23 ko.
+
+**En attente.** Visibilité du dépôt, confirmation de `@types/node`, relecture d'ensemble des
+phases enchaînées en autonomie.

@@ -1,45 +1,39 @@
 # État courant
 
 - Dernière mise à jour : 2026-08-19 — session 1
-- Phase en cours : 2 · Thème — terminée
-- Branche de travail : feat/theme-tokens
-- Dernier commit : 7c5ac77 — feat(theme): add a temporary preview page for the tokens
+- Phase en cours : 3 · Design system — terminée
+- Branche de travail : feat/ui-design-system
+- Dernier commit : 3627c43 — feat(parametres): add the appearance screen
 - Backend requis démarré : oui — `http://localhost:8080/api/v1`
-- Prochaine action précise : ouvrir la phase 3 (primitives UI sur Angular Aria et écran « Apparence »).
+- Prochaine action précise : ouvrir la phase 4 (shell applicatif, sidebar, topbar, fil d'Ariane, 404 et 403).
 
 ## Fait dans cette phase
 
-- Polices Space Grotesk, IBM Plex Sans et IBM Plex Mono auto-hébergées dans `public/fonts/`
-  (sous-ensemble latin, woff2, environ 140 ko), déclarées avec `font-display: swap` et
-  préchargées pour les deux graisses du premier écran.
-- Générateur de rampe OKLCH : clartés perceptuellement régulières, chroma culminant au
-  milieu, conversion vers sRGB et calcul de contraste WCAG.
-- `--brand-contrast` choisi automatiquement pour rester au-dessus de 4,5:1. Vérifié sur
-  les 24 teintes du cercle et sur trois amorces extrêmes.
-- Trois couches de tokens : primitifs, sémantiques (avec thème sombre), système
-  (espacement, rayons, ombres, plans, typographie, densité).
-- Tokens de mouvement et `prefers-reduced-motion` : une seule surcharge ramène toutes les
-  durées à 1 ms, puisque aucun composant ne porte de durée propre.
-- `ServiceTheme` : mode clair / sombre / système, amorce, densité, rayon ; application sur
-  l'élément racine, persistance dans `localStorage`, suivi de `prefers-color-scheme`,
-  `color-scheme` et `<meta name="theme-color">` synchronisés.
-- Page d'attente temporaire rendant le thème vérifiable à la main. Elle disparaît en phase 4.
-- 57 tests.
+- Huit primitives dans `shared/ui` : jauge de seuil, bouton, champ, pastille, squelette,
+  état vide, modale, pile de notifications.
+- Jauge de seuil, élément signature : échelle plafonnée à deux fois le seuil, repère toujours
+  au même endroit, trois tailles, `role="meter"` et libellé parlant.
+- Modale sur l'élément natif `<dialog>` : piège de focus, Échap, voile et inertie fournis par
+  le navigateur.
+- Écran `/parametres/apparence`, lazy-loadé, sur les directives d'onglets d'Angular Aria.
+  Il sert à la fois de réglage du thème et de démonstration du design system.
+- Style des contrôles de saisie déplacé dans la feuille de base : plus aucun `::ng-deep`.
+- 73 tests.
 
 ## Reste à faire dans cette phase
 
-- Rien. L'écran « Apparence » complet appartient à la phase 3, dont il est aussi la page de
-  démonstration du design system.
+- Rien.
 
 ## Points bloquants / en attente de ma validation
 
-1. **Visibilité du dépôt** — le passage en public a été refusé : le compte est Maintainer (40)
-   sur le groupe, or GitLab réserve ce changement au rôle Owner (50). À faire par un Owner,
-   ou via `Settings → General → Visibility`.
-2. **`@types/node` ajouté sans validation** (ADR-010), seule dépendance dans ce cas. Elle
-   n'embarque aucun code. À confirmer ou à retirer.
-3. **Routes `/connexion` et `/acces-refuse`** référencées par les gardes mais inexistantes
-   jusqu'aux phases 4 et 5.
+1. **Visibilité du dépôt** — passage en public refusé : le compte est Maintainer (40) sur le
+   groupe, GitLab réserve ce changement au rôle Owner (50). À faire par un Owner, ou via
+   `Settings → General → Visibility`.
+2. **`@types/node` ajouté sans validation** (ADR-010). Aucun code embarqué. À confirmer.
+3. **Trois phases enchaînées sans validation intermédiaire** (2, 3 et bientôt 4), sur consigne
+   de continuer en autonomie. À relire d'un bloc.
+4. **Routes `/connexion` et `/acces-refuse`** référencées par les gardes, encore inexistantes.
+   Elles arrivent en phases 4 et 5.
 
 ## Écarts backend signalés, sans contournement
 

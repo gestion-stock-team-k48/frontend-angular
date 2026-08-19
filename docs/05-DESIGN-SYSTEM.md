@@ -1,7 +1,7 @@
 # Design system
 
-Ce document fixe l'architecture visuelle. La phase 2 est faite : polices, tokens,
-`ServiceTheme`, mouvement. Les primitives UI et l'écran « Apparence » arrivent en phase 3.
+Ce document fixe l'architecture visuelle. Phases 2 et 3 faites : polices, tokens,
+`ServiceTheme`, mouvement, primitives UI et écran « Apparence ».
 Les arbitrages typographie et couleur d'amorce sont rendus (session 1, 2026-08-19) et
 consignés en ADR-009.
 
@@ -143,10 +143,30 @@ Prix unitaire          4 500 FCFA
 Ces valeurs sont portées par un token d'injection, jamais codées en dur : une entreprise
 déployée hors zone CFA change de devise sans toucher au code.
 
+## Primitives
+
+Dans `src/app/shared/ui/`. Aucune ne consomme de service ni ne porte de logique métier —
+sauf `ZoneNotifications`, exception bornée documentée en ADR-012.
+
+| Composant           | Sélecteur                | Rôle                                                  |
+| ------------------- | ------------------------ | ----------------------------------------------------- |
+| `JaugeSeuil`        | `app-jauge-seuil`        | élément signature, trois tailles, `role="meter"`      |
+| `Bouton`            | `app-bouton`             | quatre variantes, état de chargement à largeur stable |
+| `Champ`             | `app-champ`              | libellé, aide, erreur ; le contrôle est projeté       |
+| `Badge`             | `app-badge`              | pastille d'état, cinq tons                            |
+| `Squelette`         | `app-squelette`          | bloc de chargement, trois formes                      |
+| `EtatVide`          | `app-etat-vide`          | état vide ou état d'erreur, avec action               |
+| `Modale`            | `app-modale`             | `<dialog>` natif                                      |
+| `ZoneNotifications` | `app-zone-notifications` | pile de notifications                                 |
+
+Angular Aria n'est employé que là où il existe : il n'expose ni bouton, ni champ, ni boîte
+de dialogue. Voir ADR-011.
+
 ## Écran « Apparence »
 
-`/parametres/apparence` : sélecteur d'amorce, presets, mode clair/sombre, densité, aperçu en
-direct. C'est aussi la page de démonstration du design system.
+`/parametres/apparence` : mode, presets et curseurs de teinte, saturation et clarté, densité,
+rayon, aperçu en direct. Deuxième onglet : toutes les primitives, dans leurs états normaux,
+de chargement, d'erreur et vides. C'est la page de démonstration du design system.
 
 ## Mouvement
 

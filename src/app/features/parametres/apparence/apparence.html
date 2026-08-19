@@ -1,0 +1,276 @@
+<header class="apparence__entete">
+  <h1>Apparence</h1>
+  <p class="apparence__intro">
+    Régler l'identité visuelle de l'entreprise. Les changements s'appliquent immédiatement et sont
+    conservés sur ce poste.
+  </p>
+</header>
+
+<div ngTabs class="apparence__onglets">
+  <ul ngTabList class="apparence__liste-onglets" [(selectedTab)]="ongletSelectionne">
+    <li ngTab value="reglages" class="apparence__onglet">Réglages</li>
+    <li ngTab value="composants" class="apparence__onglet">Composants</li>
+  </ul>
+
+  <div ngTabPanel value="reglages" class="apparence__panneau">
+    <ng-template ngTabContent>
+      <section class="apparence__section" aria-label="Mode d'affichage">
+        <h2>Mode</h2>
+        <div class="apparence__choix">
+          @for (mode of modes; track mode.valeur) {
+            <app-bouton
+              [variante]="theme.mode() === mode.valeur ? 'primaire' : 'secondaire'"
+              (presse)="theme.definirMode(mode.valeur)"
+            >
+              {{ mode.libelle }}
+            </app-bouton>
+          }
+        </div>
+        <p class="apparence__aide">
+          En mode Système, l'application suit la préférence du système d'exploitation. Elle est
+          actuellement en thème {{ theme.themeApplique() }}.
+        </p>
+      </section>
+
+      <section class="apparence__section" aria-label="Couleur de marque">
+        <h2>Couleur de marque</h2>
+        <div class="apparence__choix">
+          @for (preset of presets; track preset.nom) {
+            <button
+              type="button"
+              class="apparence__pastille"
+              [attr.aria-label]="'Appliquer la couleur ' + preset.nom"
+              [style.background]="
+                'oklch(' + preset.couleur.l + ' ' + preset.couleur.c + ' ' + preset.couleur.h + ')'
+              "
+              (click)="theme.definirAmorce(preset.couleur)"
+            ></button>
+          }
+        </div>
+
+        <div class="apparence__curseurs">
+          <app-champ libelle="Teinte" identifiant="teinte" [aide]="theme.amorce().h + '°'">
+            <input
+              id="teinte"
+              type="range"
+              min="0"
+              max="360"
+              step="1"
+              [value]="theme.amorce().h"
+              (input)="majTeinte($event)"
+            />
+          </app-champ>
+
+          <app-champ libelle="Saturation" identifiant="chroma" [aide]="theme.amorce().c.toFixed(2)">
+            <input
+              id="chroma"
+              type="range"
+              min="0"
+              max="0.3"
+              step="0.01"
+              [value]="theme.amorce().c"
+              (input)="majChroma($event)"
+            />
+          </app-champ>
+
+          <app-champ libelle="Clarté" identifiant="clarte" [aide]="theme.amorce().l.toFixed(2)">
+            <input
+              id="clarte"
+              type="range"
+              min="0.2"
+              max="0.95"
+              step="0.01"
+              [value]="theme.amorce().l"
+              (input)="majClarte($event)"
+            />
+          </app-champ>
+        </div>
+
+        <p class="apparence__aide">
+          La couleur du texte posé sur la marque est recalculée à chaque changement pour rester
+          lisible, quelle que soit la teinte choisie.
+        </p>
+      </section>
+
+      <section class="apparence__section" aria-label="Densité des tableaux">
+        <h2>Densité</h2>
+        <div class="apparence__choix">
+          @for (densite of densites; track densite.valeur) {
+            <app-bouton
+              [variante]="theme.densite() === densite.valeur ? 'primaire' : 'secondaire'"
+              (presse)="theme.definirDensite(densite.valeur)"
+            >
+              {{ densite.libelle }}
+            </app-bouton>
+          }
+        </div>
+        <p class="apparence__aide">
+          Le mode compact resserre les lignes de tableau. Les zones de saisie gardent leur taille,
+          pour rester atteignables au doigt.
+        </p>
+      </section>
+
+      <section class="apparence__section" aria-label="Rayon des angles">
+        <h2>Angles</h2>
+        <div class="apparence__choix">
+          @for (rayon of rayons; track rayon.valeur) {
+            <app-bouton
+              [variante]="theme.rayon() === rayon.valeur ? 'primaire' : 'secondaire'"
+              (presse)="theme.definirRayon(rayon.valeur)"
+            >
+              {{ rayon.libelle }}
+            </app-bouton>
+          }
+        </div>
+      </section>
+
+      <section class="apparence__section">
+        <app-bouton variante="fantome" (presse)="theme.reinitialiser()">
+          Rétablir l'apparence par défaut
+        </app-bouton>
+      </section>
+    </ng-template>
+  </div>
+
+  <div ngTabPanel value="composants" class="apparence__panneau">
+    <ng-template ngTabContent>
+      <section class="apparence__section" aria-label="Jauge de seuil">
+        <h2>Jauge de seuil</h2>
+        <p class="apparence__aide">
+          Le rapport entre le stock réel et le seuil minimum. L'échelle est plafonnée à deux fois le
+          seuil, donc le repère reste au même endroit d'une ligne à l'autre.
+        </p>
+
+        <table class="apparence__tableau">
+          <caption class="apparence__legende">
+            Exemples d'articles
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Article</th>
+              <th scope="col">Seuil</th>
+              <th scope="col">Stock</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (exemple of exemplesJauge; track exemple.article) {
+              <tr>
+                <td>{{ exemple.article }}</td>
+                <td data-numerique>{{ exemple.seuil }}</td>
+                <td class="apparence__cellule-stock">
+                  <span data-numerique>{{ exemple.stock }}</span>
+                  <app-jauge-seuil
+                    [stock]="exemple.stock"
+                    [seuil]="exemple.seuil"
+                    [article]="exemple.article"
+                  />
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <div class="apparence__jauges">
+          <app-jauge-seuil taille="moyenne" [stock]="142" [seuil]="40" article="Ciment 50 kg" />
+          <app-jauge-seuil taille="grande" [stock]="12" [seuil]="30" article="Fer à béton 8 mm" />
+        </div>
+      </section>
+
+      <section class="apparence__section" aria-label="Boutons">
+        <h2>Boutons</h2>
+        <div class="apparence__choix">
+          <app-bouton variante="primaire">Valider la commande</app-bouton>
+          <app-bouton variante="secondaire">Annuler</app-bouton>
+          <app-bouton variante="fantome">Voir l'historique</app-bouton>
+          <app-bouton variante="danger">Supprimer</app-bouton>
+          <app-bouton variante="primaire" [desactive]="true">Indisponible</app-bouton>
+          <app-bouton
+            variante="primaire"
+            [chargement]="enChargement()"
+            (presse)="simulerChargement()"
+          >
+            Enregistrer la vente
+          </app-bouton>
+        </div>
+        <p class="apparence__aide">
+          Pendant le chargement, la largeur du bouton ne bouge pas : la mise en page reste stable et
+          le pointeur reste sur la même cible.
+        </p>
+      </section>
+
+      <section class="apparence__section" aria-label="Champs de formulaire">
+        <h2>Champs</h2>
+        <div class="apparence__formulaire">
+          <app-champ
+            libelle="Code article"
+            identifiant="demo-code"
+            aide="Identifiant unique dans le catalogue"
+            [requis]="true"
+          >
+            <input id="demo-code" type="text" value="ART-00187" />
+          </app-champ>
+
+          <app-champ
+            libelle="Quantité"
+            identifiant="demo-quantite"
+            erreur="Stock insuffisant : 3 disponibles, 10 demandés."
+          >
+            <input id="demo-quantite" type="number" value="10" />
+          </app-champ>
+        </div>
+      </section>
+
+      <section class="apparence__section" aria-label="Pastilles d'état">
+        <h2>États de commande</h2>
+        <div class="apparence__choix">
+          <app-badge>En préparation</app-badge>
+          <app-badge ton="information">Validée</app-badge>
+          <app-badge ton="succes">Livrée</app-badge>
+          <app-badge ton="danger">Annulée</app-badge>
+          <app-badge ton="avertissement">Sous le seuil</app-badge>
+        </div>
+      </section>
+
+      <section class="apparence__section" aria-label="Chargement">
+        <h2>Chargement</h2>
+        <div class="apparence__squelettes">
+          <app-squelette largeur="40%" />
+          <app-squelette />
+          <app-squelette largeur="70%" />
+        </div>
+      </section>
+
+      <section class="apparence__section" aria-label="États vides et notifications">
+        <h2>États et notifications</h2>
+
+        <app-etat-vide
+          titre="Aucun article ne correspond à cette recherche"
+          message="Élargir les critères, ou créer un article si celui-ci n'existe pas encore."
+        >
+          <app-bouton variante="primaire">Créer un article</app-bouton>
+        </app-etat-vide>
+
+        <div class="apparence__choix">
+          <app-bouton (presse)="montrerNotifications()">Afficher des notifications</app-bouton>
+          <app-bouton (presse)="modaleOuverte.set(true)">Ouvrir une modale</app-bouton>
+        </div>
+      </section>
+    </ng-template>
+  </div>
+</div>
+
+<app-modale
+  titre="Supprimer l'article ART-00187 ?"
+  [ouverte]="modaleOuverte()"
+  (fermeture)="modaleOuverte.set(false)"
+>
+  <p>
+    Cet article et son historique de mouvements resteront consultables dans les commandes déjà
+    passées. Il ne sera plus proposé à la saisie.
+  </p>
+
+  <div modale-actions>
+    <app-bouton variante="secondaire" (presse)="modaleOuverte.set(false)">Annuler</app-bouton>
+    <app-bouton variante="danger" (presse)="modaleOuverte.set(false)">Supprimer</app-bouton>
+  </div>
+</app-modale>

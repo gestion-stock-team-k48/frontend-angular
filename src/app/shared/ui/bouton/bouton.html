@@ -1,0 +1,19 @@
+<button
+  class="bouton"
+  [attr.type]="type()"
+  [attr.data-variante]="variante()"
+  [attr.data-taille]="taille()"
+  [class.bouton--pleine-largeur]="pleineLargeur()"
+  [disabled]="inactif()"
+  [attr.aria-label]="libelle()"
+  [attr.aria-busy]="chargement()"
+  (click)="clic()"
+>
+  <span class="bouton__contenu" [class.bouton__contenu--masque]="chargement()">
+    <ng-content />
+  </span>
+
+  @if (chargement()) {
+    <span class="bouton__indicateur" aria-hidden="true"></span>
+  }
+</button>

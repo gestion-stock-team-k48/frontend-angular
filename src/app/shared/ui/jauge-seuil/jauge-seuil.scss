@@ -1,0 +1,122 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espace-2);
+}
+
+:host([data-taille='moyenne']),
+:host([data-taille='grande']) {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--espace-2);
+}
+
+.jauge {
+  &__piste {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    background-color: var(--stock-piste);
+    border-radius: var(--rayon-plein);
+    inline-size: 3rem;
+    block-size: 0.375rem;
+  }
+
+  &__remplissage {
+    display: block;
+    block-size: 100%;
+    border-radius: var(--rayon-plein);
+    transition: inline-size var(--dur-base) var(--ease-out);
+  }
+
+  // Le repère marque le seuil. Il reste visible par-dessus le remplissage : c'est la
+  // référence par rapport à laquelle la barre se lit.
+  &__repere {
+    position: absolute;
+    inset-block: -1px;
+    inline-size: var(--bordure-epaisse);
+    background-color: var(--text-muted);
+    opacity: 0.55;
+    transform: translateX(-50%);
+  }
+
+  &__mesures {
+    display: flex;
+    align-items: baseline;
+    gap: var(--espace-1);
+    font-size: var(--taille-sm);
+  }
+
+  &__chiffre {
+    color: var(--text-strong);
+    font-weight: 500;
+  }
+
+  &__separateur,
+  &__seuil {
+    color: var(--text-muted);
+  }
+
+  &__etat {
+    margin-inline-start: auto;
+    font-size: var(--taille-xs);
+  }
+}
+
+:host([data-taille='moyenne']) .jauge__piste {
+  inline-size: 100%;
+  block-size: 0.5rem;
+}
+
+:host([data-taille='grande']) .jauge__piste {
+  inline-size: 100%;
+  block-size: 0.75rem;
+}
+
+:host([data-taille='grande']) .jauge__chiffre {
+  font-family: var(--police-display);
+  font-size: var(--taille-2xl);
+}
+
+:host([data-etat='ok']) .jauge__remplissage {
+  background-color: var(--stock-ok);
+}
+
+:host([data-etat='bas']) .jauge__remplissage {
+  background-color: var(--stock-low);
+}
+
+:host([data-etat='rupture']) .jauge__remplissage {
+  background-color: var(--stock-out);
+}
+
+:host([data-etat='ok']) .jauge__etat {
+  color: var(--state-success-text);
+}
+
+:host([data-etat='bas']) .jauge__etat {
+  color: var(--state-warning-text);
+}
+
+:host([data-etat='rupture']) .jauge__etat {
+  color: var(--state-danger-text);
+}
+
+// Une alerte de stock pulse doucement, une seule fois toutes les trois secondes : assez
+// pour attirer l'œil sur un tableau dense, pas assez pour fatiguer.
+:host([data-etat='rupture']) .jauge__remplissage,
+:host([data-etat='bas']) .jauge__remplissage {
+  animation: jauge-alerte 3s var(--ease-in-out) infinite;
+}
+
+@keyframes jauge-alerte {
+  0%,
+  85%,
+  100% {
+    opacity: 1;
+  }
+
+  92% {
+    opacity: 0.55;
+  }
+}

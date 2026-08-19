@@ -1,0 +1,42 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-1);
+}
+
+.champ {
+  &__libelle {
+    color: var(--text-strong);
+    font-size: var(--taille-sm);
+    font-weight: 500;
+  }
+
+  &__requis {
+    color: var(--state-danger-text);
+  }
+
+  // Visible des seules technologies d'assistance : l'astérisque ne suffit pas à l'oral.
+  &__lecture-seule-vocale {
+    position: absolute;
+    overflow: hidden;
+    clip-path: inset(50%);
+    inline-size: 1px;
+    block-size: 1px;
+    white-space: nowrap;
+  }
+
+  &__controle--invalide {
+    // La bordure rouge est posée sur le contrôle depuis la feuille de base, via cet état.
+    --bordure-controle: var(--state-danger);
+  }
+
+  &__aide {
+    color: var(--text-muted);
+    font-size: var(--taille-xs);
+  }
+
+  &__erreur {
+    color: var(--state-danger-text);
+    font-size: var(--taille-xs);
+  }
+}

@@ -1,0 +1,15 @@
+<span class="jauge__piste">
+  <span class="jauge__remplissage" [style.inline-size.%]="remplissage()"></span>
+  @if (seuil() > 0) {
+    <span class="jauge__repere" [style.inset-inline-start.%]="positionSeuil()"></span>
+  }
+</span>
+
+@if (taille() !== 'inline') {
+  <span class="jauge__mesures">
+    <span class="jauge__chiffre" data-numerique>{{ stock() }}</span>
+    <span class="jauge__separateur" aria-hidden="true">/</span>
+    <span class="jauge__seuil" data-numerique>{{ seuil() }}</span>
+    <span class="jauge__etat">{{ libelleEtat() }}</span>
+  </span>
+}
