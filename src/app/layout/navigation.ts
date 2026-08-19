@@ -29,8 +29,8 @@ export const NAVIGATION: readonly GroupeNavigation[] = [
   {
     titre: 'Catalogue',
     entrees: [
-      { libelle: 'Articles', chemin: '/articles', disponible: false },
-      { libelle: 'Catégories', chemin: '/categories', disponible: false },
+      { libelle: 'Articles', chemin: '/articles', disponible: true },
+      { libelle: 'Catégories', chemin: '/categories', disponible: true },
     ],
   },
   {

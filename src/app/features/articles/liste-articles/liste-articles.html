@@ -1,0 +1,95 @@
+<section class="liste">
+  <header class="liste__entete">
+    <div>
+      <h1 class="liste__titre">Articles</h1>
+      <p class="liste__sous-titre">
+        Le catalogue de l'entreprise. Le stock réel se lit dans les mouvements de stock.
+      </p>
+    </div>
+
+    <a class="liste__action-principale" routerLink="/articles/nouveau">Nouvel article</a>
+  </header>
+
+  <app-tableau
+    [colonnes]="colonnes"
+    [etat]="etat()"
+    [tri]="tri()"
+    [lignesSquelette]="taille() < 10 ? taille() : 10"
+    libelleActions="Actions"
+    (triChange)="changerTri($event)"
+  >
+    @for (article of articles(); track article.id) {
+      <tr>
+        <td data-numerique>{{ article.code }}</td>
+        <td>{{ article.designation }}</td>
+        <td>{{ article.categoryDesignation ?? '—' }}</td>
+        <td data-alignement="fin" data-numerique>{{ article.prixUnitaireHt | montant }}</td>
+        <td data-alignement="fin" data-numerique>{{ article.tauxTva ?? 0 }} %</td>
+        <td data-alignement="fin" data-numerique>{{ article.prixUnitaireTtc | montant }}</td>
+        <td data-alignement="fin" data-numerique>{{ article.seuilMinimum ?? 0 }}</td>
+        <td data-alignement="fin">
+          <div class="liste__actions">
+            <a class="liste__lien" [routerLink]="['/articles', article.id]">Modifier</a>
+            <app-bouton taille="petite" variante="danger" (presse)="articleASupprimer.set(article)">
+              Supprimer
+            </app-bouton>
+          </div>
+        </td>
+      </tr>
+    }
+
+    <div zoneEtat>
+      @if (etat() === 'erreur') {
+        <app-etat-vide
+          titre="Les articles n'ont pas pu être chargés"
+          message="Le serveur n'a pas répondu comme attendu."
+          ton="erreur"
+        >
+          <app-bouton (presse)="reessayer()">Réessayer</app-bouton>
+        </app-etat-vide>
+      } @else {
+        <app-etat-vide
+          titre="Aucun article"
+          message="Le catalogue est vide. Un article a besoin d'une catégorie : la créer d'abord si nécessaire."
+        >
+          <a class="liste__action-principale" routerLink="/articles/nouveau">Nouvel article</a>
+        </app-etat-vide>
+      }
+    </div>
+  </app-tableau>
+
+  @if (etat() === 'pret') {
+    <app-pagination
+      [etat]="etatPage()"
+      (pageChange)="page.set($event)"
+      (tailleChange)="changerTaille($event)"
+    />
+  }
+</section>
+
+<app-modale
+  [ouverte]="articleASupprimer() !== null"
+  titre="Supprimer l'article"
+  [bloquante]="suppressionEnCours()"
+  (fermeture)="articleASupprimer.set(null)"
+>
+  @if (articleASupprimer(); as article) {
+    <p class="liste__confirmation">
+      « {{ article.designation }} » sera retiré du catalogue. Le serveur refuse la suppression d'un
+      article engagé dans une commande, une vente ou un mouvement de stock.
+    </p>
+
+    <div class="liste__actions liste__actions--fin">
+      <app-bouton
+        variante="fantome"
+        [desactive]="suppressionEnCours()"
+        (presse)="articleASupprimer.set(null)"
+      >
+        Annuler
+      </app-bouton>
+      <app-bouton variante="danger" [chargement]="suppressionEnCours()" (presse)="supprimer()">
+        Supprimer
+      </app-bouton>
+    </div>
+  }
+</app-modale>

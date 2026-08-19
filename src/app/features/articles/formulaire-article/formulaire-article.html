@@ -1,0 +1,123 @@
+<section class="formulaire-article">
+  <header class="formulaire-article__entete">
+    <h1 class="formulaire-article__titre">
+      {{ modification() ? 'Modifier l’article' : 'Nouvel article' }}
+    </h1>
+    <a class="formulaire-article__retour" routerLink="/articles">Retour à la liste</a>
+  </header>
+
+  @if (introuvable()) {
+    <p class="formulaire-article__bandeau" role="alert">
+      Cet article n'existe plus, ou n'est pas accessible.
+    </p>
+  } @else {
+    @if (message(); as texte) {
+      <p class="formulaire-article__bandeau" role="alert">{{ texte }}</p>
+    }
+
+    <form class="formulaire-article__corps" (submit)="$event.preventDefault(); enregistrer()">
+      <div class="formulaire-article__groupe">
+        <app-champ
+          libelle="Code"
+          identifiant="article-code"
+          [requis]="true"
+          aide="Identifiant court, unique dans le catalogue."
+          [erreur]="erreurCode()"
+        >
+          <input id="article-code" type="text" spellcheck="false" [formField]="formulaire.code" />
+        </app-champ>
+
+        <app-champ
+          libelle="Désignation"
+          identifiant="article-designation"
+          [requis]="true"
+          [erreur]="erreurDesignation()"
+        >
+          <input id="article-designation" type="text" [formField]="formulaire.designation" />
+        </app-champ>
+
+        <app-champ
+          libelle="Catégorie"
+          identifiant="article-categorie"
+          [requis]="true"
+          [erreur]="erreurCategorie()"
+        >
+          <select id="article-categorie" [formField]="formulaire.categoryId">
+            <option value="">Choisir une catégorie</option>
+            @for (categorie of categories(); track categorie.id) {
+              <option [value]="categorie.id">{{ categorie.designation }}</option>
+            }
+          </select>
+        </app-champ>
+
+        <app-champ
+          libelle="Seuil minimal"
+          identifiant="article-seuil"
+          [requis]="true"
+          aide="En dessous de ce stock, l'article remonte dans les alertes."
+          [erreur]="erreurSeuil()"
+        >
+          <input id="article-seuil" type="number" step="1" [formField]="formulaire.seuilMinimum" />
+        </app-champ>
+
+        <app-champ
+          libelle="Prix unitaire HT"
+          identifiant="article-prix-ht"
+          [requis]="true"
+          [erreur]="erreurPrixHt()"
+        >
+          <input
+            id="article-prix-ht"
+            type="number"
+            step="1"
+            [formField]="formulaire.prixUnitaireHt"
+          />
+        </app-champ>
+
+        <app-champ
+          libelle="Taux de TVA (%)"
+          identifiant="article-tva"
+          [requis]="true"
+          [erreur]="erreurTauxTva()"
+        >
+          <input id="article-tva" type="number" step="0.25" [formField]="formulaire.tauxTva" />
+        </app-champ>
+      </div>
+
+      <p class="formulaire-article__calcul">
+        Prix TTC calculé : <strong data-numerique>{{ prixTtc() | montant }}</strong>
+      </p>
+
+      <div class="formulaire-article__actions">
+        <a class="formulaire-article__retour" routerLink="/articles">Annuler</a>
+        <app-bouton type="submit" variante="primaire" [chargement]="enCours()">
+          {{ modification() ? 'Enregistrer' : 'Créer l’article' }}
+        </app-bouton>
+      </div>
+    </form>
+
+    @if (modification()) {
+      <section class="formulaire-article__photo">
+        <h2 class="formulaire-article__sous-titre">Photo</h2>
+
+        <p class="formulaire-article__aide">
+          @if (photoEnregistree(); as photo) {
+            Une photo est enregistrée sous « {{ photo }} ». Le backend ne publie aucun endpoint pour
+            la relire : l'interface ne peut donc pas l'afficher.
+          } @else {
+            Aucune photo enregistrée pour cet article.
+          }
+        </p>
+
+        <input
+          id="article-photo"
+          type="file"
+          accept="image/*"
+          aria-label="Choisir une photo à envoyer"
+          [disabled]="photoEnvoi()"
+          (change)="envoyerPhoto($event)"
+        />
+      </section>
+    }
+  }
+</section>

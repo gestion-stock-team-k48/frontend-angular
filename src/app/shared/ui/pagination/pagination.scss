@@ -1,0 +1,41 @@
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espace-3);
+  padding-block-start: var(--espace-3);
+  color: var(--text-muted);
+  font-size: var(--taille-sm);
+
+  &__taille,
+  &__navigation {
+    display: flex;
+    align-items: center;
+    gap: var(--espace-2);
+  }
+
+  &__taille select {
+    inline-size: auto;
+    padding-block: var(--espace-1);
+  }
+
+  &__bouton {
+    padding: var(--espace-1) var(--espace-3);
+    border: var(--bordure-fine) solid var(--border-base);
+    border-radius: var(--rayon-controle);
+    background-color: var(--surface-1);
+    color: var(--text-base);
+    cursor: pointer;
+
+    &:disabled {
+      color: var(--text-muted);
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  &__position {
+    color: var(--text-strong);
+  }
+}

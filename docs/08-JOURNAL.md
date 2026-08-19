@@ -237,3 +237,56 @@ la phase — sans elle, aucun tenant ne peut être créé depuis l'interface.
 **En attente.** Vérification visuelle des cinq écrans par le mainteneur — la liste des points
 à parcourir est dans `01-ETAT.md`. Puis relecture d'ensemble des phases 2 à 5, visibilité du
 dépôt, confirmation de `@types/node`.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 6 · Catalogue
+
+**Branche** : `feat/articles-catalogue` (depuis `develop`)
+
+**Contexte.** Phase 5 fusionnée dans `develop` sans vérification visuelle préalable, sur
+consigne de continuer en autonomie. Le plan de livraison n'étant pas versionné, le découpage
+des phases 6 à 11 a été déduit des groupes de navigation et consigné en ADR-015.
+
+**Fait.**
+
+- Primitives de liste : tableau, pagination, pipe `montant`.
+- Helper de pagination dans `core/api`, dérivé du schéma généré.
+- Écrans Catégories et Articles, création, modification, suppression, envoi de photo.
+- Correctif de la phase 5 sur la double notification d'erreur.
+- 137 tests.
+
+**Découvert en route.**
+
+- `GET /articles` n'accepte aucun paramètre de recherche, et `GET /categories` n'est pas
+  paginé. Les deux écarts sont signalés ; aucun contournement n'a été posé, en particulier
+  pas de champ de recherche qui ne filtrerait que la page affichée.
+- Les photos s'envoient mais aucun endpoint ne les relit : le backend conserve un nom
+  d'objet MinIO. L'écran le dit franchement plutôt que d'afficher une image cassée.
+- `tauxTva` n'intervient dans aucun calcul du backend, et `prixUnitaireTtc` est exigé dans la
+  requête. Le TTC est donc calculé par l'interface (ADR-016).
+- Signal Forms refuse l'attribut `min` sur un contrôle porteur de `[formField]` : la
+  contrainte passe par le validateur `min()` du schéma, qui la reflète lui-même dans le DOM.
+  Un `select` lié à un champ ne travaille qu'en texte : la catégorie est convertie en
+  identifiant à l'envoi.
+- `whenStable()` ne rend pas la main tant qu'une requête attend son `flush` : les tests de
+  liste avancent par `detectChanges()` et n'attendent la stabilité qu'après la réponse.
+- jsdom n'implémente ni `showModal` ni `close` sur `<dialog>`. Comblé une fois pour toutes
+  dans `src/test-setup.ts`, plutôt que de tordre la modale pour un environnement de test.
+- Le premier `ng` a écrit un identifiant d'analytics dans `angular.json`. Analytics coupé
+  pour l'espace de travail.
+- `git push` refusé par GitLab (jeton). Les phases 5 et 6 restent locales.
+
+**Choix de conception.**
+
+- Le tableau ne connaît pas les données : les lignes lui sont projetées. Un composant qui
+  saurait lire des articles ne servirait plus aux clients ni aux commandes.
+- Les catégories se trient dans le navigateur : la réponse est complète, un aller-retour
+  n'apporterait rien.
+- Supprimer le dernier élément d'une page recule d'une page au lieu d'afficher un vide.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+137 tests passés, build de production 311,27 ko.
+
+**En attente.** Vérification visuelle du catalogue, confirmation du découpage des phases
+(ADR-015), et un jeton GitLab valide pour pousser.

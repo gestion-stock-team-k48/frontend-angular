@@ -1,0 +1,103 @@
+<section class="liste">
+  <header class="liste__entete">
+    <div>
+      <h1 class="liste__titre">Catégories</h1>
+      <p class="liste__sous-titre">
+        Le classement du catalogue. Un article appartient à une catégorie.
+      </p>
+    </div>
+
+    <app-bouton variante="primaire" (presse)="ouvrirCreation()">Nouvelle catégorie</app-bouton>
+  </header>
+
+  <app-tableau
+    [colonnes]="colonnes"
+    [etat]="etat()"
+    [tri]="tri()"
+    libelleActions="Actions"
+    (triChange)="tri.set($event)"
+  >
+    @for (categorie of categories(); track categorie.id) {
+      <tr>
+        <td data-numerique>{{ categorie.code }}</td>
+        <td>{{ categorie.designation }}</td>
+        <td data-alignement="fin">
+          <div class="liste__actions">
+            <app-bouton taille="petite" (presse)="ouvrirModification(categorie)"
+              >Modifier</app-bouton
+            >
+            <app-bouton
+              taille="petite"
+              variante="danger"
+              (presse)="categorieASupprimer.set(categorie)"
+            >
+              Supprimer
+            </app-bouton>
+          </div>
+        </td>
+      </tr>
+    }
+
+    <div zoneEtat>
+      @if (etat() === 'erreur') {
+        <app-etat-vide
+          titre="Les catégories n'ont pas pu être chargées"
+          message="Le serveur n'a pas répondu comme attendu."
+          ton="erreur"
+        >
+          <app-bouton (presse)="reessayer()">Réessayer</app-bouton>
+        </app-etat-vide>
+      } @else {
+        <app-etat-vide
+          titre="Aucune catégorie"
+          message="Créer une première catégorie permet ensuite d'y ranger les articles."
+        >
+          <app-bouton variante="primaire" (presse)="ouvrirCreation()"
+            >Nouvelle catégorie</app-bouton
+          >
+        </app-etat-vide>
+      }
+    </div>
+  </app-tableau>
+</section>
+
+<app-modale
+  [ouverte]="formulaireOuvert()"
+  [titre]="titreFormulaire()"
+  (fermeture)="fermerFormulaire()"
+>
+  @if (formulaireOuvert()) {
+    <app-formulaire-categorie
+      [categorie]="categorieEditee()"
+      (enregistree)="apresEnregistrement($event)"
+      (annulee)="fermerFormulaire()"
+    />
+  }
+</app-modale>
+
+<app-modale
+  [ouverte]="categorieASupprimer() !== null"
+  titre="Supprimer la catégorie"
+  [bloquante]="suppressionEnCours()"
+  (fermeture)="categorieASupprimer.set(null)"
+>
+  @if (categorieASupprimer(); as categorie) {
+    <p class="liste__confirmation">
+      « {{ categorie.designation }} » sera retirée du catalogue. Les articles qui s'y trouvent
+      empêchent la suppression : le serveur la refusera tant qu'il en reste.
+    </p>
+
+    <div class="liste__actions liste__actions--fin">
+      <app-bouton
+        variante="fantome"
+        [desactive]="suppressionEnCours()"
+        (presse)="categorieASupprimer.set(null)"
+      >
+        Annuler
+      </app-bouton>
+      <app-bouton variante="danger" [chargement]="suppressionEnCours()" (presse)="supprimer()">
+        Supprimer
+      </app-bouton>
+    </div>
+  }
+</app-modale>

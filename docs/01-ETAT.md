@@ -1,27 +1,28 @@
 # État courant
 
 - Dernière mise à jour : 2026-08-19 — session 1
-- Phase en cours : 5 · Authentification — terminée, en attente de vérification visuelle
-- Branche de travail : feat/auth-connexion
-- Dernier commit : b21b2f7 — feat(auth): route the authentication screens and restore the session
+- Phase en cours : 6 · Catalogue — terminée, en attente de vérification visuelle
+- Branche de travail : feat/articles-catalogue
+- Dernier commit : bdfa48d — feat(layout): open the catalogue entries in the navigation
 - Backend requis démarré : oui — `http://localhost:8080/api/v1`
-- Prochaine action précise : vérifier les cinq écrans à la main (voir « À vérifier » ci-dessous),
-  puis fusionner dans `develop` et ouvrir la phase 6.
+- Prochaine action précise : vérifier les écrans du catalogue à la main (voir « À vérifier »),
+  puis fusionner dans `develop` et ouvrir la phase 7 · Stock.
 
 ## Fait dans cette phase
 
-- Cinq écrans, hors du shell, sous une coquille à eux : connexion, inscription d'entreprise,
-  mot de passe oublié, réinitialisation, changement de mot de passe.
-- Formulaires en Signal Forms : validation côté navigateur alignée sur les contraintes du
-  backend, erreurs serveur reposées sous le champ qu'elles nomment.
-- `ServiceAuthentification` complété : inscription, mot de passe oublié, réinitialisation,
-  changement de mot de passe. Aucune feature ne parle à l'API d'authentification directement.
-- Session restaurée avant le premier affichage par un `provideAppInitializer`.
-- `gardeMotDePasse` : un compte encore porteur du mot de passe temporaire de son
-  administrateur ne sort pas de l'écran de changement.
-- `returnUrl` filtré : seuls les chemins internes sont suivis.
-- Déconnexion et lien de compte dans le bandeau.
-- 105 tests.
+- Primitives de liste : `shared/ui/tableau` (en-têtes, tri annoncé, lignes de chargement,
+  zone d'état vide) et `shared/ui/pagination`. Pipe `montant`, dans la devise configurée.
+- `core/api/pagination.ts` : paramètres `page` / `size` / `sort`, et dérivation de ce que le
+  backend ne renvoie pas (`premiere`, `nombreElements`).
+- Catégories : liste triée côté navigateur, création et modification en modale, suppression
+  confirmée.
+- Articles : liste paginée et triée côté serveur, formulaire de création et de modification,
+  suppression confirmée, envoi de photo.
+- Prix TTC calculé à partir du HT et du taux, arrondi selon la devise (ADR-016).
+- Correctif de la phase 5 : une erreur affichée dans un formulaire n'est plus doublée d'une
+  notification globale.
+- Entrées « Articles » et « Catégories » ouvertes dans la navigation.
+- 137 tests.
 
 ## Reste à faire dans cette phase
 
@@ -31,32 +32,38 @@
 
     nvm use && npm start
 
-Puis, sur `http://localhost:4200` :
+Puis, sur `http://localhost:4200`, connecté :
 
-1. `/` sans session ouverte → redirection vers `/connexion?returnUrl=%2F`.
-2. Connexion avec un mauvais mot de passe → « Email ou mot de passe incorrect » en bandeau,
-   la saisie reste en place.
-3. Connexion valide → retour sur l'écran demandé, nom et entreprise dans le bandeau.
-4. Rechargement de la page (F5) → la session tient, sans repasser par la connexion.
-5. « Se déconnecter » → retour à `/connexion`, et `/parametres/apparence` redevient inaccessible.
-6. `/inscription` avec un email déjà pris → message du backend en bandeau.
-7. `/mot-de-passe-oublie` avec un email connu → code visible dans Mailpit (`http://localhost:8025`),
-   puis `/reinitialisation` avec ce code → connexion possible avec le nouveau mot de passe.
-8. Compte créé par un administrateur (`mustChangePassword`) → toute URL ramène à
-   `/changer-mot-de-passe`, sans lien de sortie ; après changement, l'application s'ouvre.
-9. Mauvais mot de passe actuel sur `/changer-mot-de-passe` → message affiché, **sans**
-   déconnexion (ADR-013).
+1. `/categories` → liste triée par code ; cliquer « Code » puis « Désignation » réordonne
+   sans appel réseau (onglet Réseau à l'appui).
+2. Créer une catégorie, puis en créer une seconde avec le même code → le message du backend
+   se pose sous le champ « Code », **sans** notification en double.
+3. Modifier une catégorie, puis la supprimer. Une catégorie qui porte des articles doit être
+   refusée par le serveur, avec un message lisible.
+4. `/articles` → pagination : changer de page, changer la taille de page (retour en page 1),
+   trier sur « Prix HT ».
+5. Créer un article : saisir HT 6 000 et TVA 19,25 → « Prix TTC calculé : 7 155 FCFA ».
+   Enregistrer, vérifier la ligne dans la liste.
+6. Modifier l'article, envoyer une photo → notification « Photo enregistrée », et le nom de
+   l'objet s'affiche. L'image elle-même ne peut pas être montrée (écart backend nº 6).
+7. Supprimer un article engagé dans un mouvement de stock → refus lisible du serveur.
+8. Catalogue vide → l'écran propose de créer, il ne laisse pas d'impasse.
 
 ## Points bloquants / en attente de ma validation
 
-1. **Relecture d'ensemble** — les phases 2 à 5 ont été enchaînées sans validation
-   intermédiaire. À relire d'un bloc.
-2. **Visibilité du dépôt** — passage en public refusé : compte Maintainer (40), GitLab exige
-   Owner (50). À faire via `Settings → General → Visibility`.
-3. **`@types/node` ajouté sans validation** (ADR-010). Aucun code embarqué. À confirmer.
-4. **Périmètre du formulaire d'inscription** — il ne demande que les champs exigés par le
-   backend. Adresse, téléphone, site web et description restent à saisir depuis l'écran
-   Entreprise, qui n'existe pas encore.
+1. **Découpage des phases 6 à 11 déduit, pas donné** (ADR-015). Le plan complet n'est pas
+   dans le dépôt : la phase 6 a été ouverte sur le groupe « Catalogue » de la navigation.
+   À confirmer ou à corriger.
+2. **Push impossible** — `git push origin develop` est refusé par GitLab :
+   « HTTP Basic: Access denied ». Jeton expiré ou mal scopé. Les phases 5 et 6 sont
+   fusionnées et commitées en local seulement. Relancer `glab auth login`, puis
+   `git push origin main develop`.
+3. **Relecture d'ensemble** — les phases 2 à 6 ont été enchaînées sans validation
+   intermédiaire.
+4. **Visibilité du dépôt** — passage en public refusé : compte Maintainer (40), GitLab exige
+   Owner (50).
+5. **`@types/node` ajouté sans validation** (ADR-010).
+6. **Périmètre du formulaire d'inscription** — champs exigés par le backend seulement.
 
 ## Écarts backend signalés, sans contournement
 
@@ -64,9 +71,10 @@ Puis, sur `http://localhost:4200` :
 - `POST /auth/refresh-token` ne déclare ni corps ni paramètre alors qu'il lit
   `Authorization: Bearer <refreshToken>`.
 - Une requête sans jeton renvoie `403`, pas `401` (ADR-005).
-- `POST /utilisateurs/change-password` répond `401` sur un mauvais ancien mot de passe, ce qui
-  est indistinguable d'une session expirée sans code d'erreur (ADR-013).
-- Un `409 DuplicateEmailException` à l'inscription ne dit pas lequel des deux emails est en
-  cause — celui de l'entreprise ou celui de l'administrateur. Le message part en bandeau.
+- `POST /utilisateurs/change-password` répond `401` sur un mauvais ancien mot de passe (ADR-013).
+- `GET /articles` n'accepte ni recherche ni filtre : pas de champ de recherche dans l'écran.
+- `GET /categories` n'est pas paginé, contrairement aux autres listes.
+- Les photos s'envoient mais aucun endpoint ne permet de les relire : l'interface ne peut pas
+  les afficher.
 
 Détail dans `06-API-CONTRAT.md`, section « Écarts constatés ».

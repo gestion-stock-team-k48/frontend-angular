@@ -2,13 +2,13 @@
 
 ## Git — branches
 
-| Branche | Rôle |
-|---|---|
-| `main` | stable, uniquement des merges validés, taguée en SemVer |
-| `develop` | intégration continue du travail |
-| `feat/<scope>-<slug>` | nouvelle fonctionnalité |
-| `fix/<scope>-<slug>` | correction |
-| `refactor/`, `perf/`, `docs/`, `chore/`, `build/`, `test/`, `style/` | selon la nature |
+| Branche                                                              | Rôle                                                    |
+| -------------------------------------------------------------------- | ------------------------------------------------------- |
+| `main`                                                               | stable, uniquement des merges validés, taguée en SemVer |
+| `develop`                                                            | intégration continue du travail                         |
+| `feat/<scope>-<slug>`                                                | nouvelle fonctionnalité                                 |
+| `fix/<scope>-<slug>`                                                 | correction                                              |
+| `refactor/`, `perf/`, `docs/`, `chore/`, `build/`, `test/`, `style/` | selon la nature                                         |
 
 Une phase du plan de livraison = une branche = un merge. Merge dans `develop` en `--no-ff`.
 Pas de rebase d'une branche déjà poussée. Jamais de `push --force` sur `main` ni `develop`.

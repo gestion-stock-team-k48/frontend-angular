@@ -283,3 +283,46 @@ n'est téléchargé qu'à l'affichage.
 d'avance, ce sont les définitions de routes, pas les écrans. Le build le confirme —
 `connexion`, `inscription`, `mot-de-passe-oublie`, `reinitialisation`,
 `changer-mot-de-passe` et `coquille-auth` restent des morceaux séparés.
+
+---
+
+## ADR-015 — Découpage des phases 6 à 11 déduit des groupes de navigation
+
+**Contexte.** Le plan de livraison complet n'est pas versionné dans le dépôt : seul
+`01-ETAT.md` porte la phase en cours. Un unique repère existait dans le code — « le tableau
+de bord prendra la racine en phase 11 ». Il fallait ouvrir la phase 6 sans que le mainteneur
+soit là pour trancher.
+
+**Décision.** Suivre les six groupes déclarés dans `layout/navigation.ts`, en repoussant le
+pilotage à la fin puisqu'il agrège tout le reste :
+
+| Phase | Contenu                                   |
+| ----- | ----------------------------------------- |
+| 6     | Catalogue — articles, catégories          |
+| 7     | Stock — mouvements, alertes de seuil      |
+| 8     | Tiers — clients, fournisseurs             |
+| 9     | Commerce — commandes, ventes              |
+| 10    | Administration — entreprise, utilisateurs |
+| 11    | Pilotage — tableau de bord                |
+
+**Conséquence.** Le repère de la phase 11 est respecté et l'ordre des dépendances tient : un
+mouvement de stock a besoin d'un article, une commande a besoin d'un tiers et d'un article,
+le tableau de bord a besoin de tout. À corriger dès que le mainteneur publie son plan : c'est
+lui qui fait foi, cette entrée n'est qu'une déduction assumée.
+
+---
+
+## ADR-016 — Le prix TTC est calculé par l'interface
+
+**Contexte.** `ArticleRequest` exige `prixUnitaireHt`, `tauxTva` **et** `prixUnitaireTtc`.
+Le backend ne dérive rien : il enregistre les trois valeurs telles qu'elles arrivent, et
+`tauxTva` n'intervient dans aucun calcul serveur.
+
+**Décision.** Le formulaire d'article saisit le HT et le taux, affiche le TTC en lecture
+seule et l'envoie calculé : `TTC = HT × (1 + taux / 100)`, arrondi au nombre de décimales de
+la devise configurée — zéro en franc CFA.
+
+**Conséquence.** Deux prix saisis séparément finiraient par se contredire en base, et rien
+côté serveur ne le rattraperait. L'arrondi suit la devise plutôt qu'une constante : une
+entreprise hors zone CFA n'a rien à changer dans le code (ADR-009). Si le backend calcule un
+jour le TTC lui-même, le champ disparaît de la requête sans que l'écran change.

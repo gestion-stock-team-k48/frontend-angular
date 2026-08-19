@@ -246,6 +246,21 @@ non `403` : ce `401` ne signale pas une session expirée. Voir ADR-013.
    `GET /articles` renvoie `403`, pas `401`. L'interceptor de refresh doit donc se déclencher
    sur `403` autant que sur `401`, ce qui est contre-intuitif et mérite d'être confirmé.
 
-4. **`Pageable` est déclaré `required: true`** en paramètre de requête sur les listes, alors
+4. **`GET /articles` n'accepte ni recherche ni filtre.** Seul `pageable` est déclaré. Un
+   catalogue de plusieurs centaines d'articles ne se parcourt donc que page par page. Un
+   paramètre `q` — ou un filtre par catégorie — côté backend rendrait l'écran utilisable ;
+   l'interface n'affiche aucun champ de recherche tant qu'il n'existe pas, une recherche qui
+   ne trierait que la page affichée mentirait dès la deuxième page.
+
+5. **`GET /categories` n'est pas paginé** alors que les autres listes le sont. La réponse est
+   un tableau complet. L'écran s'en accommode et trie côté navigateur ; c'est le backend qu'il
+   faudra faire évoluer si une entreprise dépasse quelques dizaines de catégories.
+
+6. **Les photos s'envoient mais ne se relisent pas.** `POST /articles/{id}/photo` range le
+   fichier dans le stockage objet et conserve son nom dans `photo`. Aucun endpoint ne permet
+   de récupérer le fichier ni une URL signée : l'interface confirme l'envoi, elle ne peut pas
+   afficher l'image. Le même écart vaut pour les clients, les fournisseurs et les utilisateurs.
+
+7. **`Pageable` est déclaré `required: true`** en paramètre de requête sur les listes, alors
    que Spring applique des valeurs par défaut si le paramètre est absent. Le frontend envoie
    toujours `page` et `size` explicitement, ce qui évite la question.

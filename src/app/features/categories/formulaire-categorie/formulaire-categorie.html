@@ -1,0 +1,33 @@
+<form class="formulaire-categorie" (submit)="$event.preventDefault(); enregistrer()">
+  @if (message(); as texte) {
+    <p class="formulaire-categorie__bandeau" role="alert">{{ texte }}</p>
+  }
+
+  <app-champ
+    libelle="Code"
+    identifiant="categorie-code"
+    [requis]="true"
+    aide="Identifiant court, unique dans l'entreprise."
+    [erreur]="erreurCode()"
+  >
+    <input id="categorie-code" type="text" spellcheck="false" [formField]="formulaire.code" />
+  </app-champ>
+
+  <app-champ
+    libelle="Désignation"
+    identifiant="categorie-designation"
+    [requis]="true"
+    [erreur]="erreurDesignation()"
+  >
+    <input id="categorie-designation" type="text" [formField]="formulaire.designation" />
+  </app-champ>
+
+  <div class="formulaire-categorie__actions">
+    <app-bouton variante="fantome" [desactive]="enCours()" (presse)="annulee.emit()">
+      Annuler
+    </app-bouton>
+    <app-bouton type="submit" variante="primaire" [chargement]="enCours()">
+      {{ categorie() === null ? 'Créer la catégorie' : 'Enregistrer' }}
+    </app-bouton>
+  </div>
+</form>
