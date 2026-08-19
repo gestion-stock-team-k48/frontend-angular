@@ -61,7 +61,7 @@ describe('Sidebar', () => {
     expect(liens).toContain('Apparence');
     expect(liens).toContain('Articles');
     // Écran non encore livré : l'entrée reste visible, mais n'est pas un lien.
-    expect(liens).not.toContain('Ventes');
+    expect(liens).not.toContain('Tableau de bord');
 
     const indisponibles = racine.querySelectorAll('.sidebar__lien--indisponible');
     expect(indisponibles.length).toBeGreaterThan(0);

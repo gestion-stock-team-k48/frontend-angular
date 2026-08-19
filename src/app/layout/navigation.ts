@@ -50,9 +50,9 @@ export const NAVIGATION: readonly GroupeNavigation[] = [
   {
     titre: 'Commerce',
     entrees: [
-      { libelle: 'Commandes client', chemin: '/commandes-client', disponible: false },
-      { libelle: 'Commandes fournisseur', chemin: '/commandes-fournisseur', disponible: false },
-      { libelle: 'Ventes', chemin: '/ventes', disponible: false },
+      { libelle: 'Commandes client', chemin: '/commandes-client', disponible: true },
+      { libelle: 'Commandes fournisseur', chemin: '/commandes-fournisseur', disponible: true },
+      { libelle: 'Ventes', chemin: '/ventes', disponible: true },
     ],
   },
   {
