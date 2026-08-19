@@ -336,3 +336,46 @@ consigne de continuer en autonomie.
 
 **En attente.** Vérification visuelle des écrans de stock, confirmation du découpage des
 phases (ADR-015), et un jeton GitLab valide pour pousser.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 8 · Tiers
+
+**Branche** : `feat/clients-fournisseurs` (depuis `develop`)
+
+**Contexte.** Phase 7 fusionnée dans `develop` sans vérification visuelle préalable, sur
+consigne de continuer en autonomie.
+
+**Fait.**
+
+- `shared/tiers` : liste et formulaire communs, paramétrés par libellés, chemin et actions.
+- Modules clients et fournisseurs : service d'accès, routes, deux composants d'assemblage.
+- 174 tests.
+
+**Découvert en route.**
+
+- `ClientRequest` et `FournisseurRequest` sont identiques, champ pour champ, contrainte pour
+  contrainte. Les écrans sont donc écrits une fois (ADR-018) plutôt que copiés — une copie
+  aurait divergé à la première retouche.
+- Les listes de tiers n'acceptent pas plus de recherche que celle des articles : même écart,
+  même absence de champ de recherche.
+- Les tests des écrans qui naviguent après un enregistrement rejetaient silencieusement :
+  `provideRouter([])` ne connaît aucune route, et l'échec remontait en rejet non traité dans
+  le rapport de Vitest. Une route attrape-tout a été ajoutée à ces cinq tests.
+- La génération du module fournisseurs par substitution a renommé `HttpClient` en
+  `HttpFournisseur` et laissé une phrase absurde dans un commentaire. Relu et corrigé avant
+  le premier commit — une substitution automatique se relit.
+
+**Choix de conception.**
+
+- Les composants partagés ne construisent aucune URL et n'injectent aucun service d'API :
+  l'écran hôte leur passe la fonction à appeler. Le partage porte sur la forme, pas sur
+  l'accès aux données.
+- Un champ facultatif laissé vide est omis de la requête. Envoyer `""` reviendrait à écrire
+  en base une adresse vide là où il n'y a pas d'adresse.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+174 tests passés, build de production 322,70 ko.
+
+**En attente.** Vérification visuelle des écrans de tiers, confirmation d'ADR-015 et
+d'ADR-018, et un jeton GitLab valide pour pousser.

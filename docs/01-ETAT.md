@@ -1,23 +1,22 @@
 # État courant
 
 - Dernière mise à jour : 2026-08-19 — session 1
-- Phase en cours : 7 · Stock — terminée, en attente de vérification visuelle
-- Branche de travail : feat/mouvements-stock
-- Dernier commit : 3a56915 — feat(layout): open the stock entries in the navigation
+- Phase en cours : 8 · Tiers — terminée, en attente de vérification visuelle
+- Branche de travail : feat/clients-fournisseurs
+- Dernier commit : 3dbb3f9 — feat(layout): open the third-party entries in the navigation
 - Backend requis démarré : oui — `http://localhost:8080/api/v1`
-- Prochaine action précise : vérifier les écrans de stock à la main (voir « À vérifier »),
-  puis fusionner dans `develop` et ouvrir la phase 8 · Tiers.
+- Prochaine action précise : vérifier les écrans clients et fournisseurs à la main (voir
+  « À vérifier »), puis fusionner dans `develop` et ouvrir la phase 9 · Commerce.
 
 ## Fait dans cette phase
 
-- Choix de l'article : catalogue paginé et trié, porte d'entrée de la section (ADR-017).
-- Stock d'un article : stock réel du serveur, jauge de seuil, historique paginé, et les
-  quatre opérations — entrée, sortie, correction positive, correction négative.
-- Alertes de seuil : liste complète, la plus critique en tête, chaque ligne mesurée par
-  rapport à son propre seuil.
-- Pipe `quantite` ; helper d'erreurs de formulaire élargi aux champs numériques.
-- Entrées « Mouvements de stock » et « Alertes de seuil » ouvertes dans la navigation.
-- 157 tests.
+- `shared/tiers` : liste et formulaire communs aux clients et aux fournisseurs, sans aucune
+  URL ni service d'API — l'écran hôte passe ce qu'il faut appeler (ADR-018).
+- Clients : liste paginée et triée, création, modification, suppression, envoi de photo.
+- Fournisseurs : les mêmes, sur leur propre endpoint.
+- Champs facultatifs vides omis de la requête plutôt qu'envoyés en chaîne vide.
+- Entrées « Clients » et « Fournisseurs » ouvertes dans la navigation.
+- 174 tests.
 
 ## Reste à faire dans cette phase
 
@@ -27,32 +26,32 @@
 
     nvm use && npm start
 
-Puis, sur `http://localhost:4200`, connecté, avec au moins un article au catalogue :
+Puis, sur `http://localhost:4200`, connecté :
 
-1. `/mouvements-stock` → le catalogue, trié par désignation. « Voir le stock » ouvre l'article.
-2. Sur un article sans mouvement : la jauge est à zéro, l'écran propose d'enregistrer une
-   entrée plutôt que d'afficher un tableau vide.
-3. Entrée de 40, source « Stock initial » → le stock réel passe à 40 **après appel serveur**
-   (onglet Réseau : `stock-reel` est redemandé, il n'est pas recalculé côté navigateur).
-4. Sortie de 15, source « Vente » → stock 25, la ligne d'historique affiche « −15 ».
-5. Sortie de 999 → le message du backend « Stock insuffisant… » s'affiche dans le bandeau du
-   formulaire, **sans** notification en double, et la modale reste ouverte.
-6. Correction négative → le motif est obligatoire, la source disparaît du formulaire.
-7. Faire passer le stock sous le seuil de l'article, puis `/mouvements-stock/alertes` → la
-   ligne apparaît, la plus critique en tête.
-8. Vider le stock d'un article (rupture) → sa jauge passe en rouge, devant les autres alertes.
+1. `/clients` → liste triée par nom ; trier sur « Email », changer de page, changer la taille.
+2. Créer un client avec le nom, le prénom et l'email seuls → la requête ne contient que ces
+   trois champs (onglet Réseau), pas de chaînes vides.
+3. Créer un second client avec le même email → le message du backend se pose sous « Email »,
+   sans notification en double.
+4. Modifier un client, envoyer une photo → « Photo enregistrée » et le nom de l'objet
+   s'affiche. L'image ne peut pas être montrée (écart backend nº 6).
+5. Supprimer un client → confirmation, puis la liste se recharge. Un client engagé dans une
+   commande doit être refusé par le serveur, avec un message lisible.
+6. `/fournisseurs` → mêmes vérifications ; les deux écrans se comportent à l'identique.
+7. Liste vide → l'écran propose de créer, il ne laisse pas d'impasse.
 
 ## Points bloquants / en attente de ma validation
 
 1. **Découpage des phases 6 à 11 déduit, pas donné** (ADR-015). À confirmer ou corriger.
 2. **Push impossible** — `git push` refusé par GitLab : « HTTP Basic: Access denied ».
-   Jeton expiré ou mal scopé. Les phases 5, 6 et 7 sont commitées en local seulement.
-   Relancer `glab auth login`, puis `git push origin main develop`.
-3. **Relecture d'ensemble** — les phases 2 à 7 ont été enchaînées sans validation
+   Les phases 5 à 8 sont commitées en local seulement. Relancer `glab auth login`, puis
+   `git push origin main develop`.
+3. **Relecture d'ensemble** — les phases 2 à 8 ont été enchaînées sans validation
    intermédiaire.
-4. **Visibilité du dépôt** — passage en public refusé : rôle Maintainer, GitLab exige Owner.
-5. **`@types/node` ajouté sans validation** (ADR-010).
-6. **Périmètre du formulaire d'inscription** — champs exigés par le backend seulement.
+4. **Partage entre clients et fournisseurs** (ADR-018) — écrans mis en commun parce que les
+   DTO sont identiques. À confirmer, ou à défaire si les deux modules doivent diverger.
+5. **Visibilité du dépôt** — passage en public refusé : rôle Maintainer, GitLab exige Owner.
+6. **`@types/node` ajouté sans validation** (ADR-010).
 
 ## Écarts backend signalés, sans contournement
 
@@ -61,11 +60,11 @@ Puis, sur `http://localhost:4200`, connecté, avec au moins un article au catalo
   `Authorization: Bearer <refreshToken>`.
 - Une requête sans jeton renvoie `403`, pas `401` (ADR-005).
 - `POST /utilisateurs/change-password` répond `401` sur un mauvais ancien mot de passe (ADR-013).
-- `GET /articles` n'accepte ni recherche ni filtre.
+- `GET /articles` n'accepte ni recherche ni filtre. Les listes de tiers non plus.
 - `GET /categories` n'est pas paginé.
 - Les photos s'envoient mais aucun endpoint ne permet de les relire.
 - Aucune liste globale des mouvements de stock : lecture article par article (ADR-017).
-- L'historique d'un article ignore le tri demandé : l'ordre des dates est forcé côté serveur.
+- L'historique d'un article ignore le tri demandé.
 - `GET /mouvements-stock/alertes-stock` recalcule le stock de tout le catalogue, sans pagination.
 
 Détail dans `06-API-CONTRAT.md`, section « Écarts constatés ».
