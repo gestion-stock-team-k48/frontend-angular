@@ -9,6 +9,22 @@ import type { AlerteStock, StatistiquesTableauDeBord } from '../../../core/api/a
 
 const URL_STATS = '/api/v1/dashboard/statistiques';
 const URL_ALERTES = '/api/v1/mouvements-stock/alertes-stock';
+const URL_VENTES = '/api/v1/ventes';
+const URL_COMMANDES = '/api/v1/commandes-client';
+
+/** Mois courant, au format des clés de série. */
+const MOIS = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+
+function page(contenu: unknown[]) {
+  return {
+    content: contenu,
+    pageNumber: 0,
+    pageSize: 200,
+    totalElements: contenu.length,
+    totalPages: 1,
+    isLast: true,
+  };
+}
 
 const STATS: StatistiquesTableauDeBord = {
   chiffreAffairesTotal: 4500000,
@@ -27,7 +43,22 @@ const ALERTES: AlerteStock[] = [
   { articleId: 1, code: 'CIM', designation: 'Ciment 50 kg', quantiteStock: 4, seuilMinimum: 20 },
 ];
 
-async function monter(stats: StatistiquesTableauDeBord = STATS, alertes: AlerteStock[] = ALERTES) {
+async function monter(
+  stats: StatistiquesTableauDeBord = STATS,
+  alertes: AlerteStock[] = ALERTES,
+  ventes: unknown[] = [
+    {
+      id: 1,
+      dateVente: `${MOIS}-05T10:00:00`,
+      lignes: [{ id: 1, quantite: 2, prixUnitaire: 7155 }],
+    },
+  ],
+  commandes: unknown[] = [
+    { id: 1, dateCommande: `${MOIS}-04`, etatCommande: 'LIVREE' },
+    { id: 2, dateCommande: `${MOIS}-06`, etatCommande: 'VALIDEE' },
+    { id: 3, dateCommande: `${MOIS}-07`, etatCommande: 'ANNULEE' },
+  ],
+) {
   await TestBed.configureTestingModule({
     imports: [TableauDeBord],
     providers: [
@@ -44,6 +75,8 @@ async function monter(stats: StatistiquesTableauDeBord = STATS, alertes: AlerteS
   const http = TestBed.inject(HttpTestingController);
   http.expectOne(URL_STATS).flush(stats);
   http.expectOne(URL_ALERTES).flush(alertes);
+  http.expectOne((requete) => requete.url === URL_VENTES).flush(page(ventes));
+  http.expectOne((requete) => requete.url === URL_COMMANDES).flush(page(commandes));
   await fixture.whenStable();
 
   return fixture;
@@ -93,7 +126,7 @@ describe('TableauDeBord', () => {
   it('met le classement des ventes à l’échelle du meilleur article', async () => {
     const fixture = await monter();
     const barres = (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLElement>(
-      '.bord__barre-part',
+      '.graphique__barre-part',
     );
 
     // 120 fait la pleine largeur, 30 en fait le quart.
@@ -101,9 +134,29 @@ describe('TableauDeBord', () => {
     expect(barres[1]?.style.inlineSize).toBe('25%');
   });
 
+  it('agrège le chiffre d’affaires du mois à partir des ventes lues', async () => {
+    const fixture = await monter();
+
+    // 2 × 7 155 : le graphique reprend la définition du serveur, les ventes.
+    const donnees = (fixture.nativeElement as HTMLElement).querySelector(
+      '.graphique__donnees tbody',
+    );
+    expect(donnees?.textContent?.replace(/\s/gu, ' ')).toContain('14 310');
+  });
+
+  it('répartit les commandes par état, chacune nommée', async () => {
+    const fixture = await monter();
+    const legende = (fixture.nativeElement as HTMLElement).querySelector('.graphique__legende');
+
+    expect(legende?.textContent).toContain('Livrées');
+    expect(legende?.textContent).toContain('Annulées');
+    // La couleur ne travaille jamais seule : chaque part porte son libellé et sa part.
+    expect(legende?.textContent).toContain('33 %');
+  });
+
   it('reste lisible quand rien n’a encore été vendu', async () => {
     const fixture = await monter({ ...STATS, topArticlesVendus: [] });
 
-    expect(texte(fixture)).toContain('Aucune vente enregistrée');
+    expect(texte(fixture)).toContain("Aucune donnée pour l'instant");
   });
 });

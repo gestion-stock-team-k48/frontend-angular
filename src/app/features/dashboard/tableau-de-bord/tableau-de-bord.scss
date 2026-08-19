@@ -23,10 +23,12 @@
     font-size: var(--taille-sm);
   }
 
+  // Rangée de mesures : la plus large en premier, les autres à parts égales. Le nombre de
+  // colonnes suit la place disponible, sans point de rupture à maintenir.
   &__tuiles {
     display: grid;
     gap: var(--espace-4);
-    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
   }
 
   &__tuile {
@@ -34,7 +36,7 @@
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: var(--espace-2);
+    gap: var(--espace-1);
     padding: var(--espace-4);
     border: var(--bordure-fine) solid var(--border-subtle);
     border-radius: var(--rayon-carte);
@@ -50,25 +52,39 @@
       transform: translateY(-2px);
     }
 
-    // La mesure du mois est celle qu'on vient chercher : elle porte la couleur de marque,
-    // un filet en tête et une ombre teintée.
+    &::before {
+      content: '';
+      position: absolute;
+      inset-block-start: 0;
+      inset-inline: 0;
+      block-size: var(--bordure-epaisse);
+      background-color: var(--border-subtle);
+    }
+
+    // La mesure du mois est celle qu'on vient chercher : filet et ombre de marque.
     &--forte {
+      grid-column: span 2;
       border-color: color-mix(in oklab, var(--brand) 45%, var(--border-subtle));
       background-color: var(--surface-marque);
       box-shadow: var(--ombre-marque);
 
       &::before {
-        content: '';
-        position: absolute;
-        inset-block-start: 0;
-        inset-inline: 0;
-        block-size: var(--bordure-epaisse);
         background-image: var(--degrade-marque);
       }
 
       &:hover {
         box-shadow: var(--ombre-marque-forte);
       }
+
+      @media (width <= 48rem) {
+        grid-column: span 1;
+      }
+    }
+
+    // Un stock sous seuil se signale par la couleur d'état, pas par la couleur de marque :
+    // c'est une situation, pas une identité.
+    &--alerte::before {
+      background-color: var(--state-warning);
     }
   }
 
@@ -84,18 +100,38 @@
     font-family: var(--police-display);
     font-size: var(--taille-lg);
     font-weight: 600;
+    line-height: var(--interligne-serre);
+
+    // Le chiffre d'appel : plus grand que les autres, et il grandit avec la place.
+    &--hero {
+      font-size: clamp(var(--taille-xl), 4vw, var(--taille-2xl));
+    }
   }
 
   &__detail,
-  &__aide {
+  &__note {
     color: var(--text-muted);
     font-size: var(--taille-sm);
+  }
+
+  &__note {
+    max-inline-size: 68ch;
+    font-size: var(--taille-xs);
   }
 
   &__colonnes {
     display: grid;
     gap: var(--espace-4);
     grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+
+    // La courbe principale occupe deux fois la place de ce qui l'accompagne.
+    &--large {
+      grid-template-columns: 2fr 1fr;
+
+      @media (width <= 64rem) {
+        grid-template-columns: 1fr;
+      }
+    }
   }
 
   &__carte {
@@ -107,10 +143,12 @@
     border-radius: var(--rayon-carte);
     background-color: var(--surface-1);
     box-shadow: var(--ombre-1);
+    min-inline-size: 0;
   }
 
   &__carte-entete {
     display: flex;
+    flex-wrap: wrap;
     align-items: baseline;
     justify-content: space-between;
     gap: var(--espace-3);
@@ -122,8 +160,7 @@
     font-weight: 600;
   }
 
-  &__alertes,
-  &__classement {
+  &__alertes {
     display: flex;
     flex-direction: column;
     gap: var(--espace-3);
@@ -132,36 +169,16 @@
     list-style: none;
   }
 
-  &__alerte,
-  &__rang {
+  &__alerte {
     display: grid;
     align-items: center;
     gap: var(--espace-3);
-    grid-template-columns: minmax(6rem, 1fr) minmax(5rem, 1fr) auto;
-  }
+    grid-template-columns: minmax(8rem, 2fr) minmax(5rem, 1fr) auto auto;
 
-  &__rang-nom {
-    color: var(--text-base);
-  }
-
-  &__barre {
-    display: block;
-    overflow: hidden;
-    block-size: var(--espace-2);
-    border-radius: var(--rayon-plein);
-    background-color: var(--surface-3);
-  }
-
-  &__barre-part {
-    display: block;
-    block-size: 100%;
-    border-radius: var(--rayon-plein);
-    background-image: var(--degrade-marque);
-    background-color: var(--brand);
-
-    // La barre se déploie au premier rendu, comme la jauge de seuil : même grammaire.
-    animation: jauge-classement var(--dur-slow) var(--ease-out);
-    transform-origin: left center;
+    // Sur mobile, la jauge passe sous le nom plutôt que de se réduire à un trait.
+    @media (width <= 48rem) {
+      grid-template-columns: 1fr auto;
+    }
   }
 
   &__chiffre {
@@ -175,13 +192,10 @@
   }
 
   &__lien-fort {
+    overflow: hidden;
     color: var(--text-strong);
     text-decoration: none;
-  }
-}
-
-@keyframes jauge-classement {
-  from {
-    transform: scaleX(0);
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
