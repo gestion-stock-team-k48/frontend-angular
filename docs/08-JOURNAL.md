@@ -552,3 +552,52 @@ donc pas inventé une direction : il a livré celle qui était écrite.
 232 tests passés, build de production 328,27 ko.
 
 **En attente.** Un regard sur l'écran : le mouvement se juge en le voyant, pas en le lisant.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Alignement, codes serveur, jeu de démonstration
+
+**Branche** : `feat/theme-affinage`
+
+**Alignement des tableaux.** Le remplissage et l'alignement des cellules étaient déclarés
+dans `tableau.scss`. Les lignes étant projetées par l'écran appelant, aucune de ces règles ne
+les atteignait : l'entête avait sa mise en forme, le corps n'en avait aucune, et une colonne
+annoncée à droite s'affichait à gauche. C'est le même piège d'encapsulation que celui trouvé
+la veille sur le survol des lignes. Toute la géométrie du tableau vit désormais dans
+`styles/_tableau.scss`.
+
+**Codes attribués par le serveur.** Le champ « Code » disparaît du formulaire de commande et
+de celui de vente : le backend les génère et vérifie leur unicité, les proposer invitait au
+doublon sans rien apporter. Les codes d'article et de catégorie restent saisis — ceux-là, le
+serveur ne les invente pas.
+
+**Jeu de démonstration.** `scripts/seed.mjs` remplit le backend par son API publique, avec
+exactement les appels que ferait l'interface. Rien n'est écrit en base directement : les
+transitions d'état, les mouvements de stock déclenchés par une livraison et les refus de stock
+insuffisant restent l'affaire du serveur, et le jeu est cohérent par construction plutôt que
+par déclaration. Douze entreprises, chacune avec 12 catégories, 150 articles, 24 clients,
+10 fournisseurs, 5 comptes, un stock initial dont une part sous le seuil pour que les alertes
+aient de quoi parler, des corrections, des commandes des deux côtés à des états variés, et des
+ventes.
+
+**Le mot de passe unique.** Le backend ne permet pas de choisir le mot de passe d'un compte
+créé : il en génère un et l'envoie par email. Le script le lit dans Mailpit, se connecte avec,
+puis appelle `POST /utilisateurs/change-password` — le parcours exact d'une première
+connexion. Tous les comptes finissent donc sur le même mot de passe sans qu'aucune donnée ne
+soit forcée en base.
+
+**Découvert en route.**
+
+- **`uk_ventes_code` est une contrainte d'unicité globale**, alors que le code d'une vente est
+  généré en comptant les ventes de l'entreprise courante. La deuxième entreprise produit à son
+  tour `VT-2026-0001` et toute création de vente y échoue en `409`. C'est bloquant en
+  multi-tenant, bien au-delà du seed : aucune vente n'est possible hors de la première
+  entreprise inscrite. Le script fournit un code explicite pour contourner ; l'interface ne le
+  fait pas. Écart nº 16.
+- Les vagues de requêtes passaient au traitement l'index dans la vague et non dans la liste
+  entière : les codes de catégorie se répétaient toutes les six créations. Trouvé au premier
+  jeu complet, à la cinquième entreprise.
+
+**En attente.** Une base vierge pour poser le jeu canonique : les essais ont laissé des
+entreprises partielles, et aucun endpoint ne supprime une entreprise. La remise à zéro
+appartient au mainteneur, dans le dépôt backend.

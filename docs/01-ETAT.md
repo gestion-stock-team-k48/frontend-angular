@@ -1,8 +1,8 @@
 # État courant
 
 - Dernière mise à jour : 2026-08-19 — session 1
-- Phase en cours : affinage visuel — couleur, relief et mouvement. Les onze phases du plan
-  déduit (ADR-015) sont terminées et fusionnées dans `develop`.
+- Phase en cours : affinage — visuel, alignement des tableaux, jeu de démonstration. Les onze
+  phases du plan déduit (ADR-015) sont terminées et fusionnées dans `develop`.
 - Branche de travail : feat/theme-affinage
 - Dernier commit : voir `git log -1` — tableau de bord et documentation
 - Backend requis démarré : oui — `http://localhost:8080/api/v1`
@@ -10,52 +10,47 @@
   fusionner dans `develop`. Ensuite : relecture d'ensemble, fusion dans `main` et tag, ou
   reprise des écarts backend signalés.
 
-## Fait dans cet affinage
+## Fait depuis la dernière entrée
 
-Le mouvement décrit depuis la phase 2 dans `05-DESIGN-SYSTEM.md` n'avait jamais été posé.
-Il l'est, entièrement piloté par les tokens de durée existants — `prefers-reduced-motion`
-éteint donc toujours l'application d'un bloc.
+**Affinage visuel** — couleur, relief et mouvement, détaillés dans `08-JOURNAL.md` et
+`05-DESIGN-SYSTEM.md`.
 
-- **Couleur** : trois familles de tokens sémantiques bâties sur `color-mix` de `--brand`,
-  donc portées par la couleur d'amorce de l'entreprise — surfaces teintées pour le survol et
-  l'entrée de navigation active, dégradé de marque pour les actions et les filets de tête,
-  ombre teintée pour ce qui est cliquable, halo de fond sur la coquille et l'écran de
-  connexion.
-- **Relief** : entêtes de tableau collants et dégradés, calques floutés (bandeau, voile de
-  modale, tiroir), tuiles du tableau de bord qui se soulèvent au survol.
-- **Mouvement** : apparition en cascade des lignes de tableau, modale en fondu et échelle,
-  notifications qui entrent par le bord où elles se posent, jauge de seuil qui se déploie,
-  mesures du tableau de bord qui courent vers leur valeur, entrée de navigation qui avance
-  d'un cran sous le curseur.
-- 232 tests.
+**Alignement des tableaux corrigé.** Le remplissage et l'alignement des cellules vivaient
+dans le composant `app-tableau`, hors de portée des lignes projetées : l'entête recevait sa
+mise en forme, le corps n'en recevait aucune. Une colonne annoncée à droite s'affichait à
+gauche. Les règles rejoignent la feuille globale, à côté de celles des lignes, qui souffraient
+du même mal.
 
-## Deux défauts trouvés en chemin
+**Codes attribués par le serveur retirés de l'interface.** Le code d'une commande et celui
+d'une vente sont générés par le backend, seul à savoir ce qui est déjà pris dans l'entreprise.
+Les deux champs disparaissent des formulaires, et les requêtes ne les portent plus.
 
-1. **Les styles de ligne de tableau ne s'appliquaient pas.** Les lignes sont projetées dans
-   `app-tableau` par l'écran appelant : elles portent l'attribut d'encapsulation du parent,
-   et aucune règle de `tableau.scss` ne pouvait les atteindre. Le survol posé en phase 6
-   n'avait donc jamais rien fait. Les règles vivent maintenant dans `styles/_tableau.scss`,
-   pour la même raison qui met le style des champs dans `_base.scss`.
-2. **Le compteur animé lisait une horloge décalée.** `requestAnimationFrame` passe un
-   horodatage dont l'origine diffère de `performance.now()` selon l'environnement, ce qui
-   produisait un avancement négatif. L'horloge est relue à chaque image.
+**Jeu de démonstration** — `npm run seed`. Il passe par l'API publique, jamais par la base :
+les règles métier sont donc appliquées par le serveur, et le jeu est cohérent par
+construction. Douze entreprises, chacune avec 12 catégories, 150 articles, 24 clients,
+10 fournisseurs, 5 comptes, son stock initial, ses corrections, ses commandes des deux côtés
+et ses ventes. Tous les comptes partagent `GestionStock2026!` — y compris ceux à qui le
+serveur avait envoyé un mot de passe temporaire, que le script récupère dans Mailpit et
+remplace comme le ferait la personne à sa première connexion.
 
-## À vérifier à la main
+## Deux défauts backend trouvés en construisant le jeu
 
-    nvm use && npm start
+1. **Le code d'une vente est unique globalement, mais généré par entreprise** — voir l'écart
+   nº 16 de `06-API-CONTRAT.md`. **C'est bloquant en multi-tenant** : passé la première
+   entreprise inscrite, plus aucune vente ne peut être enregistrée. Le seed fournit un code
+   explicite pour contourner ; l'interface, elle, ne le fait pas.
+2. Rien d'autre : les transitions d'état, les mouvements de stock déclenchés par une
+   livraison et les refus de stock insuffisant se sont comportés exactement comme documenté.
 
-1. Écran de connexion : deux halos de marque en fond, carte avec filet de marque en tête.
-2. Une liste : les lignes arrivent en cascade, le survol pose un liseré de marque à gauche,
-   l'entête reste visible en défilant.
-3. Le bandeau et le tiroir de navigation laissent deviner le contenu qui passe dessous.
-4. Ouvrir une modale : fondu, léger agrandissement, arrière-plan flouté ; la croix pivote au
-   survol.
-5. Enregistrer quelque chose : la notification entre par la droite, teintée selon son niveau.
-6. Tableau de bord : les quatre mesures courent vers leur valeur, les barres du classement se
-   déploient, la tuile du mois porte l'ombre de marque.
-7. `/parametres/apparence` : changer la couleur d'amorce recolore tout ce qui précède, y
-   compris les ombres et les dégradés.
-8. Système réglé sur « animations réduites » : plus rien ne bouge, tout reste lisible.
+## Base de développement
+
+Les essais du seed ont laissé quelques entreprises partielles (`…x1`, `…x2`, `…x3`) et le jeu
+complet est posé sous l'étiquette `demo`. Aucun endpoint ne supprime une entreprise : pour
+repartir propre, c'est côté backend, et cela t'appartient —
+
+    cd ../gestion-stock-backend && docker compose down -v && docker compose up -d
+    ./mvnw spring-boot:run
+    cd ../frontend-angular && npm run seed
 
 ## Points bloquants / en attente de ma validation
 
