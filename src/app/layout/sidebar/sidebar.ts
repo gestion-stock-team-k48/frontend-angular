@@ -2,9 +2,13 @@ import { ChangeDetectionStrategy, Component, computed, inject, input, output } f
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NAVIGATION, type GroupeNavigation } from '../navigation';
 import { ServiceAuthentification } from '../../core/auth/auth';
+import { Icone } from '../../shared/ui/icone/icone';
 
 /**
  * Navigation principale.
+ *
+ * Repliée, elle ne disparaît pas : elle devient un rail d'icônes. Une navigation qui s'efface
+ * fait perdre le repère de position, et il faut la rouvrir pour savoir où l'on est.
  *
  * Les entrées dont l'écran n'existe pas encore restent visibles mais inertes : masquer la
  * moitié de la navigation donnerait une fausse idée du périmètre de l'application.
@@ -14,7 +18,10 @@ import { ServiceAuthentification } from '../../core/auth/auth';
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, Icone],
+  host: {
+    '[attr.data-rail]': 'repliee()',
+  },
 })
 export class Sidebar {
   private readonly auth = inject(ServiceAuthentification);

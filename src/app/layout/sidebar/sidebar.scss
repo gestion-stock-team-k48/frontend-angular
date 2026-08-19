@@ -1,8 +1,32 @@
 :host {
   display: block;
-  overflow-y: auto;
+  overflow: hidden auto;
   padding: var(--espace-4) var(--espace-3);
   block-size: 100%;
+}
+
+// Rail : la navigation repliée garde ses icônes. Les libellés s'effacent, les repères non.
+:host([data-rail='true']) {
+  padding-inline: var(--espace-2);
+
+  .sidebar__titre {
+    block-size: var(--bordure-fine);
+    padding: 0;
+    border-block-start: var(--bordure-fine) solid var(--border-subtle);
+    margin-block: var(--espace-3) var(--espace-2);
+    color: transparent;
+    overflow: hidden;
+  }
+
+  .sidebar__lien {
+    justify-content: center;
+    padding-inline: var(--espace-2);
+  }
+
+  .sidebar__libelle,
+  .sidebar__bientot {
+    display: none;
+  }
 }
 
 .sidebar {
@@ -30,8 +54,7 @@
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--espace-2);
+    gap: var(--espace-3);
     padding: var(--espace-2) var(--espace-3);
     border-radius: var(--rayon-controle);
     color: var(--text-base);
@@ -79,7 +102,14 @@
     }
   }
 
+  &__libelle {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   &__bientot {
+    margin-inline-start: auto;
     color: var(--text-muted);
     font-size: var(--taille-xs);
     opacity: 0.75;

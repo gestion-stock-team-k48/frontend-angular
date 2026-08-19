@@ -66,6 +66,18 @@ describe('Sidebar', () => {
     expect(racine.querySelectorAll('.sidebar__lien--indisponible')).toHaveLength(0);
   });
 
+  it('garde ses icônes quand elle est repliée en rail', async () => {
+    const fixture = await monter(SIMPLE);
+    fixture.componentRef.setInput('repliee', true);
+    await fixture.whenStable();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    // Une navigation qui s'efface fait perdre le repère de position : le rail garde les
+    // icônes, et le libellé passe en infobulle.
+    expect(racine.querySelectorAll('app-icone').length).toBeGreaterThan(5);
+    expect(racine.querySelector('a')?.getAttribute('title')).toBe('Tableau de bord');
+  });
+
   it('n’affiche aucun groupe vide', async () => {
     const fixture = await monter(SIMPLE);
     const groupes = (fixture.nativeElement as HTMLElement).querySelectorAll('.sidebar__groupe');

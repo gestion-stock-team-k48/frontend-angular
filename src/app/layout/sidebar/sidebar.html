@@ -11,13 +11,19 @@
                 [routerLink]="entree.chemin"
                 routerLinkActive="sidebar__lien--actif"
                 [routerLinkActiveOptions]="{ exact: false }"
+                [title]="repliee() ? entree.libelle : null"
                 (click)="fermeture.emit()"
               >
-                {{ entree.libelle }}
+                <app-icone [nom]="entree.icone" />
+                <span class="sidebar__libelle">{{ entree.libelle }}</span>
               </a>
             } @else {
-              <span class="sidebar__lien sidebar__lien--indisponible">
-                {{ entree.libelle }}
+              <span
+                class="sidebar__lien sidebar__lien--indisponible"
+                [title]="repliee() ? entree.libelle + ' — à venir' : null"
+              >
+                <app-icone [nom]="entree.icone" />
+                <span class="sidebar__libelle">{{ entree.libelle }}</span>
                 <span class="sidebar__bientot">à venir</span>
               </span>
             }
