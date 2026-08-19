@@ -294,6 +294,15 @@ non `403` : ce `401` ne signale pas une session expirée. Voir ADR-013.
     pour les articles et les tiers, seule la pagination est disponible. `GET /ventes/code/{code}`
     est le seul accès direct publié, et il ne rend qu'une vente exacte.
 
-14. **`Pageable` est déclaré `required: true`** en paramètre de requête sur les listes, alors
+14. **`DELETE /utilisateurs/{id}` ne protège ni le compte courant ni le dernier
+    administrateur.** Un administrateur peut supprimer son propre compte, ou le dernier
+    compte administrateur de l'entreprise, et la rendre ingérable. L'interface pose un
+    garde-fou sur le premier cas (ADR-020) ; le second ne peut être traité que côté serveur.
+
+15. **Aucun endpoint n'envoie de logo d'entreprise**, alors que `EntrepriseRequest` déclare
+    un champ `photo`. Le champ n'est donc pas proposé à la saisie : y écrire un nom d'objet à
+    la main n'aurait aucun sens.
+
+16. **`Pageable` est déclaré `required: true`** en paramètre de requête sur les listes, alors
     que Spring applique des valeurs par défaut si le paramètre est absent. Le frontend envoie
     toujours `page` et `size` explicitement, ce qui évite la question.

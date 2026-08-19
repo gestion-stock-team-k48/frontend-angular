@@ -1,0 +1,121 @@
+<section class="compte">
+  <header class="compte__entete">
+    <h1 class="compte__titre">
+      {{ modification() ? "Modifier l'utilisateur" : 'Nouvel utilisateur' }}
+    </h1>
+    <a class="compte__lien" routerLink="/utilisateurs">Retour à la liste</a>
+  </header>
+
+  @if (introuvable()) {
+    <app-etat-vide
+      titre="Ce compte n'existe plus, ou n'est pas accessible"
+      message="Il a peut-être été supprimé."
+      ton="erreur"
+    >
+      <a class="compte__lien" routerLink="/utilisateurs">Revenir à la liste</a>
+    </app-etat-vide>
+  } @else {
+    @if (!modification()) {
+      <p class="compte__avertissement" role="status">
+        Aucun mot de passe à saisir : le serveur en génère un et l'envoie par email. Son titulaire
+        devra le remplacer à sa première connexion.
+      </p>
+    }
+
+    @if (message(); as texte) {
+      <p class="compte__bandeau" role="alert">{{ texte }}</p>
+    }
+
+    <form class="compte__carte" (submit)="$event.preventDefault(); enregistrer()">
+      <div class="compte__groupe">
+        <app-champ libelle="Nom" identifiant="compte-nom" [requis]="true" [erreur]="erreurNom()">
+          <input
+            id="compte-nom"
+            type="text"
+            autocomplete="family-name"
+            [formField]="formulaire.nom"
+          />
+        </app-champ>
+
+        <app-champ
+          libelle="Prénom"
+          identifiant="compte-prenom"
+          [requis]="true"
+          [erreur]="erreurPrenom()"
+        >
+          <input
+            id="compte-prenom"
+            type="text"
+            autocomplete="given-name"
+            [formField]="formulaire.prenom"
+          />
+        </app-champ>
+
+        <app-champ
+          libelle="Email"
+          identifiant="compte-email"
+          [requis]="true"
+          aide="C'est aussi l'identifiant de connexion."
+          [erreur]="erreurEmail()"
+        >
+          <input id="compte-email" type="email" [formField]="formulaire.email" />
+        </app-champ>
+
+        <app-champ
+          libelle="Date de naissance"
+          identifiant="compte-naissance"
+          [erreur]="erreurDate()"
+        >
+          <input id="compte-naissance" type="date" [formField]="formulaire.dateDeNaissance" />
+        </app-champ>
+      </div>
+
+      <fieldset class="compte__roles">
+        <legend class="compte__sous-titre">Rôles</legend>
+
+        @for (role of rolesProposes; track role.valeur) {
+          <label class="compte__role">
+            <input
+              type="checkbox"
+              [checked]="aLeRole(role.valeur)"
+              (change)="basculerRole(role.valeur, $event)"
+            />
+            <span>
+              <span class="compte__role-libelle">{{ role.libelle }}</span>
+              <span class="compte__role-aide">{{ role.aide }}</span>
+            </span>
+          </label>
+        }
+      </fieldset>
+
+      <div class="compte__groupe">
+        <app-champ libelle="Rue" identifiant="compte-rue" [erreur]="erreurRue()">
+          <input id="compte-rue" type="text" [formField]="formulaire.rue" />
+        </app-champ>
+
+        <app-champ libelle="Ville" identifiant="compte-ville" [erreur]="erreurVille()">
+          <input id="compte-ville" type="text" [formField]="formulaire.ville" />
+        </app-champ>
+
+        <app-champ
+          libelle="Code postal"
+          identifiant="compte-code-postal"
+          [erreur]="erreurCodePostal()"
+        >
+          <input id="compte-code-postal" type="text" [formField]="formulaire.codePostal" />
+        </app-champ>
+
+        <app-champ libelle="Pays" identifiant="compte-pays" [erreur]="erreurPays()">
+          <input id="compte-pays" type="text" [formField]="formulaire.pays" />
+        </app-champ>
+      </div>
+
+      <div class="compte__actions">
+        <a class="compte__lien" routerLink="/utilisateurs">Annuler</a>
+        <app-bouton type="submit" variante="primaire" [chargement]="enCours()">
+          {{ modification() ? 'Enregistrer' : 'Créer le compte' }}
+        </app-bouton>
+      </div>
+    </form>
+  }
+</section>

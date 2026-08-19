@@ -185,6 +185,19 @@ Une vente, elle, s'écrit une fois pour toutes : le serveur sort aussitôt les a
 stock, n'expose aucune modification et refuse toute suppression. L'écran l'annonce avant la
 saisie, et ne propose ensuite ni l'une ni l'autre.
 
+## Comptes et entreprise
+
+Créer un compte ne demande aucun mot de passe : le serveur en génère un temporaire, l'envoie
+par email et exige son remplacement à la première connexion — `gardeMotDePasse` s'en charge
+côté navigation. La liste des utilisateurs signale les comptes encore dans cet état.
+
+« Mon profil » (`/profil`) est ouvert à tous ; l'email et les rôles y sont en lecture seule,
+`PUT /utilisateurs/me` ne les acceptant pas. C'est aussi le seul endroit où une photo
+s'envoie, le backend refusant celle d'autrui (ADR-020).
+
+L'entreprise n'existe qu'au singulier : `GET` et `PUT /entreprises/me`, sans liste ni
+création — une entreprise naît de l'inscription.
+
 ## Shell applicatif
 
 `layout/shell` porte la coquille : `Topbar`, `Sidebar`, `FilAriane`, zone de contenu. Toutes

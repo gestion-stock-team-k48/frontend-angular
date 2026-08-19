@@ -401,3 +401,25 @@ protège vraiment quelque chose.
 Le total affiché pendant la saisie est annoncé comme estimé : le serveur recalcule les
 totaux à partir des prix qu'il détient, et c'est le sien qui fait foi une fois la commande
 enregistrée.
+
+---
+
+## ADR-020 — Deux garde-fous d'interface sur les comptes
+
+**Contexte.** `DELETE /utilisateurs/{id}` ne protège rien : ni le compte de l'appelant, ni le
+dernier administrateur de l'entreprise. Un administrateur pouvait donc supprimer son propre
+compte et se retrouver dehors, ou vider l'entreprise de tout administrateur.
+
+À l'inverse, `POST /utilisateurs/{id}/photo` **refuse** la photo d'autrui : le service lève
+`AccessDeniedException` dès que l'identifiant n'est pas celui de l'appelant.
+
+**Décisions.**
+
+1. La liste des utilisateurs ne propose pas de supprimer la ligne du compte courant.
+2. L'envoi de photo n'apparaît que sur « Mon profil », jamais sur l'écran d'administration.
+
+**Conséquences.** Le premier point est un garde-fou, pas une sécurité : le serveur accepte
+toujours l'appel, et un client HTTP direct le fera. Le contrôle a sa place côté backend, avec
+celui du dernier administrateur ; l'écart est signalé. Le second point ne fait qu'aligner
+l'écran sur ce que le serveur autorise — proposer un bouton qui échoue à coup sûr serait une
+promesse en l'air.

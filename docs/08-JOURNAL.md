@@ -430,3 +430,42 @@ de répertoire.
 
 **En attente.** Vérification visuelle des écrans de commerce, confirmation d'ADR-015, ADR-018
 et ADR-019, et un jeton GitLab valide pour pousser.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 10 · Administration
+
+**Branche** : `feat/administration` (depuis `develop`)
+
+**Fait.**
+
+- Écran Entreprise, réservé aux administrateurs.
+- Module Utilisateurs : liste, création, modification, suppression, rôles en cases à cocher.
+- « Mon profil », ouvert à tous, avec l'envoi de sa propre photo.
+- 225 tests.
+
+**Découvert en route.**
+
+- Créer un utilisateur ne prend pas de mot de passe : le serveur en génère un, l'envoie par
+  email et lève `mustChangePassword`. La garde écrite en phase 5 prend alors le relais — les
+  deux phases se rejoignent sans rien ajouter.
+- `DELETE /utilisateurs/{id}` ne protège ni le compte de l'appelant ni le dernier
+  administrateur. L'interface pose un garde-fou sur le premier cas (ADR-020) ; le second ne
+  peut être traité que côté serveur.
+- `POST /utilisateurs/{id}/photo` refuse la photo d'autrui. L'envoi n'apparaît donc que sur
+  « Mon profil », et pas sur l'écran d'administration.
+- `EntrepriseRequest` porte un champ `photo` qu'aucun endpoint ne remplit : il n'est pas
+  proposé à la saisie.
+- `PUT /utilisateurs/me` n'accepte ni l'email ni les rôles : ils restent affichés, en lecture.
+
+**Choix de conception.**
+
+- La liste des utilisateurs affiche l'état du mot de passe. C'est la question que se pose un
+  administrateur en regardant cet écran : mon collègue s'est-il déjà connecté ?
+- Le nom dans le bandeau mène au profil plutôt qu'au changement de mot de passe, qui n'en est
+  plus qu'un lien parmi d'autres.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+225 tests passés, build de production 323,88 ko.
+
+**En attente.** Vérification visuelle des écrans d'administration, et un jeton GitLab valide.
