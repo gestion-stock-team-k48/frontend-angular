@@ -20,6 +20,17 @@ export type DemandeCategorie = Schemas['CategoryRequest'];
 export type Article = Schemas['ArticleResponse'];
 export type DemandeArticle = Schemas['ArticleRequest'];
 
+export type MouvementStock = Schemas['MvtStkResponse'];
+export type DemandeMouvementStock = Schemas['MvtStkRequest'];
+export type DemandeCorrectionStock = Schemas['MvtStkCorrectionRequest'];
+export type AlerteStock = Schemas['AlerteStockResponse'];
+
+/** Sens d'un mouvement, tel que le backend le qualifie lui-même. */
+export type TypeMouvementStock = NonNullable<MouvementStock['typeMvt']>;
+
+/** Origine d'un mouvement : ce qui l'a provoqué. */
+export type SourceMouvementStock = Schemas['MvtStkRequest']['sourceMvt'];
+
 /** Rôles applicatifs, tels que déclarés par la spécification. */
 export type Role = NonNullable<Utilisateur['roles']>[number];
 
