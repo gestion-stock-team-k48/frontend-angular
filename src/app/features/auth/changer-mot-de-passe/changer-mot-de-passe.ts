@@ -7,7 +7,7 @@ import { ServiceNotifications } from '../../../core/notifications/notifications'
 import { Bouton } from '../../../shared/ui/bouton/bouton';
 import { Champ } from '../../../shared/ui/champ/champ';
 import { LONGUEUR_MINIMALE_MOT_DE_PASSE } from '../regles-mot-de-passe';
-import { messageDuChamp, repartirErreur } from '../erreurs-formulaire';
+import { messageDuChamp, repartirErreur } from '../../../shared/formulaires/erreurs-formulaire';
 
 /**
  * Changement de mot de passe par l'utilisateur connecté.

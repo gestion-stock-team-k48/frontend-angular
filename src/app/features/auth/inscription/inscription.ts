@@ -16,7 +16,7 @@ import { ServiceNotifications } from '../../../core/notifications/notifications'
 import { Bouton } from '../../../shared/ui/bouton/bouton';
 import { Champ } from '../../../shared/ui/champ/champ';
 import { LONGUEUR_MINIMALE_MOT_DE_PASSE } from '../regles-mot-de-passe';
-import { messageDuChamp, repartirErreur } from '../erreurs-formulaire';
+import { messageDuChamp, repartirErreur } from '../../../shared/formulaires/erreurs-formulaire';
 
 /** Longueurs maximales, reprises des contraintes portées par `RegisterRequest`. */
 const MAX_NOM_ENTREPRISE = 150;

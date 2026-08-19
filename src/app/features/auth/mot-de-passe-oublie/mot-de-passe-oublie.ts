@@ -5,7 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { ServiceAuthentification } from '../../../core/auth/auth';
 import { Bouton } from '../../../shared/ui/bouton/bouton';
 import { Champ } from '../../../shared/ui/champ/champ';
-import { messageDuChamp, repartirErreur } from '../erreurs-formulaire';
+import { messageDuChamp, repartirErreur } from '../../../shared/formulaires/erreurs-formulaire';
 
 /**
  * Demande d'un code de réinitialisation.
