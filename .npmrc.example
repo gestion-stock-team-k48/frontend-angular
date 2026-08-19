@@ -1,0 +1,15 @@
+# Copier en `.npmrc` (non versionné) si le poste travaille derrière le registre interne.
+# L'installation ne dépend alors plus d'un accès Internet direct.
+registry=https://registry.npmjs.org/
+
+# Registre interne (exemple Nexus / Artifactory) — décommenter et adapter :
+# registry=https://nexus.interne.exemple/repository/npm-group/
+# //nexus.interne.exemple/repository/npm-group/:_authToken=${NPM_TOKEN}
+
+# Proxy d'entreprise — décommenter et adapter :
+# proxy=http://proxy.interne.exemple:3128
+# https-proxy=http://proxy.interne.exemple:3128
+# strict-ssl=false
+
+fund=false
+audit=false
