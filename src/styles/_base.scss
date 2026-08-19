@@ -102,10 +102,20 @@ textarea {
   border-radius: var(--rayon-controle);
   background-color: var(--surface-1);
   color: var(--text-strong);
-  transition: border-color var(--dur-fast) var(--ease-out);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
 
   &:hover:not(:disabled) {
     border-color: var(--border-strong);
+  }
+
+  // Le champ actif se détache par un halo de marque : on voit où l'on écrit sans chercher
+  // le curseur, y compris sur un formulaire dense.
+  &:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand) 18%, transparent);
   }
 
   &:disabled {
@@ -125,4 +135,19 @@ input[inputmode='numeric'] {
 input[type='range'] {
   inline-size: 100%;
   accent-color: var(--brand);
+}
+
+// Barres de défilement : fines, neutres au repos, teintées au survol. Sur un outil dense,
+// une barre épaisse mange de la largeur utile à chaque tableau.
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-base) transparent;
+}
+
+*:hover {
+  scrollbar-color: var(--brand) transparent;
+}
+
+a {
+  transition: color var(--dur-fast) var(--ease-out);
 }

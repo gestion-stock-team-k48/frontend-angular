@@ -24,7 +24,7 @@
           <app-squelette hauteur="2rem" />
         } @else {
           <p class="bord__valeur" data-numerique>
-            {{ stats().chiffreAffairesMoisCourant | montant }}
+            {{ caMois() | montant }}
           </p>
         }
       </article>
@@ -34,7 +34,7 @@
         @if (chargement()) {
           <app-squelette hauteur="2rem" />
         } @else {
-          <p class="bord__valeur" data-numerique>{{ stats().chiffreAffairesTotal | montant }}</p>
+          <p class="bord__valeur" data-numerique>{{ caTotal() | montant }}</p>
         }
       </article>
 
@@ -43,7 +43,7 @@
         @if (chargement()) {
           <app-squelette hauteur="2rem" />
         } @else {
-          <p class="bord__valeur" data-numerique>{{ stats().commandesClientEnCours ?? 0 }}</p>
+          <p class="bord__valeur" data-numerique>{{ clientEnCours() | quantite }}</p>
           <p class="bord__detail">en cours · {{ stats().commandesClientLivrees ?? 0 }} livrées</p>
         }
       </article>
@@ -53,7 +53,7 @@
         @if (chargement()) {
           <app-squelette hauteur="2rem" />
         } @else {
-          <p class="bord__valeur" data-numerique>{{ stats().commandesFournisseurEnCours ?? 0 }}</p>
+          <p class="bord__valeur" data-numerique>{{ fournisseurEnCours() | quantite }}</p>
           <p class="bord__detail">
             en cours · {{ stats().commandesFournisseurLivrees ?? 0 }} livrées
           </p>

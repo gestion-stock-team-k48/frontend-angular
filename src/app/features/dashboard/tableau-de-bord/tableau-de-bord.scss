@@ -30,17 +30,45 @@
   }
 
   &__tuile {
+    position: relative;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: var(--espace-2);
     padding: var(--espace-4);
     border: var(--bordure-fine) solid var(--border-subtle);
     border-radius: var(--rayon-carte);
+    background-image: var(--degrade-surface);
     background-color: var(--surface-1);
+    box-shadow: var(--ombre-1);
+    transition:
+      box-shadow var(--dur-base) var(--ease-out),
+      transform var(--dur-base) var(--ease-out);
 
-    // La mesure du mois est celle qu'on vient chercher : elle porte la couleur de marque.
+    &:hover {
+      box-shadow: var(--ombre-2);
+      transform: translateY(-2px);
+    }
+
+    // La mesure du mois est celle qu'on vient chercher : elle porte la couleur de marque,
+    // un filet en tête et une ombre teintée.
     &--forte {
-      border-color: var(--brand);
+      border-color: color-mix(in oklab, var(--brand) 45%, var(--border-subtle));
+      background-color: var(--surface-marque);
+      box-shadow: var(--ombre-marque);
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset-block-start: 0;
+        inset-inline: 0;
+        block-size: var(--bordure-epaisse);
+        background-image: var(--degrade-marque);
+      }
+
+      &:hover {
+        box-shadow: var(--ombre-marque-forte);
+      }
     }
   }
 
@@ -78,6 +106,7 @@
     border: var(--bordure-fine) solid var(--border-subtle);
     border-radius: var(--rayon-carte);
     background-color: var(--surface-1);
+    box-shadow: var(--ombre-1);
   }
 
   &__carte-entete {
@@ -127,7 +156,12 @@
     display: block;
     block-size: 100%;
     border-radius: var(--rayon-plein);
+    background-image: var(--degrade-marque);
     background-color: var(--brand);
+
+    // La barre se déploie au premier rendu, comme la jauge de seuil : même grammaire.
+    animation: jauge-classement var(--dur-slow) var(--ease-out);
+    transform-origin: left center;
   }
 
   &__chiffre {
@@ -143,5 +177,11 @@
   &__lien-fort {
     color: var(--text-strong);
     text-decoration: none;
+  }
+}
+
+@keyframes jauge-classement {
+  from {
+    transform: scaleX(0);
   }
 }

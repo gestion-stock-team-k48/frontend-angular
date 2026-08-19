@@ -37,6 +37,14 @@
   --ombre-2: 0 2px 8px oklch(0 0 0 / 0.08);
   --ombre-3: 0 8px 24px oklch(0 0 0 / 0.12);
 
+  // Ombre teintée par la marque. Réservée à ce qui est cliquable et primaire : un bouton
+  // d'action, une tuile mise en avant. Elle donne du relief sans ajouter de couleur au fond.
+  --ombre-marque: 0 4px 14px color-mix(in oklab, var(--brand) 32%, transparent);
+  --ombre-marque-forte: 0 6px 20px color-mix(in oklab, var(--brand) 45%, transparent);
+
+  // Flou d'arrière-plan des calques posés au-dessus du contenu : bandeau, voile, modale.
+  --flou-calque: blur(12px);
+
   // Plans
   --z-base: 0;
   --z-entete: 100;

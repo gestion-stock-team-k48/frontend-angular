@@ -5,6 +5,29 @@
   gap: var(--espace-2);
   padding: var(--espace-7) var(--espace-4);
   text-align: center;
+  animation: apparition var(--dur-base) var(--ease-out) both;
+}
+
+// Un halo derrière le titre : l'écran vide reste un écran de l'application, pas une page
+// blanche où le travail se serait arrêté.
+:host::before {
+  content: '';
+  inline-size: var(--espace-8);
+  block-size: var(--espace-8);
+  border-radius: var(--rayon-plein);
+  background-image: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--brand) 22%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+:host([data-ton='erreur'])::before {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in oklab, var(--state-danger) 22%, transparent) 0%,
+    transparent 70%
+  );
 }
 
 .etat-vide {

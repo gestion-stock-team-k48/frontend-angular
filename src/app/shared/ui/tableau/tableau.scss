@@ -5,6 +5,7 @@
 // Un tableau large déborde sur mobile : c'est lui qui défile, pas la page entière.
 .tableau__defilement {
   overflow-x: auto;
+  box-shadow: var(--ombre-1);
   border: var(--bordure-fine) solid var(--border-subtle);
   border-radius: var(--rayon-carte);
   background-color: var(--surface-1);
@@ -25,20 +26,18 @@
     text-align: end;
   }
 
+  // L'entête reste visible pendant le défilement d'un long tableau : sans lui, on ne sait
+  // plus ce qu'on lit dès la vingtième ligne.
   thead th {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: var(--z-base);
     border-block-end: var(--bordure-fine) solid var(--border-base);
+    background-image: var(--degrade-surface);
     background-color: var(--surface-2);
     color: var(--text-strong);
     font-size: var(--taille-sm);
     font-weight: 600;
-  }
-
-  tbody tr {
-    border-block-start: var(--bordure-fine) solid var(--border-subtle);
-
-    &:hover {
-      background-color: var(--surface-2);
-    }
   }
 
   &__tri {
@@ -51,10 +50,16 @@
     color: inherit;
     font: inherit;
     cursor: pointer;
+    transition: color var(--dur-fast) var(--ease-out);
+
+    &:hover {
+      color: var(--brand);
+    }
   }
 
   &__fleche {
     color: var(--brand);
+    transition: transform var(--dur-fast) var(--ease-spring);
   }
 
   &__zone-etat {

@@ -13,14 +13,28 @@
 }
 
 .carte-auth {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: var(--espace-4);
-  padding: var(--espace-5);
+  padding: var(--espace-6) var(--espace-5) var(--espace-5);
   border: var(--bordure-fine) solid var(--border-subtle);
   border-radius: var(--rayon-carte);
   background-color: var(--surface-1);
-  box-shadow: var(--ombre-2);
+  box-shadow: var(--ombre-3);
+  animation: apparition var(--dur-slow) var(--ease-out) both;
+
+  // Filet de marque en tête de carte, comme sur les modales : c'est la même famille
+  // d'objets, une surface posée au-dessus du fond.
+  &::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    block-size: var(--bordure-epaisse);
+    background-image: var(--degrade-marque);
+  }
 
   &__titre {
     color: var(--text-strong);

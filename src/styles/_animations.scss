@@ -1,0 +1,58 @@
+// Animations partagées.
+// Elles vivent ici plutôt que dans chaque composant : une même apparition employée sur une
+// carte, une ligne de tableau et un toast doit avoir exactement la même durée et la même
+// distance, sinon l'interface paraît bricolée. Aucune durée n'est écrite ici non plus —
+// tout vient des tokens de mouvement, que `prefers-reduced-motion` neutralise d'un bloc.
+
+@keyframes apparition {
+  from {
+    opacity: 0;
+    transform: translateY(var(--espace-2));
+  }
+}
+
+@keyframes apparition-echelle {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+@keyframes glissement-lateral {
+  from {
+    opacity: 0;
+    transform: translateX(var(--espace-4));
+  }
+}
+
+// Respiration lente d'une alerte : elle doit attirer l'œil qui passe, pas le retenir.
+@keyframes pulsation-douce {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.72;
+  }
+}
+
+// Apparition d'un écran : posée sur les cartes et les entêtes de page.
+.animation-apparition {
+  animation: apparition var(--dur-base) var(--ease-out) both;
+}
+
+// Cascade très légère, réservée au premier rendu d'une liste. Le rang est passé en variable
+// par le gabarit ; au-delà de dix lignes le retard cesse de croître, sinon le bas d'un
+// tableau de cent lignes attendrait plusieurs secondes.
+.animation-cascade {
+  animation: apparition var(--dur-base) var(--ease-out) both;
+  animation-delay: calc(min(var(--rang, 0), 10) * var(--dur-instant) / 3);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animation-apparition,
+  .animation-cascade {
+    animation-delay: 0ms;
+  }
+}

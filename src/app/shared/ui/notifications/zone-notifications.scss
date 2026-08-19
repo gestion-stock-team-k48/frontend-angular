@@ -17,8 +17,15 @@
     border-inline-start-width: var(--espace-1);
     border-radius: var(--rayon-carte);
     background-color: var(--surface-1);
-    box-shadow: var(--ombre-2);
-    animation: notification-entree var(--dur-base) var(--ease-out);
+    box-shadow: var(--ombre-3);
+
+    // Elle arrive du bord où elle se pose : le regard la suit au lieu de la découvrir.
+    animation: notification-entree var(--dur-base) var(--ease-spring);
+    transition: transform var(--dur-fast) var(--ease-out);
+
+    &:hover {
+      transform: translateX(calc(var(--espace-1) * -1));
+    }
   }
 
   &__message {
@@ -44,26 +51,32 @@
     }
   }
 
+  // Le niveau se lit à la tranche colorée et à un fond très légèrement teinté : assez pour
+  // distinguer un succès d'un refus d'un coup d'œil, pas assez pour crier.
   &__element[data-niveau='succes'] {
     border-inline-start-color: var(--state-success);
+    background-color: color-mix(in oklab, var(--state-success-surface) 40%, var(--surface-1));
   }
 
   &__element[data-niveau='avertissement'] {
     border-inline-start-color: var(--state-warning);
+    background-color: color-mix(in oklab, var(--state-warning-surface) 40%, var(--surface-1));
   }
 
   &__element[data-niveau='erreur'] {
     border-inline-start-color: var(--state-danger);
+    background-color: color-mix(in oklab, var(--state-danger-surface) 40%, var(--surface-1));
   }
 
   &__element[data-niveau='information'] {
     border-inline-start-color: var(--state-info);
+    background-color: color-mix(in oklab, var(--state-info-surface) 40%, var(--surface-1));
   }
 }
 
 @keyframes notification-entree {
   from {
     opacity: 0;
-    transform: translateY(var(--espace-2));
+    transform: translateX(var(--espace-5));
   }
 }
