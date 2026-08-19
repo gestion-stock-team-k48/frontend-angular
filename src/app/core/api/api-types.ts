@@ -15,6 +15,11 @@ export type DemandeReinitialisationMotDePasse = Schemas['ResetPasswordRequest'];
 export type DemandeChangementMotDePasse = Schemas['ChangePasswordRequest'];
 export type Utilisateur = Schemas['UtilisateurResponse'];
 
+export type Categorie = Schemas['CategoryResponse'];
+export type DemandeCategorie = Schemas['CategoryRequest'];
+export type Article = Schemas['ArticleResponse'];
+export type DemandeArticle = Schemas['ArticleRequest'];
+
 /** Rôles applicatifs, tels que déclarés par la spécification. */
 export type Role = NonNullable<Utilisateur['roles']>[number];
 
