@@ -34,12 +34,29 @@ export function gardeRole(...roles: readonly Role[]): CanActivateFn {
   };
 }
 
+/** Écran ouvert par défaut à une session établie. */
+export const ECRAN_PAR_DEFAUT = '/tableau-de-bord';
+
 /** Interdit les écrans de connexion à une session déjà ouverte. */
 export const gardeInvite: CanActivateFn = () => {
   const auth = inject(ServiceAuthentification);
   const router = inject(Router);
 
-  return auth.estAuthentifie() ? router.createUrlTree(['/']) : true;
+  return auth.estAuthentifie() ? router.createUrlTree([ECRAN_PAR_DEFAUT]) : true;
+};
+
+/**
+ * Page d'accueil : la vitrine pour qui arrive, le tableau de bord pour qui est déjà entré.
+ *
+ * C'est le système qui oriente, pas l'utilisateur : personne n'a à retenir une adresse pour
+ * retrouver son travail. Rien n'empêche de saisir l'URL de la vitrine à la main — elle reste
+ * accessible —, mais l'ouverture de l'application n'y laisse pas une session en cours.
+ */
+export const gardeAccueil: CanActivateFn = () => {
+  const auth = inject(ServiceAuthentification);
+  const router = inject(Router);
+
+  return auth.estAuthentifie() ? router.createUrlTree([ECRAN_PAR_DEFAUT]) : true;
 };
 
 /**

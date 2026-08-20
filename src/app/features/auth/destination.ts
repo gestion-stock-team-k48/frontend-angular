@@ -1,5 +1,12 @@
-/** Écran affiché quand aucune destination n'a été demandée, ou qu'elle a été écartée. */
-const DESTINATION_PAR_DEFAUT = '/';
+import { ECRAN_PAR_DEFAUT } from '../../core/auth/guards';
+
+/**
+ * Écran affiché quand aucune destination n'a été demandée, ou qu'elle a été écartée.
+ *
+ * Le tableau de bord, jamais la vitrine : on ne se connecte pas pour revenir à la page de
+ * présentation du produit.
+ */
+const DESTINATION_PAR_DEFAUT = ECRAN_PAR_DEFAUT;
 
 /**
  * Filtre la destination portée par `returnUrl`.
@@ -12,5 +19,6 @@ export function destinationSure(demandee: string | null): string {
   if (demandee === null || !demandee.startsWith('/') || demandee.startsWith('//')) {
     return DESTINATION_PAR_DEFAUT;
   }
-  return demandee;
+  // La vitrine n'est pas une destination : elle renverrait aussitôt au tableau de bord.
+  return demandee === '/' ? DESTINATION_PAR_DEFAUT : demandee;
 }
