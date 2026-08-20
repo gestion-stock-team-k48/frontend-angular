@@ -86,23 +86,16 @@ function texte(fixture: Awaited<ReturnType<typeof monter>>): string {
   return ((fixture.nativeElement as HTMLElement).textContent ?? '').replace(/\s/gu, ' ');
 }
 
-/**
- * Les mesures courent vers leur valeur : le test attend la fin du décompte avant de lire
- * l'écran, plutôt que de figer une valeur intermédiaire.
- */
-async function attendreLeDecompte(fixture: Awaited<ReturnType<typeof monter>>): Promise<void> {
-  await new Promise((suite) => setTimeout(suite, 1100));
-  fixture.detectChanges();
-}
-
 describe('TableauDeBord', () => {
   afterEach(() => {
     TestBed.inject(HttpTestingController).verify();
   });
 
   it('affiche les chiffres du serveur dans la devise configurée', async () => {
+    // `test-setup.ts` déclare `prefers-reduced-motion` : les mesures sont posées d'un coup,
+    // sans attente d'horloge. Il reste à laisser passer le cycle où l'effet les applique.
     const fixture = await monter();
-    await attendreLeDecompte(fixture);
+    await fixture.whenStable();
 
     expect(texte(fixture)).toContain('320 000 FCFA');
     expect(texte(fixture)).toContain('4 500 000 FCFA');

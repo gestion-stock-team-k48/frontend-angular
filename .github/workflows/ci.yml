@@ -113,10 +113,15 @@ jobs:
           name: couverture
           path: coverage/frontend-angular
 
+      # `qualitygate.wait` fait attendre le verdict et échouer le job s'il est rouge. Sans
+      # lui, le scanner rend la main dès le rapport envoyé : le pipeline reste vert pendant
+      # que le quality gate est en échec, et personne ne l'apprend.
       - name: Analyse
         uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: -Dsonar.qualitygate.wait=true
 
   # ── Dépendances ────────────────────────────────────────────────────────────────────────
   dependances:
@@ -163,24 +168,26 @@ jobs:
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
-            type=ref,event=branch
-            type=ref,event=pr
+            type=semver,pattern={{major}}
             type=sha,prefix=sha-
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=latest
           labels: |
             org.opencontainers.image.title=gestion-stock-frontend
             org.opencontainers.image.description=Interface Angular de gestion-stock, servie par nginx
 
       - name: Connexion à Docker Hub
-        if: github.event_name != 'pull_request'
+        if: startsWith(github.ref, 'refs/tags/')
         uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
           username: ${{ vars.DOCKERHUB_NAMESPACE || 'mcjordan12' }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # L'image est d'abord construite pour la seule architecture de l'exécuteur et chargée
-      # localement : c'est celle que Trivy inspecte. Le build multi-architecture ne part
-      # qu'ensuite, une fois le scan passé.
+      # L'image est construite et analysée à chaque push et à chaque pull request : c'est ce
+      # qui garantit que le Dockerfile tient et que le socle reste sain. Elle n'est publiée
+      # que sur un tag — une version qu'on a décidé de livrer, pas un état de branche.
+      #
+      # Le build local mono-architecture sert au scan ; le multi-architecture ne part
+      # qu'ensuite, une fois Trivy passé.
       - name: Construction pour analyse
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
@@ -217,7 +224,7 @@ jobs:
           exit-code: '1'
 
       - name: Construction multi-architecture et publication
-        if: github.event_name != 'pull_request'
+        if: startsWith(github.ref, 'refs/tags/')
         uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
         with:
           context: .
