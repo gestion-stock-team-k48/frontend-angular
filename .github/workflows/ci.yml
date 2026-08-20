@@ -97,12 +97,19 @@ jobs:
   # ── Analyse statique ───────────────────────────────────────────────────────────────────
   # Séparée de la qualité pour que l'absence de jeton SonarCloud — sur un fork, par exemple —
   # ne fasse pas tomber tout le pipeline.
+  #
+  # Sautée sur un tag : SonarCloud voit `refs/tags/v1.0.0` comme une branche éphémère, que la
+  # formule gratuite refuse, et le job échoue sur un « Not authorized ». Il n'y aurait de
+  # toute façon rien à apprendre — le commit étiqueté a déjà été analysé sur `develop`.
   sonar:
     name: SonarCloud
     needs: qualite
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    if: >-
+      ${{ !startsWith(github.ref, 'refs/tags/')
+          && (github.event_name != 'pull_request'
+              || github.event.pull_request.head.repo.full_name == github.repository) }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:

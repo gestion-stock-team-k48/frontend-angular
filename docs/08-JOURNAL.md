@@ -759,3 +759,71 @@ livrées — et il a tranché pour la première. Le backend est donc modifié : 
 259 tests passés, build de production 334,50 ko. Côté serveur, `VenteServiceImplTest` au vert.
 Contrôle à l'écran : courbe entière dans son cadre, étiquettes complètes, infobulle contenue
 aux deux bords, en clair comme en sombre.
+
+---
+
+## 2026-08-20 — session 3 — Conteneurisation, CI/CD, migration GitHub, v1.0.0
+
+**Branches** : `build/conteneurisation-et-ci`, `fix/defauts-sonar`, `refactor/dettes-sonar`,
+`fix/couverture-et-publication-sur-tag`, `test/delai-des-tests` → `develop` → `main`
+
+**Contexte de départ.** Le projet vivait sur GitLab, sans intégration continue, sans image, et
+sans moyen de le lancer autrement qu'en démarrant chaque service à la main.
+
+**Fait.**
+
+- **Migration vers GitHub**, organisation `gestion-stock-team-k48`. Les trois dépôts, toutes
+  les branches, toutes les étiquettes, vérifiés référence par référence. Les 22 demandes de
+  fusion GitLab sont archivées sur une branche `archive/gitlab` de chaque dépôt : elles ne
+  traversent pas un `push`, le code est dans les branches, la revue est là.
+- **Images** : 6 Mo pour le frontend, 141 Mo pour le backend. Multi-étages, utilisateur
+  non-root, sondes de vie, jar Spring Boot éclaté en couches.
+- **Pipelines** : qualité, SonarCloud avec attente du quality gate, scan des dépendances et de
+  l'image par Trivy, build multi-architecture, publication Docker Hub sur étiquette seulement.
+  Actions épinglées par empreinte de commit.
+- **Déploiement** : dépôt `gestion-stock-deploiement`, cinq services, une commande.
+- **v1.0.0**, sur les deux applications.
+
+**Découvert en route.**
+
+- **71 commits et 10 branches n'existaient que sur le poste.** Une migration qui se contente
+  de copier GitLab les aurait perdus. C'est le vrai risque de la manœuvre, et il n'avait rien
+  à voir avec GitLab.
+- **Deux fichiers de configuration avaient dérivé** sans que rien ne le signale : `check.sh`
+  ne lançait pas l'étape de format. Un contrôle qui n'existe qu'en CI apprend aux gens que le
+  format se découvre en CI. L'étape est ajoutée, la porte locale fait les six mêmes contrôles
+  que le pipeline.
+- **Les pipelines affichaient « SonarCloud: success » sans qu'aucune mesure n'existe.** Les
+  projets étaient privés et la branche analysée n'était pas la principale : les rapports
+  partaient, SonarCloud les acceptait puis les mettait de côté. Un vert trompeur, pris pour
+  argent comptant avant d'aller vérifier qu'il en sortait des chiffres.
+- **Six tests exigeaient un MinIO** sans que rien dans leur nom ne le dise. Ils passaient chez
+  tout le monde parce que la pile de développement tourne déjà.
+- **Cinq tests échouaient selon la charge de la machine**, jamais les mêmes. Un test dormait
+  1 100 ms pour attendre une animation ; le plafond de cinq secondes de Vitest faisait le
+  reste. Un rouge qui dépend de la charge apprend à relancer plutôt qu'à lire.
+
+**Choix de conception.**
+
+- Le SPA et l'API partagent une origine : nginx sert l'un et relaie l'autre. C'est ce que
+  `apiBaseUrl: '/api/v1'` supposait déjà, et cela évite toute configuration au démarrage du
+  conteneur comme toute question de CORS.
+- La sonde du backend lit le groupe `readiness` restreint à la base, pas l'agrégat. Sortir
+  l'API de la rotation parce que Mailpit ne répond pas transformerait une panne contenue en
+  interruption de service.
+- Un runtime `jlink` sur mesure a été essayé puis retiré : mesuré, 142 Mo contre 141 pour le
+  JRE distribué. La raison est en tête du `Dockerfile`, pour que personne n'y passe une
+  après-midi.
+- Trois règles SonarCloud sont écartées avec leurs raisons écrites. `InputWithoutLabelCheck`
+  est remplacée par un test qui connaît les conventions du projet — et qui a été vu échouer
+  avant d'être retenu.
+
+**Sorti du cadre.** L'interdit nº 1 réserve les modifications au dossier `frontend-angular`.
+Le backend a été conteneurisé, sa configuration externalisée, et 43 vulnérabilités fermées par
+une montée de Spring Boot 3.2.5 → 3.5.16. Chaque écart a été exposé au mainteneur, qui a
+tranché, et livré en demande de fusion pour relecture de l'équipe backend.
+
+**Vérifications finales.** Lint 0/0, stylelint 0, format conforme, typecheck OK, 264 tests,
+build 334,42 ko. SonarCloud : 0 bug, 0 vulnérabilité, 0 dette, notes A/A/A, couverture 80,9 %.
+Backend : 377 tests, 0 vulnérabilité corrigeable dans l'image. Pile complète démarrée et
+vérifiée de bout en bout.

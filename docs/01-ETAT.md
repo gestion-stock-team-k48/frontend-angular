@@ -1,14 +1,13 @@
 # État courant
 
-- Dernière mise à jour : 2026-08-20 — session 2
+- Dernière mise à jour : 2026-08-20 — session 3
 - Phase en cours : affinage de l'interface — tableau de bord, navigation, responsive.
-- Branche de travail : feat/ui-tableau-de-bord
+- Branche de travail : develop (v1.0.0 livrée depuis main)
 - Dernier commit : voir `git log -1` — tableau de bord et documentation
 - Backend requis démarré : oui — `http://localhost:8080/api/v1`
-- Prochaine action précise : regarder l'application à l'écran, avec le jeu de démonstration
-  en place (voir « À vérifier »). Ensuite, au choix : relecture d'ensemble des phases 2 à 11,
-  fusion dans `main` et tag `v1.0.0`, ou remontée des seize écarts backend à l'équipe
-  concernée — l'écart nº 16 bloque les ventes hors de la première entreprise.
+- Prochaine action précise : rien de bloquant. Au choix — trier les alertes de seuil, ou
+  remonter à l'équipe backend les écarts restants de `06-API-CONTRAT.md`. La procédure de
+  livraison est dans `09-LIVRAISON.md`.
 
 ## Fait depuis la dernière entrée
 
@@ -39,6 +38,15 @@ qui passent en colonne sous 40 rem — dans une feuille commune plutôt que rép
 
 ## Ajouté depuis
 
+- **v1.0.0 livrée.** `develop` fusionnée dans `main`, étiquetée, images publiées sur Docker
+  Hub en `1.0.0` / `1.0` / `1` / `latest`, amd64 et arm64. Procédure dans `09-LIVRAISON.md`.
+- **Conteneurisation et CI/CD.** Image de 6 Mo (nginx sert le SPA et relaie `/api`), pipeline
+  GitHub Actions : lint, format, types, tests, couverture, SonarCloud avec attente du quality
+  gate, npm audit, Trivy sur l'image, build multi-architecture. Publication sur tag seulement.
+- **Dettes SonarCloud soldées** : 71 bugs et 36 dettes à zéro, notes A partout. Trois règles
+  écartées avec leurs raisons dans `sonar-project.properties`.
+- **Déploiement** : dépôt `gestion-stock-deploiement`, toute la pile en une commande.
+
 - Chiffre d'affaires par mois : les ventes du jeu de démonstration tombaient toutes le jour du
   seed, faute de date acceptée par `POST /ventes`. Champ `dateVente` facultatif ouvert côté
   serveur sur décision du mainteneur, jeu de démonstration réparti sur la même fenêtre que les
@@ -51,7 +59,7 @@ qui passent en colonne sous 40 rem — dans une feuille commune plutôt que rép
 - Orientation par le système : la connexion mène au tableau de bord, une session ouverte ne
   reste jamais sur la vitrine, et `returnUrl` écarte cette dernière.
 - Écran de connexion en deux colonnes, mot de passe révélable.
-- 259 tests.
+- 264 tests.
 
 ## À vérifier à la main
 
