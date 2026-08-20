@@ -112,5 +112,11 @@ describe('ListeUtilisateurs', () => {
 
     http.expectOne((requete) => requete.url === URL).flush(page([MOI]));
     await fixture.whenStable();
+
+    // La revendication du test, écrite : le compte a disparu de la liste, et l'écran s'est
+    // rechargé depuis le serveur au lieu de retirer la ligne de son côté.
+    const restantes = (fixture.nativeElement as HTMLElement).querySelectorAll('tbody tr');
+    expect(restantes).toHaveLength(1);
+    expect(restantes[0]?.textContent).toContain(MOI.nom);
   });
 });
