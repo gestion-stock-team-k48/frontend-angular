@@ -702,3 +702,60 @@ le système oriente l'utilisateur au lieu de le laisser deviner une adresse.
 
 **Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
 258 tests passés, build de production 333,95 ko.
+
+---
+
+## 2026-08-20 — session 2 — Correction du chiffre d'affaires par mois
+
+**Branche** : `feat/ui-tableau-de-bord`
+
+**Contexte de départ.** Le mainteneur a comparé deux graphiques du tableau de bord et relevé
+une incohérence : le chiffre d'affaires par mois montrait onze mois à zéro puis 4,4 M FCFA
+sur le mois courant, tandis que les commandes livrées par mois s'étalaient sur six mois. La
+même forme apparaissait dans les douze entreprises du jeu de démonstration.
+
+**Fait.**
+
+- **Cause trouvée, hors interface.** Les deux courbes ne lisent pas la même date. Les
+  commandes portent une `dateCommande` que le client fournit, et le jeu de démonstration
+  l'antidate. Les ventes portent une `dateVente` que `VenteServiceImpl` fixait à
+  `Instant.now()`, sans que `VenteRequest` déclare le moindre champ de date : aucune vente ne
+  pouvait être antidatée par l'API, et les trente ventes de chaque entreprise tombaient donc
+  le jour du seed.
+- **Champ ouvert côté serveur, sur décision du mainteneur** (voir « Sorti du cadre ») :
+  `VenteRequest.dateVente`, facultatif, `@PastOrPresent`. Absent, le serveur horodate comme
+  avant. Deux tests unitaires couvrent les deux branches ; le contrat a été resynchronisé et
+  `06-API-CONTRAT.md` note le champ sous la table des ventes.
+- **Jeu de démonstration** : les ventes sont réparties sur la même fenêtre que les commandes
+  client, à une heure ouvrable tirée au sort et bornée à l'instant courant. Les deux courbes
+  couvrent enfin la même période.
+- **Deux débordements corrigés dans `dataviz`.** `plafond()` arrondissait à la graduation la
+  plus proche et non à la graduation supérieure : sur un maximum de 1,2 M, l'échelle
+  s'arrêtait à 1 M et le SVG coupait le sommet de la courbe à ras du cadre. La gouttière de
+  l'axe des valeurs était figée à 56 unités, trop étroite pour « 500 000 FCFA » : les
+  étiquettes sortaient du cadre par la gauche et étaient rognées. Elle se calcule désormais
+  sur la plus longue étiquette.
+- **Courbe lissée** — interpolation d'Hermite monotone (Fritsch–Carlson), un dégradé qui
+  s'éteint sur l'axe, une ligne de zéro distincte de la trame, un repère vertical au survol et
+  l'abscisse pointée mise en avant.
+
+**Découvert en route.**
+
+- Une infobulle absolument positionnée à 95 % de son conteneur ne dispose que des 5 % restants
+  pour se dimensionner : elle cassait ses lignes au lieu de déborder. `inline-size: max-content`
+  la dimensionne sur son texte, et un ancrage par attribut la ramène dans la carte aux deux
+  extrémités.
+- Une spline ordinaire aurait plongé sous l'axe après la suite de mois à zéro. La contrainte de
+  monotonie n'est pas un détail de rendu : sans elle, le dessin affiche des valeurs négatives
+  qui n'existent pas.
+
+**Sorti du cadre.** L'interdit nº 1 réserve les modifications au dossier `frontend-angular`.
+L'écart a été exposé au mainteneur avec ses trois options — ouvrir le champ côté serveur,
+corriger les dates en SQL après le seed, ou redéfinir le chiffre d'affaires sur les commandes
+livrées — et il a tranché pour la première. Le backend est donc modifié : `VenteRequest` et
+`VenteServiceImpl`, plus leurs tests.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+259 tests passés, build de production 334,50 ko. Côté serveur, `VenteServiceImplTest` au vert.
+Contrôle à l'écran : courbe entière dans son cadre, étiquettes complètes, infobulle contenue
+aux deux bords, en clair comme en sombre.
