@@ -329,6 +329,20 @@ function ilYA(jours) {
   return date.toISOString().slice(0, 10);
 }
 
+/**
+ * Instant au format attendu par le backend, décalé de `jours` dans le passé, à une heure
+ * ouvrable tirée au sort : une vente porte un instant, pas une date, et un jeu où elles
+ * tombent toutes à la même seconde se lit mal dans les graphiques horaires.
+ */
+function instantIlYA(jours) {
+  const date = new Date(AUJOURDHUI);
+  date.setDate(date.getDate() - jours);
+  date.setHours(entier(8, 18), entier(0, 59), entier(0, 59), 0);
+  // Une vente enregistrée aujourd'hui ne peut pas être postérieure à l'instant courant :
+  // le backend refuse une date future.
+  return new Date(Math.min(date.getTime(), AUJOURDHUI.getTime())).toISOString();
+}
+
 // ── Mailpit : récupération du mot de passe temporaire ────────────────────────────────────
 const patienter = (millisecondes) => new Promise((suite) => setTimeout(suite, millisecondes));
 
@@ -689,7 +703,15 @@ async function creerVentes(jeton, articles, stock, rangEntreprise) {
 
     await appeler('POST', '/ventes', {
       jeton,
-      corps: { code, ...(commentaire === null ? {} : { commentaire }), lignes },
+      corps: {
+        code,
+        // Même fenêtre que les commandes client : les deux courbes du tableau de bord
+        // couvrent alors la même période, au lieu d'un chiffre d'affaires écrasé sur le
+        // mois du seed face à des livraisons étalées.
+        dateVente: instantIlYA(entier(1, 150)),
+        ...(commentaire === null ? {} : { commentaire }),
+        lignes,
+      },
     });
 
     for (const ligne of lignes) {
