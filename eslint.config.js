@@ -59,7 +59,7 @@ module.exports = defineConfig([
         'error',
         {
           patterns: [
-            { group: ['**/features/**'], message: 'core ne dépend jamais d\'une feature.' },
+            { group: ['**/features/**'], message: "core ne dépend jamais d'une feature." },
             { group: ['**/shared/**'], message: 'core ne dépend jamais de shared.' },
           ],
         },
@@ -74,7 +74,7 @@ module.exports = defineConfig([
         'error',
         {
           patterns: [
-            { group: ['**/features/**'], message: 'shared ne dépend jamais d\'une feature.' },
+            { group: ['**/features/**'], message: "shared ne dépend jamais d'une feature." },
           ],
         },
       ],

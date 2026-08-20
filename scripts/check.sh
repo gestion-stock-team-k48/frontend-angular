@@ -6,7 +6,7 @@
 . "$(dirname "${BASH_SOURCE[0]}")/_commun.sh"
 cd "$RACINE" || exit 1
 
-ETAPES_TOTAL=5
+ETAPES_TOTAL=6
 JOURNAL="$RACINE/.check-logs"
 rm -rf "$JOURNAL" && mkdir -p "$JOURNAL"
 
@@ -36,7 +36,19 @@ else
   consigner "Stylelint" "$ERR_STYLE erreur(s)" "ÉCHEC"
 fi
 
-# ── 3. Typecheck ───────────────────────────────────────────────────────────────
+# ── 3. Format ──────────────────────────────────────────────────────────────────
+# La CI applique le même contrôle. Sans lui ici, deux fichiers de configuration ont dérivé
+# sans que rien ne le signale, et c'est le pipeline qui l'a découvert.
+etape "Format (Prettier)"
+if npm run --silent format:check > "$JOURNAL/format.txt" 2>&1; then
+  consigner "Format" "conforme" "OK"
+else
+  NB_FORMAT="$(grep -c '^\[warn\]' "$JOURNAL/format.txt" || echo '?')"
+  tail -25 "$JOURNAL/format.txt" | sed 's/^/      /'
+  consigner "Format" "$NB_FORMAT fichier(s) à reformater" "ÉCHEC"
+fi
+
+# ── 4. Typecheck ───────────────────────────────────────────────────────────────
 etape "Vérification des types (tsc, sans émission)"
 if npm run --silent typecheck > "$JOURNAL/types.txt" 2>&1; then
   consigner "Typecheck" "OK" "OK"
@@ -46,7 +58,7 @@ else
   consigner "Typecheck" "$ERR_TS erreur(s)" "ÉCHEC"
 fi
 
-# ── 4. Tests ───────────────────────────────────────────────────────────────────
+# ── 5. Tests ───────────────────────────────────────────────────────────────────
 etape "Tests unitaires (Vitest)"
 if npm run --silent test:ci > "$JOURNAL/tests.txt" 2>&1; then
   BILAN_TESTS="$(grep -oE '[0-9]+ passed( \([0-9]+\))?' "$JOURNAL/tests.txt" | tail -1)"
@@ -57,7 +69,7 @@ else
   consigner "Tests" "${BILAN_TESTS:-échec}" "ÉCHEC"
 fi
 
-# ── 5. Build de production ─────────────────────────────────────────────────────
+# ── 6. Build de production ─────────────────────────────────────────────────────
 etape "Build de production"
 if npm run --silent build > "$JOURNAL/build.txt" 2>&1; then
   POIDS="$(grep -oE 'Initial total[^0-9]*[0-9.]+ [kKMG]?B' "$JOURNAL/build.txt" | tail -1 | grep -oE '[0-9.]+ [kKMG]?B')"
