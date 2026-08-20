@@ -56,6 +56,35 @@ describe('Champ', () => {
     expect(racine.querySelector('.champ__aide')).toBeNull();
   });
 
+  // `decritPar` fournit l'`aria-describedby` du contrôle : c'est lui qui décide si le
+  // lecteur d'écran annonce l'aide, l'erreur, ou rien. Les trois cas comptent — un champ qui
+  // pointe vers un texte d'aide alors qu'il est en erreur induit en erreur, et un champ qui
+  // ne pointe vers rien laisse l'erreur invisible pour qui n'a pas l'écran.
+  it('décrit le contrôle par son erreur dès qu’il est invalide', async () => {
+    const fixture = await monter();
+    fixture.componentInstance.erreur.set('Ce code est déjà utilisé.');
+    await fixture.whenStable();
+
+    const champ = fixture.debugElement.children[0]?.componentInstance as Champ;
+    expect(champ.decritPar()).toBe('code-erreur');
+  });
+
+  it('décrit le contrôle par son aide tant qu’aucune erreur ne la remplace', async () => {
+    const fixture = await monter();
+
+    const champ = fixture.debugElement.children[0]?.componentInstance as Champ;
+    expect(champ.decritPar()).toBe('code-aide');
+  });
+
+  it('ne décrit rien quand il n’y a ni aide ni erreur', async () => {
+    const fixture = await monter();
+    fixture.componentInstance.aide.set(null);
+    await fixture.whenStable();
+
+    const champ = fixture.debugElement.children[0]?.componentInstance as Champ;
+    expect(champ.decritPar()).toBeNull();
+  });
+
   it('annonce le caractère obligatoire autrement que par l’astérisque', async () => {
     const fixture = await monter();
     const racine = fixture.nativeElement as HTMLElement;
