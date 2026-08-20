@@ -196,6 +196,16 @@ Le bandeau est translucide et flouté, colle en haut, et se réduit sur écran �
 de l'entreprise et celui du compte s'effacent, la pastille d'initiales suffit. Un lien de saut
 vers le contenu, visible au premier `Tab`, évite de retraverser la navigation à chaque écran.
 
+## Vitrine et connexion
+
+La vitrine et le panneau de marque de la connexion sont les deux seules surfaces entièrement à
+la couleur d'amorce : partout ailleurs, la marque ponctue un fond neutre. Ils emploient les
+mêmes tokens que l'application, donc une entreprise qui change sa couleur change aussi sa page
+d'accueil.
+
+Sous 64 rem, le panneau de marque de la connexion disparaît : un formulaire sur téléphone a
+besoin de deux champs, pas d'un argumentaire.
+
 ## Écrans
 
 `styles/_ecrans.scss` tient ce qui vaut pour tous : largeur de confort de 90 rem, rembourrage

@@ -659,3 +659,46 @@ même raison qui écarte déjà les bibliothèques de composants dans l'INTERDIT
 251 tests passés, build de production 329,21 ko.
 
 **En attente.** Un regard à l'écran, avec le jeu de démonstration en place.
+
+---
+
+## 2026-08-20 — session 1 (suite) — Vitrine publique et orientation
+
+**Branche** : `feat/ui-tableau-de-bord`
+
+**Demande.** Une page d'accueil publique, un écran de connexion plus soigné, et surtout : que
+le système oriente l'utilisateur au lieu de le laisser deviner une adresse.
+
+**Fait.**
+
+- `features/accueil` : vitrine publique à la racine — ce que l'application fait, trois étapes
+  pour démarrer, deux portes d'entrée. Chaque point correspond à un écran livré ; rien n'y est
+  promis pour plus tard, aucun témoignage n'est inventé.
+- L'aperçu de l'application est dessiné avec les tokens du projet, pas capturé : il se
+  recolore avec le thème et l'amorce, et ne vieillit pas.
+- Orientation : `gardeAccueil` renvoie une session ouverte de la vitrine vers son tableau de
+  bord ; `gardeInvite` y renvoie aussi depuis les écrans d'authentification ; la connexion mène
+  au tableau de bord, ou à l'écran demandé par `returnUrl`.
+- Connexion en deux colonnes sur grand écran, une seule sous 64 rem ; mot de passe révélable.
+- 258 tests.
+
+**Découvert en route.**
+
+- Le budget de style par composant (4 ko d'avertissement, 8 ko d'erreur) a mordu deux fois.
+  Le châssis des graphiques est parti dans une feuille globale — trois composants le partagent,
+  c'est sa place —, et la vitrine a été coupée en deux feuilles. Le budget a joué son rôle : il
+  a signalé deux fois qu'une feuille servait plus large que son composant.
+- La règle d'accessibilité du projet refuse `autofocus`, à raison : le focus imposé désoriente
+  un lecteur d'écran. Le champ email n'en a pas.
+- Une apostrophe typographique dans un texte ne se compare pas à une apostrophe droite dans un
+  test. Le test a été corrigé, pas le texte.
+
+**Choix de conception.**
+
+- La vitrine et le panneau de connexion sont les deux seules surfaces entièrement à la couleur
+  de marque ; ailleurs, elle ponctue un fond neutre.
+- `returnUrl` écarte la vitrine : y revenir après connexion renverrait aussitôt au tableau de
+  bord, ce qui ferait clignoter l'écran pour rien.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+258 tests passés, build de production 333,95 ko.

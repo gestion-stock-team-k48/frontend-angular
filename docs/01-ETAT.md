@@ -37,6 +37,14 @@ qui passent en colonne sous 40 rem — dans une feuille commune plutôt que rép
 
 **251 tests.** Build 329,21 ko, soit un demi-kilo-octet de plus qu'avant les graphiques.
 
+## Ajouté depuis
+
+- Vitrine publique à la racine, avec aperçu dessiné de l'application.
+- Orientation par le système : la connexion mène au tableau de bord, une session ouverte ne
+  reste jamais sur la vitrine, et `returnUrl` écarte cette dernière.
+- Écran de connexion en deux colonnes, mot de passe révélable.
+- 258 tests.
+
 ## À vérifier à la main
 
     nvm use && npm start
@@ -54,6 +62,9 @@ Avec le jeu de démonstration en place (`admin@quincaillerie-centredemo.cm`) :
    réduit à la marque, la pastille et les actions.
 6. Premier `Tab` sur n'importe quel écran : le lien « Aller au contenu » apparaît.
 7. Système réglé sur « animations réduites » : plus rien ne bouge, tout reste lisible.
+8. Ouvrir `/` sans être connecté : la vitrine. S'y connecter : on arrive sur le tableau de
+   bord, pas sur la vitrine. Rouvrir `/` en étant connecté : le tableau de bord.
+9. Se déconnecter depuis le bandeau : retour à la connexion. Ouvrir `/` : la vitrine.
 
 ## Points bloquants / en attente de ma validation
 
