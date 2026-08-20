@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component, inject, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ServiceAuthentification } from '../../core/auth/auth';
+import { Icone } from '../../shared/ui/icone/icone';
 import { ServiceChargement } from '../../core/http/loading';
 import { ServiceTheme } from '../../core/theme/theme';
 
@@ -10,7 +11,7 @@ import { ServiceTheme } from '../../core/theme/theme';
   templateUrl: './topbar.html',
   styleUrl: './topbar.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink],
+  imports: [RouterLink, Icone],
 })
 export class Topbar {
   protected readonly auth = inject(ServiceAuthentification);
@@ -31,6 +32,14 @@ export class Topbar {
     this.auth.deconnecter();
     await this.router.navigate(['/connexion']);
   }
+
+  /** Initiales du compte, pour la pastille du bandeau quand la place manque. */
+  protected readonly initiales = computed(() => {
+    const utilisateur = this.auth.utilisateur();
+    const prenom = utilisateur?.prenom ?? '';
+    const nom = utilisateur?.nom ?? '';
+    return `${prenom.charAt(0)}${nom.charAt(0)}`.toUpperCase() || '?';
+  });
 
   protected basculerTheme(): void {
     this.theme.definirMode(this.theme.themeApplique() === 'sombre' ? 'clair' : 'sombre');

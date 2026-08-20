@@ -127,6 +127,35 @@ Une notification globale est supprimée par le marqueur `SANS_NOTIFICATION_ERREU
 requêtes dont l'écran affiche déjà l'erreur — un formulaire n'a pas besoin d'écrire deux fois
 le même refus.
 
+## Orientation
+
+C'est le système qui décide où l'on arrive, jamais la barre d'adresse :
+
+| Situation                                      | Écran                                                  |
+| ---------------------------------------------- | ------------------------------------------------------ |
+| Ouverture de l'application, sans session       | vitrine publique `/`                                   |
+| Ouverture de l'application, session ouverte    | `/tableau-de-bord`                                     |
+| Connexion réussie                              | `/tableau-de-bord`, ou l'écran demandé par `returnUrl` |
+| Écran d'authentification, session déjà ouverte | `/tableau-de-bord`                                     |
+| Écran protégé, sans session                    | `/connexion?returnUrl=…`                               |
+| Mot de passe temporaire non remplacé           | `/changer-mot-de-passe`                                |
+
+`gardeAccueil` tient la première ligne, `gardeInvite` la quatrième, `gardeAuthentification` la
+cinquième et `gardeMotDePasse` la dernière. Saisir une adresse à la main reste possible — la
+vitrine n'est pas interdite à qui travaille —, mais personne n'a à le faire pour retrouver son
+travail.
+
+`returnUrl` est filtré aux chemins internes, et la vitrine en est écartée : elle renverrait
+aussitôt au tableau de bord.
+
+## Vitrine
+
+`features/accueil` porte la page publique : ce que l'application fait, en trois étapes, avec
+les deux portes d'entrée. Chaque point affiché correspond à un écran livré — la vitrine ne
+promet rien qui reste à écrire. L'aperçu de l'application y est **dessiné** avec les tokens du
+projet plutôt que capturé : il se recolore avec le thème et avec la couleur d'amorce, et ne
+vieillit pas quand un écran est retouché.
+
 ## Écrans d'authentification
 
 Connexion, inscription, mot de passe oublié, réinitialisation et changement de mot de passe

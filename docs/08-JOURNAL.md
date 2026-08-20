@@ -604,3 +604,101 @@ aligner les vingt et un.
 **En attente.** Une base vierge pour poser le jeu canonique : les essais ont laissé des
 entreprises partielles, et aucun endpoint ne supprime une entreprise. La remise à zéro
 appartient au mainteneur, dans le dépôt backend.
+
+---
+
+## 2026-08-20 — session 1 (suite) — Tableau de bord, navigation, responsive
+
+**Branche** : `feat/ui-tableau-de-bord` (depuis `develop`)
+
+**Demande.** Bandeau et navigation plus professionnels et responsives, écrans responsives,
+tableau de bord digne de ce nom — avec des graphiques, quitte à prendre une bibliothèque.
+
+**Recherche.** Les recommandations convergent : mesures critiques en tête, une tendance, les
+alertes de rupture, une table de détail, et surtout pas de surcharge — un tableau de bord qui
+montre tout ne montre rien.
+
+**La bibliothèque.** Chart.js, ECharts et ngx-charts ont été pesées, puis écartées au profit
+de trois formes écrites en SVG (ADR-021). La raison n'est pas l'économie de 70 ko : c'est que
+la couleur d'amorce de l'entreprise change à l'exécution, et qu'un dessin dont les couleurs
+sont des `var(--brand)` se repeint tout seul, là où un canevas doit être redessiné. C'est la
+même raison qui écarte déjà les bibliothèques de composants dans l'INTERDIT nº 6.
+
+**Fait.**
+
+- `shared/dataviz` : série temporelle en aires ou colonnes, classement en barres,
+  part-à-tout. Infobulle au survol, table de données dépliable sous chaque graphique.
+- Tableau de bord reconstruit : quatre mesures, quatre visualisations, les alertes.
+- `shared/ui/icone` : jeu au trait dessiné dans le projet.
+- Navigation repliable en rail d'icônes ; bandeau translucide, compact sur mobile, avec lien
+  de saut vers le contenu.
+- Feuille `styles/_ecrans.scss` : largeur de confort, rembourrage et titres fluides.
+- 251 tests, dont les trois graphiques, les icônes et le rail.
+
+**Découvert en route.**
+
+- Le backend ne publie aucune série temporelle. Les tendances sont donc agrégées ici, à
+  partir des 200 dernières ventes et commandes, sur la définition du serveur : le chiffre
+  d'affaires, ce sont les ventes — pas les commandes. L'écran l'écrit sous la courbe.
+- Un axe de comptages plafonnant à 1 se graduait « 0 0 1 1 1 » : le pas de 0,25 disparaissait
+  à l'arrondi. Les graduations acceptent désormais un pas minimal, et une série d'entiers le
+  demande d'elle-même.
+- `r` n'est pas une propriété CSS animable partout : le grossissement du point survolé passe
+  par une échelle. Stylelint avait raison de refuser.
+
+**Choix de conception.**
+
+- Une seule couleur par série, pas de double axe, étiquetage au survol plutôt qu'une valeur
+  sur chaque point. Les couleurs d'état ne servent qu'aux états.
+- Le rail plutôt que l'effacement : une navigation qui disparaît fait perdre le repère de
+  position et oblige à la rouvrir pour savoir où l'on est.
+- Fluidité par `clamp()` plutôt que par paliers : moins de points de rupture à maintenir, et
+  rien qui saute entre deux tailles d'écran.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+251 tests passés, build de production 329,21 ko.
+
+**En attente.** Un regard à l'écran, avec le jeu de démonstration en place.
+
+---
+
+## 2026-08-20 — session 1 (suite) — Vitrine publique et orientation
+
+**Branche** : `feat/ui-tableau-de-bord`
+
+**Demande.** Une page d'accueil publique, un écran de connexion plus soigné, et surtout : que
+le système oriente l'utilisateur au lieu de le laisser deviner une adresse.
+
+**Fait.**
+
+- `features/accueil` : vitrine publique à la racine — ce que l'application fait, trois étapes
+  pour démarrer, deux portes d'entrée. Chaque point correspond à un écran livré ; rien n'y est
+  promis pour plus tard, aucun témoignage n'est inventé.
+- L'aperçu de l'application est dessiné avec les tokens du projet, pas capturé : il se
+  recolore avec le thème et l'amorce, et ne vieillit pas.
+- Orientation : `gardeAccueil` renvoie une session ouverte de la vitrine vers son tableau de
+  bord ; `gardeInvite` y renvoie aussi depuis les écrans d'authentification ; la connexion mène
+  au tableau de bord, ou à l'écran demandé par `returnUrl`.
+- Connexion en deux colonnes sur grand écran, une seule sous 64 rem ; mot de passe révélable.
+- 258 tests.
+
+**Découvert en route.**
+
+- Le budget de style par composant (4 ko d'avertissement, 8 ko d'erreur) a mordu deux fois.
+  Le châssis des graphiques est parti dans une feuille globale — trois composants le partagent,
+  c'est sa place —, et la vitrine a été coupée en deux feuilles. Le budget a joué son rôle : il
+  a signalé deux fois qu'une feuille servait plus large que son composant.
+- La règle d'accessibilité du projet refuse `autofocus`, à raison : le focus imposé désoriente
+  un lecteur d'écran. Le champ email n'en a pas.
+- Une apostrophe typographique dans un texte ne se compare pas à une apostrophe droite dans un
+  test. Le test a été corrigé, pas le texte.
+
+**Choix de conception.**
+
+- La vitrine et le panneau de connexion sont les deux seules surfaces entièrement à la couleur
+  de marque ; ailleurs, elle ponctue un fond neutre.
+- `returnUrl` écarte la vitrine : y revenir après connexion renverrait aussitôt au tableau de
+  bord, ce qui ferait clignoter l'écran pour rien.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+258 tests passés, build de production 333,95 ko.

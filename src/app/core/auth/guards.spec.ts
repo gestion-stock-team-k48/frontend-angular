@@ -9,7 +9,13 @@ import {
 } from '@angular/router';
 import { Injector, runInInjectionContext } from '@angular/core';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { gardeAuthentification, gardeInvite, gardeMotDePasse, gardeRole } from './guards';
+import {
+  gardeAccueil,
+  gardeAuthentification,
+  gardeInvite,
+  gardeMotDePasse,
+  gardeRole,
+} from './guards';
 import { ServiceAuthentification } from './auth';
 import { provideAppConfig } from '../config/app-config';
 import type { Utilisateur } from '../api/api-types';
@@ -96,6 +102,30 @@ describe('gardes de navigation', () => {
     const resultat = runInInjectionContext(injector, () => gardeInvite(ROUTE, etat('/connexion')));
 
     expect(resultat).toBe(true);
+  });
+
+  it('renvoie une session ouverte de la connexion vers son tableau de bord', () => {
+    localStorage.setItem('gestion-stock.refresh-token', 'jeton');
+
+    const resultat = runInInjectionContext(injector, () => gardeInvite(ROUTE, etat('/connexion')));
+
+    expect(String(resultat)).toContain('/tableau-de-bord');
+  });
+
+  it('laisse la vitrine à qui arrive sans session', () => {
+    const resultat = runInInjectionContext(injector, () => gardeAccueil(ROUTE, etat('/')));
+
+    expect(resultat).toBe(true);
+  });
+
+  it('mène une session ouverte de la vitrine à son tableau de bord', () => {
+    // C'est le système qui oriente : on n'ouvre pas l'application pour lire sa page de
+    // présentation quand on y travaille déjà.
+    localStorage.setItem('gestion-stock.refresh-token', 'jeton');
+
+    const resultat = runInInjectionContext(injector, () => gardeAccueil(ROUTE, etat('/')));
+
+    expect(String(resultat)).toContain('/tableau-de-bord');
   });
   it('détourne vers le changement de mot de passe tant qu’il est temporaire', () => {
     ouvrirSession({ ...SIMPLE, mustChangePassword: true });

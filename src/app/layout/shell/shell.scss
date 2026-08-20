@@ -16,8 +16,10 @@
   grid-template-columns: 16rem 1fr;
   transition: grid-template-columns var(--dur-base) var(--ease-out);
 
+  // Repliée, la navigation garde la largeur d'un rail d'icônes : le repère de position
+  // reste à l'écran, et l'ouvrir n'est plus nécessaire pour savoir où l'on est.
   &--navigation-repliee {
-    grid-template-columns: 0 1fr;
+    grid-template-columns: 3.5rem 1fr;
   }
 
   &__navigation {
@@ -35,7 +37,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--espace-4);
-    padding: var(--espace-5) var(--espace-4);
     min-inline-size: 0;
 
     // Le contenu reçoit le focus après une navigation : il ne doit pas pour autant
@@ -49,6 +50,12 @@
 @media (width <= 48rem) {
   .shell {
     grid-template-columns: 1fr;
+
+    // Sur mobile la navigation est un tiroir posé au-dessus du contenu : pas de rail, pas
+    // de colonne réservée.
+    &--navigation-repliee {
+      grid-template-columns: 1fr;
+    }
 
     &__navigation {
       position: fixed;

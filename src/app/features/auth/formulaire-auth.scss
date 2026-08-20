@@ -100,6 +100,30 @@
     font-size: var(--taille-sm);
   }
 
+  // Champ portant une action à droite : le bouton vit dans la boîte du contrôle plutôt qu'à
+  // côté, sans quoi la ligne se déséquilibre dès que le libellé change de longueur.
+  &__champ-avec-action {
+    position: relative;
+    display: block;
+  }
+
+  &__revelation {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: var(--espace-1);
+    padding-inline: var(--espace-2);
+    border: 0;
+    border-radius: var(--rayon-controle);
+    background-color: transparent;
+    color: var(--text-muted);
+    font-size: var(--taille-xs);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--brand);
+    }
+  }
+
   &__actions {
     display: flex;
     flex-direction: column;

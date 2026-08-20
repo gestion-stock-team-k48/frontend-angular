@@ -423,3 +423,38 @@ toujours l'appel, et un client HTTP direct le fera. Le contrôle a sa place côt
 celui du dernier administrateur ; l'écart est signalé. Le second point ne fait qu'aligner
 l'écran sur ce que le serveur autorise — proposer un bouton qui échoue à coup sûr serait une
 promesse en l'air.
+
+---
+
+## ADR-021 — Les graphiques sont dessinés en SVG, sans bibliothèque
+
+**Contexte.** Le tableau de bord demandait de vraies visualisations. Le mainteneur a autorisé
+l'ajout de dépendances. Trois candidates ont été regardées :
+
+| Bibliothèque | Poids             | Ce qui coince ici                                                                                                                 |
+| ------------ | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Chart.js     | ~70 ko compressé  | rend dans un canevas : les couleurs sont lues une fois en JavaScript, il faut redessiner à chaque changement de thème ou d'amorce |
+| ECharts      | ~330 ko compressé | même problème de canevas, pour une puissance dont trois formes n'ont pas l'usage                                                  |
+| ngx-charts   | ~90 ko + `d3`     | s'appuie sur une architecture Angular plus ancienne, et impose sa propre grammaire visuelle                                       |
+
+**Décision.** Écrire les trois formes nécessaires — série temporelle en aires ou en colonnes,
+classement en barres, part-à-tout — en SVG dans `shared/dataviz`, avec les tokens du projet.
+
+**Motif.** La couleur d'amorce de l'entreprise est l'exigence centrale du produit, et elle
+change à l'exécution. Un graphique SVG dont les couleurs sont des `var(--brand)` se repeint
+tout seul, en thème clair comme en sombre, sans qu'une ligne de code s'exécute — c'est
+exactement ce qu'aucune bibliothèque à canevas ne sait faire gratuitement, et c'est la raison
+pour laquelle l'INTERDIT nº 6 écarte déjà les bibliothèques de composants clé en main.
+S'ajoutent le poids — nul contre 70 ko au minimum — et l'exigence de fonctionner sans accès
+Internet, qui interdit de toute façon un CDN.
+
+**Conséquence.** Les formes disponibles sont celles qui sont écrites : trois. Le jour où le
+tableau de bord demandera du zoom, une sélection à la brosse ou une carte, ECharts est la
+bibliothèque à prendre, et la couture est propre — les composants de `shared/dataviz` ont une
+entrée simple (`titre`, `points`, `formater`) qu'une implémentation tierce peut reprendre.
+
+Les règles de dessin suivies sont celles du guide de dataviz : une seule couleur par série,
+pas de double axe, barres plafonnées à 24 px avec extrémité arrondie, lavis d'aire à 14 %,
+trame en retrait, étiquetage sélectif au survol plutôt qu'une valeur sur chaque point, et une
+table de données dépliable sous chaque graphique — pour le lecteur d'écran, l'impression, et
+qui veut le chiffre exact.

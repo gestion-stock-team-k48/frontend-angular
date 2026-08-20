@@ -1,8 +1,12 @@
 import type { Routes } from '@angular/router';
 import { gardeAuthentification, gardeMotDePasse } from './core/auth/guards';
+import { routesAccueil } from './features/accueil/accueil.routes';
 import { routesAuth } from './features/auth/auth.routes';
 
 export const routes: Routes = [
+  // La racine est la vitrine : c'est ce qu'on voit en ouvrant l'application. Une session
+  // déjà ouverte n'y reste pas — sa garde la renvoie au tableau de bord.
+  ...routesAccueil,
   // Les écrans d'authentification passent avant le shell : ils sont les seuls à vivre hors
   // de la coquille applicative, et le shell attrape tout le reste par sa route générique.
   // Leurs définitions sont importées directement — ce ne sont que des objets de route, les
@@ -106,12 +110,6 @@ export const routes: Routes = [
         title: 'Accès refusé · Gestion de Stock',
         loadComponent: () =>
           import('./features/erreurs/acces-refuse').then((module) => module.AccesRefuse),
-      },
-      {
-        // La racine mène au tableau de bord : c'est de là qu'on décide quoi faire.
-        path: '',
-        pathMatch: 'full',
-        redirectTo: 'tableau-de-bord',
       },
       {
         path: '**',

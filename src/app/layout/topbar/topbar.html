@@ -1,19 +1,20 @@
 <header class="topbar">
+  <a class="topbar__saut" href="#contenu">Aller au contenu</a>
+
   <button
     type="button"
-    class="topbar__bascule"
+    class="topbar__icone"
     [attr.aria-expanded]="sidebarOuverte()"
     aria-controls="navigation-principale"
-    aria-label="Afficher ou masquer la navigation"
     (click)="bascule.emit()"
   >
-    <span aria-hidden="true">☰</span>
+    <app-icone nom="menu" libelle="Afficher ou masquer la navigation" />
   </button>
 
   <div class="topbar__identite">
     <span class="topbar__application">Gestion de Stock</span>
     @if (auth.entreprise(); as entreprise) {
-      <span class="topbar__entreprise">{{ entreprise.nom }}</span>
+      <span class="topbar__entreprise" [title]="entreprise.nom">{{ entreprise.nom }}</span>
     }
   </div>
 
@@ -26,19 +27,26 @@
   <div class="topbar__actions">
     <button
       type="button"
-      class="topbar__action"
+      class="topbar__icone"
       [attr.aria-pressed]="theme.themeApplique() === 'sombre'"
       (click)="basculerTheme()"
     >
-      {{ theme.themeApplique() === 'sombre' ? 'Thème clair' : 'Thème sombre' }}
+      @if (theme.themeApplique() === 'sombre') {
+        <app-icone nom="soleil" libelle="Passer au thème clair" />
+      } @else {
+        <app-icone nom="lune" libelle="Passer au thème sombre" />
+      }
     </button>
 
     @if (auth.utilisateur(); as utilisateur) {
-      <a class="topbar__action" routerLink="/profil">
-        {{ utilisateur.prenom }} {{ utilisateur.nom }}
+      <a class="topbar__compte" routerLink="/profil" [title]="utilisateur.email">
+        <span class="topbar__pastille" aria-hidden="true">{{ initiales() }}</span>
+        <span class="topbar__nom">{{ utilisateur.prenom }} {{ utilisateur.nom }}</span>
       </a>
     }
 
-    <button type="button" class="topbar__action" (click)="deconnecter()">Se déconnecter</button>
+    <button type="button" class="topbar__icone" (click)="deconnecter()">
+      <app-icone nom="sortie" libelle="Se déconnecter" />
+    </button>
   </div>
 </header>

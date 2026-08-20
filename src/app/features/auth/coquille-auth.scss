@@ -1,54 +1,119 @@
 .coquille-auth {
-  position: relative;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(20rem, 26rem) 1fr;
   min-block-size: 100vh;
   background-color: var(--surface-0);
 
-  // Deux halos de marque, en haut à droite et en bas à gauche : la page de connexion est la
-  // première vue de l'application, elle a le droit d'être un peu plus habitée que le reste.
-  background-image:
-    radial-gradient(
-      60rem 40rem at 90% -10%,
-      color-mix(in oklab, var(--brand) 20%, transparent) 0%,
-      transparent 65%
-    ),
-    radial-gradient(
-      50rem 35rem at -10% 110%,
-      color-mix(in oklab, var(--brand) 14%, transparent) 0%,
-      transparent 60%
-    );
+  // Sous 64 rem, le panneau de marque disparaît : un formulaire de connexion sur téléphone
+  // a besoin de deux champs, pas d'un argumentaire.
+  @media (width <= 64rem) {
+    grid-template-columns: 1fr;
+  }
+
+  // Panneau de marque : la seule surface de l'application entièrement à la couleur d'amorce.
+  &__panneau {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-5);
+    padding: var(--espace-7) var(--espace-6);
+    background-image: var(--degrade-marque);
+    color: var(--brand-contrast);
+
+    @media (width <= 64rem) {
+      display: none;
+    }
+  }
+
+  &__marque {
+    font-family: var(--police-display);
+    font-size: var(--taille-lg);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  &__promesse {
+    max-inline-size: 18ch;
+    font-family: var(--police-display);
+    font-size: var(--taille-2xl);
+    line-height: var(--interligne-serre);
+  }
+
+  &__points {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-3);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  &__point {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--espace-2);
+    font-size: var(--taille-sm);
+    opacity: 0.9;
+  }
+
+  &__pied {
+    margin-block-start: auto;
+    font-size: var(--taille-xs);
+    opacity: 0.75;
+  }
+
+  &__colonne {
+    display: flex;
+    flex-direction: column;
+    min-inline-size: 0;
+  }
 
   &__entete {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--espace-3);
-    padding: var(--espace-4) var(--espace-5);
+    padding: var(--espace-4) clamp(var(--espace-3), 4vw, var(--espace-6));
   }
 
-  &__marque {
-    color: var(--text-strong);
-    font-family: var(--police-display);
-    font-size: var(--taille-lg);
-    font-weight: 600;
-    letter-spacing: -0.01em;
+  &__retour {
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--brand);
+    }
   }
 
   &__theme {
-    padding: var(--espace-1) var(--espace-3);
-    border: var(--bordure-fine) solid var(--border-subtle);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    padding: 0;
+    border: var(--bordure-fine) solid transparent;
     border-radius: var(--rayon-controle);
     background-color: transparent;
     color: var(--text-muted);
-    font-size: var(--taille-sm);
+    cursor: pointer;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+
+    &:hover {
+      background-color: var(--surface-marque);
+      color: var(--text-strong);
+    }
   }
 
   &__contenu {
     display: flex;
     flex: 1;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
-    padding: var(--espace-4) var(--espace-4) var(--espace-8);
+    padding: var(--espace-4) clamp(var(--espace-3), 4vw, var(--espace-6)) var(--espace-8);
   }
 }

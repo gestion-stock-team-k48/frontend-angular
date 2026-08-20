@@ -19,16 +19,83 @@
   backdrop-filter: var(--flou-calque);
   box-shadow: var(--ombre-1);
 
-  &__bascule {
-    padding: var(--espace-1) var(--espace-2);
-    border: var(--bordure-fine) solid var(--border-base);
+  // Bouton d'icône : carré, discret, taille de cible confortable au doigt.
+  &__icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    padding: 0;
+    border: var(--bordure-fine) solid transparent;
     border-radius: var(--rayon-controle);
-    background-color: var(--surface-1);
+    background-color: transparent;
+    color: var(--text-muted);
     cursor: pointer;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
 
     &:hover {
-      background-color: var(--surface-2);
+      border-color: var(--border-subtle);
+      background-color: var(--surface-marque);
+      color: var(--text-strong);
     }
+  }
+
+  // Lien de saut : invisible jusqu'au premier Tab, indispensable au clavier pour ne pas
+  // retraverser toute la navigation à chaque écran.
+  &__saut {
+    position: absolute;
+    inset-block-start: var(--espace-2);
+    inset-inline-start: var(--espace-2);
+    z-index: var(--z-entete);
+    padding: var(--espace-2) var(--espace-3);
+    border-radius: var(--rayon-controle);
+    background-color: var(--brand);
+    color: var(--brand-contrast);
+    font-size: var(--taille-sm);
+    text-decoration: none;
+    transform: translateY(-200%);
+    transition: transform var(--dur-fast) var(--ease-out);
+
+    &:focus-visible {
+      transform: translateY(0);
+    }
+  }
+
+  &__compte {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--espace-2);
+    padding: var(--espace-1) var(--espace-2) var(--espace-1) var(--espace-1);
+    border: var(--bordure-fine) solid transparent;
+    border-radius: var(--rayon-plein);
+    color: var(--text-base);
+    font-size: var(--taille-sm);
+    text-decoration: none;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      border-color var(--dur-fast) var(--ease-out);
+
+    &:hover {
+      border-color: var(--border-subtle);
+      background-color: var(--surface-marque);
+    }
+  }
+
+  &__pastille {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    border-radius: var(--rayon-plein);
+    background-image: var(--degrade-marque);
+    color: var(--brand-contrast);
+    font-size: var(--taille-xs);
+    font-weight: 600;
   }
 
   &__identite {
@@ -42,6 +109,13 @@
     font-family: var(--police-display);
     font-weight: 500;
     line-height: var(--interligne-serre);
+  }
+
+  &__nom {
+    overflow: hidden;
+    max-inline-size: 12rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &__entreprise {
@@ -75,39 +149,24 @@
     gap: var(--espace-3);
     margin-inline-start: auto;
   }
-
-  // Bouton comme lien : le compte mène à un écran, la déconnexion et le thème agissent
-  // sur place. Ils se ressemblent parce qu'ils occupent le même rang dans le bandeau.
-  &__action {
-    padding: var(--espace-1) var(--espace-3);
-    text-decoration: none;
-    transition:
-      background-color var(--dur-fast) var(--ease-out),
-      border-color var(--dur-fast) var(--ease-out),
-      color var(--dur-fast) var(--ease-out);
-    border: var(--bordure-fine) solid var(--border-base);
-    border-radius: var(--rayon-controle);
-    background-color: var(--surface-1);
-    color: var(--text-base);
-    font-size: var(--taille-sm);
-    cursor: pointer;
-
-    &:hover {
-      border-color: var(--brand);
-      background-color: var(--surface-marque);
-      color: var(--text-strong);
-    }
-  }
-
-  &__utilisateur {
-    color: var(--text-base);
-    font-size: var(--taille-sm);
-  }
 }
 
+// Sur écran étroit, le bandeau garde l'essentiel : la marque, l'activité, les actions. Le
+// nom de l'entreprise et celui du compte cèdent la place — la pastille suffit à savoir qui
+// est connecté.
 @media (width <= 48rem) {
-  .topbar__utilisateur {
+  .topbar {
+    gap: var(--espace-2);
+    padding-inline: var(--espace-3);
+  }
+
+  .topbar__entreprise,
+  .topbar__nom {
     display: none;
+  }
+
+  .topbar__actions {
+    gap: var(--espace-1);
   }
 }
 

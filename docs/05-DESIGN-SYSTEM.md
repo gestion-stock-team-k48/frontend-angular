@@ -162,6 +162,56 @@ sauf `ZoneNotifications`, exception bornée documentée en ADR-012.
 Angular Aria n'est employé que là où il existe : il n'expose ni bouton, ni champ, ni boîte
 de dialogue. Voir ADR-011.
 
+## Graphiques
+
+`shared/dataviz` porte trois formes, écrites en SVG (ADR-021) :
+
+| Composant           | Forme                        | Emploi                     |
+| ------------------- | ---------------------------- | -------------------------- |
+| `GraphiqueTemporel` | aires ou colonnes, une série | une grandeur dans le temps |
+| `GraphiqueBarres`   | barres horizontales          | un classement              |
+| `Repartition`       | barre empilée + légende      | un part-à-tout par état    |
+
+Règles tenues : une seule couleur par série et donc pas de légende à une série ; jamais deux
+échelles sur un même dessin ; barres plafonnées à 24 px, extrémité arrondie côté valeur ;
+lavis d'aire à 14 % de la teinte ; trame d'axes en retrait, jamais en pointillés ; étiquetage
+au survol plutôt qu'une valeur sur chaque point ; et sous chaque graphique une table de
+données dépliable. Les couleurs d'état ne servent qu'aux états — jamais de « série 4 ».
+
+## Icônes
+
+`shared/ui/icone` : un jeu au trait dessiné dans le projet, grille de 24, épaisseur 1,6,
+extrémités arrondies. Ni police d'icônes ni paquet tiers — quelques chemins pèsent moins et
+suivent notre grammaire. L'icône est décorative quand un texte l'accompagne, et ne se nomme
+que lorsqu'elle est seule sur un bouton.
+
+## Navigation
+
+Repliée, la navigation devient un **rail d'icônes** de 3,5 rem plutôt que de disparaître :
+une navigation qui s'efface fait perdre le repère de position, et oblige à la rouvrir pour
+savoir où l'on est. Les libellés passent alors en infobulle. Sous 48 rem, le rail cède la
+place à un tiroir posé au-dessus du contenu.
+
+Le bandeau est translucide et flouté, colle en haut, et se réduit sur écran étroit : le nom
+de l'entreprise et celui du compte s'effacent, la pastille d'initiales suffit. Un lien de saut
+vers le contenu, visible au premier `Tab`, évite de retraverser la navigation à chaque écran.
+
+## Vitrine et connexion
+
+La vitrine et le panneau de marque de la connexion sont les deux seules surfaces entièrement à
+la couleur d'amorce : partout ailleurs, la marque ponctue un fond neutre. Ils emploient les
+mêmes tokens que l'application, donc une entreprise qui change sa couleur change aussi sa page
+d'accueil.
+
+Sous 64 rem, le panneau de marque de la connexion disparaît : un formulaire sur téléphone a
+besoin de deux champs, pas d'un argumentaire.
+
+## Écrans
+
+`styles/_ecrans.scss` tient ce qui vaut pour tous : largeur de confort de 90 rem, rembourrage
+et taille de titre en `clamp()` — donc fluides plutôt que par paliers —, filet de marque sous
+le titre, et entêtes qui passent en colonne sous 40 rem.
+
 ## Écran « Apparence »
 
 `/parametres/apparence` : mode, presets et curseurs de teinte, saturation et clarté, densité,

@@ -1,9 +1,8 @@
 # État courant
 
 - Dernière mise à jour : 2026-08-19 — session 1
-- Phase en cours : aucune. Les onze phases du plan déduit (ADR-015) et l'affinage — visuel,
-  alignement des tableaux, jeu de démonstration — sont fusionnés dans `develop`.
-- Branche de travail : `develop`, à jour
+- Phase en cours : affinage de l'interface — tableau de bord, navigation, responsive.
+- Branche de travail : feat/ui-tableau-de-bord
 - Dernier commit : voir `git log -1` — tableau de bord et documentation
 - Backend requis démarré : oui — `http://localhost:8080/api/v1`
 - Prochaine action précise : regarder l'application à l'écran, avec le jeu de démonstration
@@ -13,45 +12,59 @@
 
 ## Fait depuis la dernière entrée
 
-**Affinage visuel** — couleur, relief et mouvement, détaillés dans `08-JOURNAL.md` et
-`05-DESIGN-SYSTEM.md`.
+**Tableau de bord.** Reconstruit autour des trois questions du matin : combien j'ai encaissé,
+où en sont mes commandes, ce qui manque en rayon. Quatre mesures en tête, le chiffre du mois
+en chiffre d'appel, puis une courbe du chiffre d'affaires par mois, la répartition des
+commandes par état, les livraisons par mois, le classement des articles vendus, et l'aperçu
+des alertes de seuil.
 
-**Alignement des tableaux corrigé.** Le remplissage et l'alignement des cellules vivaient
-dans le composant `app-tableau`, hors de portée des lignes projetées : l'entête recevait sa
-mise en forme, le corps n'en recevait aucune. Une colonne annoncée à droite s'affichait à
-gauche. Les règles rejoignent la feuille globale, à côté de celles des lignes, qui souffraient
-du même mal.
+Le backend ne publie aucune série temporelle : les tendances sont agrégées côté navigateur à
+partir des 200 dernières ventes et commandes, sur la définition du serveur — le chiffre
+d'affaires, ce sont les ventes. L'écran le dit sous la courbe plutôt que de faire passer une
+somme du navigateur pour un chiffre serveur.
 
-**Codes attribués par le serveur retirés de l'interface.** Le code d'une commande et celui
-d'une vente sont générés par le backend, seul à savoir ce qui est déjà pris dans l'entreprise.
-Les deux champs disparaissent des formulaires, et les requêtes ne les portent plus.
+**Graphiques** — trois formes écrites en SVG dans `shared/dataviz`, sans bibliothèque
+(ADR-021) : la couleur d'amorce de l'entreprise se propage aux dessins sans qu'une ligne de
+code s'exécute, ce qu'aucune bibliothèque à canevas ne fait gratuitement. Chaque graphique
+porte une table de données dépliable.
 
-**Jeu de démonstration** — `npm run seed`. Il passe par l'API publique, jamais par la base :
-les règles métier sont donc appliquées par le serveur, et le jeu est cohérent par
-construction. Douze entreprises, chacune avec 12 catégories, 150 articles, 24 clients,
-10 fournisseurs, 5 comptes, son stock initial, ses corrections, ses commandes des deux côtés
-et ses ventes. Tous les comptes partagent `GestionStock2026!` — y compris ceux à qui le
-serveur avait envoyé un mot de passe temporaire, que le script récupère dans Mailpit et
-remplace comme le ferait la personne à sa première connexion.
+**Navigation et bandeau.** Repliée, la navigation devient un rail d'icônes au lieu de
+disparaître. Le bandeau est translucide et flouté, colle en haut, se réduit sur écran étroit,
+et porte un lien de saut vers le contenu. Jeu d'icônes maison, au trait.
 
-## Deux défauts backend trouvés en construisant le jeu
+**Écrans.** Largeur de confort de 90 rem, rembourrage et titres fluides en `clamp()`, entêtes
+qui passent en colonne sous 40 rem — dans une feuille commune plutôt que répétés par écran.
 
-1. **Le code d'une vente est unique globalement, mais généré par entreprise** — voir l'écart
-   nº 16 de `06-API-CONTRAT.md`. **C'est bloquant en multi-tenant** : passé la première
-   entreprise inscrite, plus aucune vente ne peut être enregistrée. Le seed fournit un code
-   explicite pour contourner ; l'interface, elle, ne le fait pas.
-2. Rien d'autre : les transitions d'état, les mouvements de stock déclenchés par une
-   livraison et les refus de stock insuffisant se sont comportés exactement comme documenté.
+**251 tests.** Build 329,21 ko, soit un demi-kilo-octet de plus qu'avant les graphiques.
 
-## Base de développement
+## Ajouté depuis
 
-Les essais du seed ont laissé quelques entreprises partielles (`…x1`, `…x2`, `…x3`) et le jeu
-complet est posé sous l'étiquette `demo`. Aucun endpoint ne supprime une entreprise : pour
-repartir propre, c'est côté backend, et cela t'appartient —
+- Vitrine publique à la racine, avec aperçu dessiné de l'application.
+- Orientation par le système : la connexion mène au tableau de bord, une session ouverte ne
+  reste jamais sur la vitrine, et `returnUrl` écarte cette dernière.
+- Écran de connexion en deux colonnes, mot de passe révélable.
+- 258 tests.
 
-    cd ../gestion-stock-backend && docker compose down -v && docker compose up -d
-    ./mvnw spring-boot:run
-    cd ../frontend-angular && npm run seed
+## À vérifier à la main
+
+    nvm use && npm start
+
+Avec le jeu de démonstration en place (`admin@quincaillerie-centredemo.cm`) :
+
+1. Tableau de bord : les quatre mesures, la courbe du chiffre d'affaires, la répartition par
+   état, les livraisons par mois, le classement, les alertes.
+2. Survoler la courbe : l'infobulle suit le mois pointé. Déplier « Voir les données » sous
+   chaque graphique.
+3. `/parametres/apparence` : changer la couleur d'amorce — courbes, barres et jauges se
+   repeignent avec le reste, en clair comme en sombre.
+4. Replier la navigation : elle devient un rail d'icônes, les libellés passent en infobulle.
+5. Réduire la fenêtre à moins de 48 rem : la navigation devient un tiroir, le bandeau se
+   réduit à la marque, la pastille et les actions.
+6. Premier `Tab` sur n'importe quel écran : le lien « Aller au contenu » apparaît.
+7. Système réglé sur « animations réduites » : plus rien ne bouge, tout reste lisible.
+8. Ouvrir `/` sans être connecté : la vitrine. S'y connecter : on arrive sur le tableau de
+   bord, pas sur la vitrine. Rouvrir `/` en étant connecté : le tableau de bord.
+9. Se déconnecter depuis le bandeau : retour à la connexion. Ouvrir `/` : la vitrine.
 
 ## Points bloquants / en attente de ma validation
 
