@@ -26,12 +26,16 @@ RUN npm run build -- --configuration production
 # root — PID et fichiers temporaires hors des chemins réservés, écoute sur 8080. Le faire à
 # la main sur l'image officielle demande de réécrire trois chemins dans `nginx.conf`, et
 # d'en oublier un suffit à empêcher le démarrage.
-FROM nginxinc/nginx-unprivileged:1.27-alpine-slim AS runtime
+FROM nginxinc/nginx-unprivileged:1.31-alpine-slim AS runtime
 
 # La configuration d'exemple écoute elle aussi sur 8080 : la laisser ferait deux serveurs en
 # concurrence sur le même port.
+# `apk upgrade` en plus du socle à jour : entre deux publications de l'image nginx, Alpine
+# corrige ses paquets, et c'est là que dorment les failles qu'un scanner remonte. Sans cette
+# ligne, l'image héritait d'un openssl en retard de quatre correctifs, dont deux critiques.
 USER root
-RUN rm -f /etc/nginx/conf.d/default.conf
+RUN apk upgrade --no-cache \
+    && rm -f /etc/nginx/conf.d/default.conf
 USER nginx
 
 COPY nginx-securite.conf /etc/nginx/snippets/securite.conf
