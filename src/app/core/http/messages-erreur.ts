@@ -37,7 +37,11 @@ function estMessageExploitable(message: string): boolean {
   if (nettoye.length === 0 || nettoye.length > 300) {
     return false;
   }
-  return !/^[a-z.]*Exception\b|\bat [a-z]+\.[a-z]+\./i.test(nettoye);
+  // Les deux alternatives sont groupées explicitement : `|` a la plus faible précédence, si
+  // bien qu'un lecteur pressé croit l'ancre `^` valable pour les deux. Elle ne porte que sur
+  // la première — un nom de classe en tête de message —, la seconde cherchant une ligne de
+  // pile n'importe où. Le comportement est inchangé, seule l'intention devient lisible.
+  return !/(?:^[a-z.]*Exception\b)|(?:\bat [a-z]+\.[a-z]+\.)/i.test(nettoye);
 }
 
 function messageDeRepli(statut: number): string {
