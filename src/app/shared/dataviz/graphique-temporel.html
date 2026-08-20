@@ -10,23 +10,53 @@
       [attr.aria-label]="titre()"
       (mouseleave)="survoler(null)"
     >
+      @if (forme() === 'aires') {
+        <defs>
+          <!-- Le lavis s'éteint avant l'axe : la courbe pose sur la trame, elle n'y colle pas. -->
+          <linearGradient [attr.id]="idDegrade" x1="0" y1="0" x2="0" y2="1">
+            <stop class="graphique__degrade-haut" offset="0" />
+            <stop class="graphique__degrade-bas" offset="1" />
+          </linearGradient>
+        </defs>
+      }
+
       <!-- Graduations : une trame en retrait, jamais en pointillés. -->
       @for (repere of reperes(); track repere.valeur) {
         <g class="graphique__graduation">
           <line
-            [attr.x1]="marge.gauche"
+            [attr.x1]="margeGauche()"
             [attr.x2]="largeur - marge.droite"
             [attr.y1]="repere.y"
             [attr.y2]="repere.y"
           />
-          <text [attr.x]="marge.gauche - 8" [attr.y]="repere.y + 4" text-anchor="end">
+          <text [attr.x]="margeGauche() - 8" [attr.y]="repere.y + 4" text-anchor="end">
             {{ repere.libelle }}
           </text>
         </g>
       }
 
+      <!-- Ligne de base : l'axe des abscisses se distingue de la trame. -->
+      <line
+        class="graphique__base"
+        [attr.x1]="margeGauche()"
+        [attr.x2]="largeur - marge.droite"
+        [attr.y1]="base()"
+        [attr.y2]="base()"
+      />
+
+      <!-- Repère vertical du point survolé : il relie la marque à son abscisse. -->
+      @if (pointSurvole(); as point) {
+        <line
+          class="graphique__guide"
+          [attr.x1]="point.centre"
+          [attr.x2]="point.centre"
+          [attr.y1]="marge.haut"
+          [attr.y2]="base()"
+        />
+      }
+
       @if (forme() === 'aires') {
-        <path class="graphique__aire" [attr.d]="aire()" />
+        <path class="graphique__aire" [attr.fill]="'url(#' + idDegrade + ')'" [attr.d]="aire()" />
         <path class="graphique__ligne" [attr.d]="trace()" />
 
         @for (bande of bandes(); track bande.rang) {
@@ -35,7 +65,7 @@
             [class.graphique__point--actif]="survole() === bande.rang"
             [attr.cx]="bande.centre"
             [attr.cy]="bande.y"
-            r="4"
+            r="3.5"
           />
         }
       } @else {
@@ -64,6 +94,7 @@
         />
         <text
           class="graphique__abscisse"
+          [class.graphique__abscisse--actif]="survole() === bande.rang"
           [attr.x]="bande.centre"
           [attr.y]="hauteur - 8"
           text-anchor="middle"
@@ -74,7 +105,11 @@
     </svg>
 
     @if (pointSurvole(); as point) {
-      <p class="graphique__infobulle" [style.inset-inline-start.%]="positionInfobulle()">
+      <p
+        class="graphique__infobulle"
+        [attr.data-ancrage]="ancrageInfobulle()"
+        [style.inset-inline-start.%]="positionInfobulle()"
+      >
         <span class="graphique__infobulle-libelle">{{ point.detail ?? point.libelle }}</span>
         <span class="graphique__infobulle-valeur" data-numerique>{{
           formater()(point.valeur)
