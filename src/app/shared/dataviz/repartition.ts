@@ -11,7 +11,6 @@ import type { PartRepartition } from './serie';
 @Component({
   selector: 'app-repartition',
   templateUrl: './repartition.html',
-  styleUrl: './graphique.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Repartition {

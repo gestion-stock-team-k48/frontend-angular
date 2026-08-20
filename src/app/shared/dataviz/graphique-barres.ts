@@ -10,7 +10,6 @@ import type { PointSerie } from './serie';
 @Component({
   selector: 'app-graphique-barres',
   templateUrl: './graphique-barres.html',
-  styleUrl: './graphique.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GraphiqueBarres {

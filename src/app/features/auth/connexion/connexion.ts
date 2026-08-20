@@ -37,6 +37,13 @@ export class Connexion {
   /** Message d'ensemble : identifiants refusés, serveur injoignable, réponse illisible. */
   protected readonly message = signal<string | null>(null);
 
+  /**
+   * Mot de passe en clair. Utile sur un clavier de téléphone, où une faute de frappe invisible
+   * coûte une tentative — et sans conséquence : rien n'est enregistré, l'état retombe à la
+   * fermeture de l'écran.
+   */
+  protected readonly motDePasseVisible = signal(false);
+
   protected readonly erreurEmail = computed(() =>
     this.formulaire.email().touched() ? messageDuChamp(this.formulaire.email().errors()) : null,
   );
@@ -48,6 +55,10 @@ export class Connexion {
   );
 
   protected readonly enCours = computed(() => this.formulaire().submitting());
+
+  protected basculerVisibilite(): void {
+    this.motDePasseVisible.update((visible) => !visible);
+  }
 
   protected async connecter(): Promise<void> {
     this.message.set(null);

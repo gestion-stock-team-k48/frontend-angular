@@ -22,7 +22,6 @@ export type FormeGraphique = 'aires' | 'colonnes';
 @Component({
   selector: 'app-graphique-temporel',
   templateUrl: './graphique-temporel.html',
-  styleUrl: './graphique.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GraphiqueTemporel {

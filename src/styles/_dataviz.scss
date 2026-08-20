@@ -1,5 +1,6 @@
-// Feuille commune aux graphiques. Les couleurs viennent des tokens : un changement de thème
-// ou de couleur d'amorce repeint le dessin sans qu'une ligne de code s'exécute.
+// Châssis commun des graphiques : titre, axes, marques, infobulle, table de données.
+// Global parce que trois composants le partagent, comme la feuille des tableaux — et
+// parce qu'une feuille globale n'a pas de budget par composant à tenir.
 
 .graphique {
   display: flex;
@@ -152,7 +153,9 @@
   &__fin {
     text-align: end;
   }
+}
 
+.graphique {
   // Barres horizontales : le libellé à gauche, la valeur à droite, la barre entre les deux.
   &__barres {
     display: flex;

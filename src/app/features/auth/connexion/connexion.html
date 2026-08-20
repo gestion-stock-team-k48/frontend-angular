@@ -1,7 +1,7 @@
 <section class="carte-auth">
-  <h1 class="carte-auth__titre">Connexion</h1>
+  <h1 class="carte-auth__titre">Content de vous revoir</h1>
   <p class="carte-auth__intro">
-    Saisir les identifiants du compte de l'entreprise pour accéder au stock.
+    Saisir les identifiants du compte pour retrouver le stock de l'entreprise.
   </p>
 
   @if (message(); as texte) {
@@ -29,12 +29,22 @@
       [requis]="true"
       [erreur]="erreurMotDePasse()"
     >
-      <input
-        id="connexion-mot-de-passe"
-        type="password"
-        autocomplete="current-password"
-        [formField]="formulaire.motDePasse"
-      />
+      <span class="carte-auth__champ-avec-action">
+        <input
+          id="connexion-mot-de-passe"
+          [type]="motDePasseVisible() ? 'text' : 'password'"
+          autocomplete="current-password"
+          [formField]="formulaire.motDePasse"
+        />
+        <button
+          type="button"
+          class="carte-auth__revelation"
+          [attr.aria-pressed]="motDePasseVisible()"
+          (click)="basculerVisibilite()"
+        >
+          {{ motDePasseVisible() ? 'Masquer' : 'Afficher' }}
+        </button>
+      </span>
     </app-champ>
 
     <div class="carte-auth__actions">
