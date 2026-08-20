@@ -67,9 +67,11 @@ describe('intercepteurRafraichissement', () => {
       .flush(null, { status: 401, statusText: 'Unauthorized' });
 
     // Un seul appel de rafraîchissement, alors que deux requêtes ont été refusées.
-    controleur
-      .expectOne(`${BASE}/auth/refresh-token`)
-      .flush({ token: 'jeton-neuf', refreshToken: 'refresh-neuf' });
+    // `expectOne` lève déjà s'il y en a zéro ou deux ; on l'écrit quand même, parce que
+    // c'est le propos du test et qu'un compte affiché se lit mieux qu'une exception.
+    const rafraichissements = controleur.match(`${BASE}/auth/refresh-token`);
+    expect(rafraichissements).toHaveLength(1);
+    rafraichissements[0]?.flush({ token: 'jeton-neuf', refreshToken: 'refresh-neuf' });
 
     controleur.expectOne(`${BASE}/articles`).flush({});
     controleur.expectOne(`${BASE}/clients`).flush({});

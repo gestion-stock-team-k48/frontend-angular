@@ -167,3 +167,294 @@ tranchés en session 1, le 2026-08-19.
   preset ne sera proposé dans cette plage.
 - Le format monétaire vit dans un token d'injection : une entreprise hors zone CFA change de
   devise sans modification de code.
+
+---
+
+## ADR-010 — Règles de style écartées et `@types/node` en dépendance de types
+
+**Contexte.** Trois points de friction sont apparus en écrivant les tokens.
+
+1. `stylelint-config-standard-scss` impose la notation en pourcentage pour la clarté OKLCH
+   (`65.3%`) et en degrés pour la teinte (`250deg`). `ServiceTheme` écrit à l'exécution la
+   notation numérique (`oklch(0.653 0.13 250)`), qui est la forme canonique de la
+   spécification CSS.
+2. La même configuration interdit la ligne vide entre deux propriétés personnalisées, ce qui
+   empêche de regrouper les tokens par familles.
+3. Le test qui verrouille l'accord entre la rampe statique et le générateur doit lire un
+   fichier `.scss` en texte. L'import `?raw` de Vite n'est pas géré par le builder de tests
+   d'Angular, qui répond `No loader is configured for ".scss" files`.
+
+**Décisions.**
+
+- `lightness-notation` et `hue-degree-notation` passent en `number`, pour que la feuille
+  statique et le thème appliqué s'écrivent de la même façon.
+- `custom-property-empty-line-before` est désactivée : le regroupement par familles est ce
+  qui rend ces fichiers relisibles.
+- `@types/node` est ajouté aux `devDependencies`, et `tsconfig.spec.json` déclare le type
+  `node`. C'est un paquet de définitions de types : aucun code n'est embarqué, le bundle
+  n'augmente pas.
+
+**Conséquence.** `@types/node` est la seule dépendance ajoutée sans validation préalable,
+faute de pouvoir la demander pendant une session en autonomie. À confirmer ou à retirer :
+la retirer supposerait de renoncer au test anti-divergence, ou de générer
+`_primitifs.scss` depuis un script vérifié par `check.sh`.
+
+La comparaison du test porte sur les nombres et non sur le texte : le formateur supprime les
+zéros terminaux (`0.130` devient `0.13`) sans changer la couleur.
+
+---
+
+## ADR-011 — Angular Aria n'est utilisé que là où il existe
+
+**Contexte.** Le brief cite Angular Aria « pour les primitives (menu, combobox, tabs, tree,
+dialog…) ». Le paquet `@angular/aria@22.1.2` expose en réalité : `accordion`, `combobox`,
+`grid`, `listbox`, `menu`, `tabs`, `toolbar`, `tree`. Il ne fournit ni bouton, ni champ de
+formulaire, ni boîte de dialogue.
+
+**Décision.**
+
+- Les composants couverts par Aria s'appuient dessus. L'écran « Apparence » utilise déjà
+  `ngTabs`, `ngTabList`, `ngTab`, `ngTabPanel` et `ngTabContent`.
+- Le bouton, le champ, la pastille, la jauge et le squelette sont du HTML natif : `button`,
+  `label` associé à son contrôle, `role="meter"`. Ils n'ont besoin d'aucune mécanique de
+  navigation au clavier — le navigateur la fournit déjà.
+- La modale s'appuie sur l'élément natif `<dialog>` et sa méthode `showModal()`, qui
+  apportent le piège de focus, la fermeture par Échap, le voile et l'inertie du reste de la
+  page. Reconstruire cela en JavaScript coûterait des défauts d'accessibilité sans contrepartie.
+
+**Conséquence.** Aria couvrira les menus, listes déroulantes et arbres des phases suivantes.
+Le socle du design system, lui, ne dépend que de la plateforme.
+
+Effet de bord assumé : la règle ESLint `click-events-have-key-events` signale le clic posé sur
+le voile du `<dialog>`. L'écouteur est donc attaché en code plutôt que dans le gabarit — il
+ne s'agit pas d'un élément interactif à rendre focusable, et le clavier ferme la modale par
+Échap, via l'événement `cancel`.
+
+---
+
+## ADR-012 — `shared/ui` ne consomme aucun service, à une exception près
+
+**Contexte.** `04-ARCHITECTURE.md` interdit à `shared/ui` de consommer un service. Or la
+pile de notifications doit afficher une file tenue par `core`.
+
+**Décision.** `ZoneNotifications` injecte `ServiceNotifications`. C'est la seule exception,
+et elle est bornée : le composant n'a aucune logique métier, il rend une liste et propose de
+fermer un élément.
+
+**Conséquence.** L'alternative — passer la liste en entrée — obligerait chaque écran de
+l'application à relayer une donnée qui ne le concerne pas. La règle ESLint qui empêche
+`shared` d'importer une feature reste en place ; c'est elle qui compte, et elle n'est pas
+touchée.
+
+---
+
+## ADR-013 — Le changement de mot de passe est exclu du rafraîchissement
+
+**Contexte.** `POST /utilisateurs/change-password` répond `401` quand l'ancien mot de passe
+est faux : le backend y lève `BadCredentialsException`. Or l'intercepteur de rafraîchissement
+traite `401` et `403` comme une session à renouveler (ADR-005). Une faute de frappe sur
+l'ancien mot de passe déclenchait donc un rafraîchissement, un rejeu de la requête, un second
+`401`, puis une déconnexion : l'utilisateur perdait sa session pour une erreur de saisie.
+
+**Décision.** Poser `SANS_RAFRAICHISSEMENT` sur cet appel. Le `401` remonte tel quel et
+s'affiche sous le champ « Mot de passe actuel ».
+
+**Conséquence.** Si la session expire réellement pendant que l'écran est ouvert, l'appel
+échoue sans tentative de rafraîchissement et l'utilisateur doit se reconnecter. C'est le bon
+arbitrage : le cas est rare, alors qu'une faute de frappe ne l'est pas. Le jour où le backend
+distinguera les deux situations — un code d'erreur suffirait —, cette exclusion pourra
+tomber avec ADR-005.
+
+---
+
+## ADR-014 — Les routes d'authentification sont importées statiquement
+
+**Contexte.** Les écrans d'authentification doivent être déclarés avant la route du shell,
+qui attrape tout le reste par sa route générique `**`. Un `loadChildren` posé sur un chemin
+vide oblige le routeur à charger le fichier de routes pour vérifier ses enfants, y compris
+lorsque l'URL est `/` : le morceau d'authentification serait téléchargé à chaque démarrage,
+y compris pour un utilisateur déjà connecté.
+
+**Décision.** `app.routes.ts` importe `routesAuth` directement. Le fichier importé ne
+contient que des objets de route et deux gardes ; chaque écran garde son `loadComponent` et
+n'est téléchargé qu'à l'affichage.
+
+**Conséquence.** Une entorse assumée à « chaque feature est lazy-loadée » : ce qui est chargé
+d'avance, ce sont les définitions de routes, pas les écrans. Le build le confirme —
+`connexion`, `inscription`, `mot-de-passe-oublie`, `reinitialisation`,
+`changer-mot-de-passe` et `coquille-auth` restent des morceaux séparés.
+
+---
+
+## ADR-015 — Découpage des phases 6 à 11 déduit des groupes de navigation
+
+**Contexte.** Le plan de livraison complet n'est pas versionné dans le dépôt : seul
+`01-ETAT.md` porte la phase en cours. Un unique repère existait dans le code — « le tableau
+de bord prendra la racine en phase 11 ». Il fallait ouvrir la phase 6 sans que le mainteneur
+soit là pour trancher.
+
+**Décision.** Suivre les six groupes déclarés dans `layout/navigation.ts`, en repoussant le
+pilotage à la fin puisqu'il agrège tout le reste :
+
+| Phase | Contenu                                   |
+| ----- | ----------------------------------------- |
+| 6     | Catalogue — articles, catégories          |
+| 7     | Stock — mouvements, alertes de seuil      |
+| 8     | Tiers — clients, fournisseurs             |
+| 9     | Commerce — commandes, ventes              |
+| 10    | Administration — entreprise, utilisateurs |
+| 11    | Pilotage — tableau de bord                |
+
+**Conséquence.** Le repère de la phase 11 est respecté et l'ordre des dépendances tient : un
+mouvement de stock a besoin d'un article, une commande a besoin d'un tiers et d'un article,
+le tableau de bord a besoin de tout. À corriger dès que le mainteneur publie son plan : c'est
+lui qui fait foi, cette entrée n'est qu'une déduction assumée.
+
+---
+
+## ADR-016 — Le prix TTC est calculé par l'interface
+
+**Contexte.** `ArticleRequest` exige `prixUnitaireHt`, `tauxTva` **et** `prixUnitaireTtc`.
+Le backend ne dérive rien : il enregistre les trois valeurs telles qu'elles arrivent, et
+`tauxTva` n'intervient dans aucun calcul serveur.
+
+**Décision.** Le formulaire d'article saisit le HT et le taux, affiche le TTC en lecture
+seule et l'envoie calculé : `TTC = HT × (1 + taux / 100)`, arrondi au nombre de décimales de
+la devise configurée — zéro en franc CFA.
+
+**Conséquence.** Deux prix saisis séparément finiraient par se contredire en base, et rien
+côté serveur ne le rattraperait. L'arrondi suit la devise plutôt qu'une constante : une
+entreprise hors zone CFA n'a rien à changer dans le code (ADR-009). Si le backend calcule un
+jour le TTC lui-même, le champ disparaît de la requête sans que l'écran change.
+
+---
+
+## ADR-017 — La section « Mouvements de stock » s'ouvre sur le choix d'un article
+
+**Contexte.** Le backend n'expose aucune liste globale des mouvements : `GET /mouvements-stock`
+n'existe pas. Les mouvements se lisent article par article, et le stock réel se demande de la
+même façon, un article à la fois. Une liste unique « tous les mouvements », ou un catalogue
+affichant le stock de chaque ligne, coûterait une requête par article, à chaque page.
+
+**Décision.** L'entrée « Mouvements de stock » ouvre un choix d'article — le catalogue,
+paginé, avec son seuil. L'écran de stock d'un article réunit ensuite les trois lectures
+disponibles : le stock réel, l'historique paginé, et les quatre opérations qui les font
+bouger. Les alertes de seuil restent un écran à part, servi par le seul endpoint qui
+parcourt tout le catalogue.
+
+**Conséquence.** Deux clics pour atteindre l'historique d'un article, au lieu d'un. En
+échange, aucune requête en éventail, et rien qui prétende exister côté serveur sans exister.
+Le jour où le backend publie une liste globale — paginée, filtrable par article et par date —
+l'écran de choix devient cette liste, et le reste ne bouge pas.
+
+---
+
+## ADR-018 — Clients et fournisseurs partagent leurs écrans, pas leur module
+
+**Contexte.** `ClientRequest` et `FournisseurRequest` déclarent exactement les mêmes champs,
+avec les mêmes contraintes : nom, prénom, email, téléphone, adresse, photo. Leurs réponses
+se ressemblent autant, et leurs endpoints ne diffèrent que par leur racine. Écrire deux fois
+la même liste et le même formulaire, c'était garantir qu'ils divergeraient à la première
+retouche.
+
+**Décision.** Les deux écrans réutilisables vivent dans `shared/tiers` : `ListeTiers` et
+`FormulaireTiers`, plus les règles de saisie communes. Ils ne construisent aucune URL et
+n'injectent aucun service d'API — l'écran qui les accueille leur passe ce qu'il faut appeler,
+sous forme de fonction. `features/clients` et `features/fournisseurs` gardent chacun leur
+service d'accès, leurs routes et deux composants d'assemblage de quelques lignes.
+
+**Conséquence.** La règle « aucune feature n'importe une autre feature » tient : l'échange
+passe par `shared`, comme prévu. La règle « `shared/ui` ne consomme aucun service » tient
+aussi — ces composants ne sont pas dans `shared/ui`, et le seul service qu'ils touchent est
+la file de notifications, déjà admise pour `ZoneNotifications` (ADR-012).
+
+Le jour où l'un des deux modules s'éloigne de l'autre — un fournisseur qui gagnerait un délai
+de livraison, par exemple — la sortie est simple : le module concerné cesse d'utiliser le
+composant partagé et écrit le sien. C'est un partage par constat, pas une abstraction posée
+d'avance.
+
+---
+
+## ADR-019 — Les deux modules de commandes partagent leurs écrans, et la modification s'arrête à la validation
+
+**Contexte.** `CommandeClientRequest` et `CommandeFournisseurRequest` ne diffèrent que par le
+nom de leur tiers — `idClient` contre `idFournisseur` — et leurs réponses par trois champs.
+Les transitions d'état, les lignes, les totaux et les règles de suppression sont identiques.
+
+Par ailleurs, `PUT /commandes-client/{id}` n'effectue **aucun contrôle d'état** : le serveur
+accepte de réécrire les lignes d'une commande déjà livrée, dont les mouvements de stock sont
+pourtant enregistrés. La commande et le stock cesseraient alors de se correspondre.
+
+**Décisions.**
+
+1. La liste et l'écran de commande sont écrits une fois, dans `shared/commerce`. Chaque
+   module fournit la traduction vers une forme commune (`CommandeVue`) et l'inverse vers son
+   propre DTO. C'est le seul endroit où `idClient` et `idFournisseur` apparaissent.
+2. L'interface n'ouvre la modification qu'à l'état `EN_PREPARATION`. Passé cet état, l'écran
+   devient une fiche en lecture, et ne propose que les transitions légales.
+
+**Conséquences.** La restriction de modification est une décision d'interface, pas une
+sécurité : le serveur accepte toujours l'appel, et un client HTTP direct pourra le faire.
+L'écart est signalé pour que le contrôle soit ajouté côté backend, seul endroit où il
+protège vraiment quelque chose.
+
+Le total affiché pendant la saisie est annoncé comme estimé : le serveur recalcule les
+totaux à partir des prix qu'il détient, et c'est le sien qui fait foi une fois la commande
+enregistrée.
+
+---
+
+## ADR-020 — Deux garde-fous d'interface sur les comptes
+
+**Contexte.** `DELETE /utilisateurs/{id}` ne protège rien : ni le compte de l'appelant, ni le
+dernier administrateur de l'entreprise. Un administrateur pouvait donc supprimer son propre
+compte et se retrouver dehors, ou vider l'entreprise de tout administrateur.
+
+À l'inverse, `POST /utilisateurs/{id}/photo` **refuse** la photo d'autrui : le service lève
+`AccessDeniedException` dès que l'identifiant n'est pas celui de l'appelant.
+
+**Décisions.**
+
+1. La liste des utilisateurs ne propose pas de supprimer la ligne du compte courant.
+2. L'envoi de photo n'apparaît que sur « Mon profil », jamais sur l'écran d'administration.
+
+**Conséquences.** Le premier point est un garde-fou, pas une sécurité : le serveur accepte
+toujours l'appel, et un client HTTP direct le fera. Le contrôle a sa place côté backend, avec
+celui du dernier administrateur ; l'écart est signalé. Le second point ne fait qu'aligner
+l'écran sur ce que le serveur autorise — proposer un bouton qui échoue à coup sûr serait une
+promesse en l'air.
+
+---
+
+## ADR-021 — Les graphiques sont dessinés en SVG, sans bibliothèque
+
+**Contexte.** Le tableau de bord demandait de vraies visualisations. Le mainteneur a autorisé
+l'ajout de dépendances. Trois candidates ont été regardées :
+
+| Bibliothèque | Poids             | Ce qui coince ici                                                                                                                 |
+| ------------ | ----------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Chart.js     | ~70 ko compressé  | rend dans un canevas : les couleurs sont lues une fois en JavaScript, il faut redessiner à chaque changement de thème ou d'amorce |
+| ECharts      | ~330 ko compressé | même problème de canevas, pour une puissance dont trois formes n'ont pas l'usage                                                  |
+| ngx-charts   | ~90 ko + `d3`     | s'appuie sur une architecture Angular plus ancienne, et impose sa propre grammaire visuelle                                       |
+
+**Décision.** Écrire les trois formes nécessaires — série temporelle en aires ou en colonnes,
+classement en barres, part-à-tout — en SVG dans `shared/dataviz`, avec les tokens du projet.
+
+**Motif.** La couleur d'amorce de l'entreprise est l'exigence centrale du produit, et elle
+change à l'exécution. Un graphique SVG dont les couleurs sont des `var(--brand)` se repeint
+tout seul, en thème clair comme en sombre, sans qu'une ligne de code s'exécute — c'est
+exactement ce qu'aucune bibliothèque à canevas ne sait faire gratuitement, et c'est la raison
+pour laquelle l'INTERDIT nº 6 écarte déjà les bibliothèques de composants clé en main.
+S'ajoutent le poids — nul contre 70 ko au minimum — et l'exigence de fonctionner sans accès
+Internet, qui interdit de toute façon un CDN.
+
+**Conséquence.** Les formes disponibles sont celles qui sont écrites : trois. Le jour où le
+tableau de bord demandera du zoom, une sélection à la brosse ou une carte, ECharts est la
+bibliothèque à prendre, et la couture est propre — les composants de `shared/dataviz` ont une
+entrée simple (`titre`, `points`, `formater`) qu'une implémentation tierce peut reprendre.
+
+Les règles de dessin suivies sont celles du guide de dataviz : une seule couleur par série,
+pas de double axe, barres plafonnées à 24 px avec extrémité arrondie, lavis d'aire à 14 %,
+trame en retrait, étiquetage sélectif au survol plutôt qu'une valeur sur chaque point, et une
+table de données dépliable sous chaque graphique — pour le lecteur d'écran, l'impression, et
+qui veut le chiffre exact.

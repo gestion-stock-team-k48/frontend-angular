@@ -1,0 +1,41 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espace-1);
+  padding: var(--espace-1) var(--espace-3);
+
+  // Forme de pastille plutôt que de rectangle : elle se distingue des cellules du tableau
+  // qui l'entourent sans avoir besoin d'une couleur plus forte.
+  border: var(--bordure-fine) solid transparent;
+  border-radius: var(--rayon-plein);
+  background-color: var(--surface-2);
+  color: var(--text-base);
+  font-size: var(--taille-xs);
+  font-weight: 500;
+  line-height: var(--interligne-serre);
+  white-space: nowrap;
+}
+
+:host([data-ton='succes']) {
+  border-color: color-mix(in oklab, var(--state-success) 35%, transparent);
+  background-color: var(--state-success-surface);
+  color: var(--state-success-text);
+}
+
+:host([data-ton='avertissement']) {
+  border-color: color-mix(in oklab, var(--state-warning) 35%, transparent);
+  background-color: var(--state-warning-surface);
+  color: var(--state-warning-text);
+}
+
+:host([data-ton='danger']) {
+  border-color: color-mix(in oklab, var(--state-danger) 35%, transparent);
+  background-color: var(--state-danger-surface);
+  color: var(--state-danger-text);
+}
+
+:host([data-ton='information']) {
+  border-color: color-mix(in oklab, var(--state-info) 35%, transparent);
+  background-color: var(--state-info-surface);
+  color: var(--state-info-text);
+}

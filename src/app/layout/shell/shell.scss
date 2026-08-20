@@ -1,0 +1,88 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100vh;
+
+  // Halo de marque dans le coin haut : il donne une couleur à l'application sans mettre
+  // de couleur derrière le texte, qui doit rester sur un fond neutre.
+  background-image: var(--degrade-page);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.shell {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 16rem 1fr;
+  transition: grid-template-columns var(--dur-base) var(--ease-out);
+
+  // Repliée, la navigation garde la largeur d'un rail d'icônes : le repère de position
+  // reste à l'écran, et l'ouvrir n'est plus nécessaire pour savoir où l'on est.
+  &--navigation-repliee {
+    grid-template-columns: 3.5rem 1fr;
+  }
+
+  &__navigation {
+    overflow: hidden;
+    border-inline-end: var(--bordure-fine) solid var(--border-subtle);
+    background-color: color-mix(in oklab, var(--surface-1) 88%, transparent);
+    backdrop-filter: var(--flou-calque);
+  }
+
+  &__voile {
+    display: none;
+  }
+
+  &__contenu {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-4);
+    min-inline-size: 0;
+
+    // Le contenu reçoit le focus après une navigation : il ne doit pas pour autant
+    // dessiner un contour, qui n'apporterait rien à cet endroit.
+    &:focus {
+      outline: none;
+    }
+  }
+}
+
+@media (width <= 48rem) {
+  .shell {
+    grid-template-columns: 1fr;
+
+    // Sur mobile la navigation est un tiroir posé au-dessus du contenu : pas de rail, pas
+    // de colonne réservée.
+    &--navigation-repliee {
+      grid-template-columns: 1fr;
+    }
+
+    &__navigation {
+      position: fixed;
+      inset-block: 3.5rem 0;
+      inset-inline-start: 0;
+      z-index: var(--z-sidebar);
+      inline-size: min(18rem, 80vw);
+      box-shadow: var(--ombre-3);
+      transition: transform var(--dur-base) var(--ease-out);
+    }
+
+    &--navigation-repliee .shell__navigation {
+      transform: translateX(-100%);
+    }
+
+    &__voile {
+      position: fixed;
+      inset: 0;
+      z-index: var(--z-voile);
+      display: block;
+      border: none;
+      background-color: oklch(0 0 0 / 0.4);
+      cursor: pointer;
+    }
+
+    &--navigation-repliee .shell__voile {
+      display: none;
+    }
+  }
+}

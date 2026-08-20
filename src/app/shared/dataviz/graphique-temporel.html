@@ -1,0 +1,144 @@
+<figure class="graphique">
+  <figcaption class="graphique__titre">{{ titre() }}</figcaption>
+
+  <div class="graphique__zone">
+    <svg
+      class="graphique__dessin"
+      [attr.viewBox]="'0 0 ' + largeur + ' ' + hauteur"
+      preserveAspectRatio="xMidYMid meet"
+      role="img"
+      [attr.aria-label]="titre()"
+      (mouseleave)="survoler(null)"
+    >
+      @if (forme() === 'aires') {
+        <defs>
+          <!-- Le lavis s'éteint avant l'axe : la courbe pose sur la trame, elle n'y colle pas. -->
+          <linearGradient [attr.id]="idDegrade" x1="0" y1="0" x2="0" y2="1">
+            <stop class="graphique__degrade-haut" offset="0" />
+            <stop class="graphique__degrade-bas" offset="1" />
+          </linearGradient>
+        </defs>
+      }
+
+      <!-- Graduations : une trame en retrait, jamais en pointillés. -->
+      @for (repere of reperes(); track repere.valeur) {
+        <g class="graphique__graduation">
+          <line
+            [attr.x1]="margeGauche()"
+            [attr.x2]="largeur - marge.droite"
+            [attr.y1]="repere.y"
+            [attr.y2]="repere.y"
+          />
+          <text [attr.x]="margeGauche() - 8" [attr.y]="repere.y + 4" text-anchor="end">
+            {{ repere.libelle }}
+          </text>
+        </g>
+      }
+
+      <!-- Ligne de base : l'axe des abscisses se distingue de la trame. -->
+      <line
+        class="graphique__base"
+        [attr.x1]="margeGauche()"
+        [attr.x2]="largeur - marge.droite"
+        [attr.y1]="base()"
+        [attr.y2]="base()"
+      />
+
+      <!-- Repère vertical du point survolé : il relie la marque à son abscisse. -->
+      @if (pointSurvole(); as point) {
+        <line
+          class="graphique__guide"
+          [attr.x1]="point.centre"
+          [attr.x2]="point.centre"
+          [attr.y1]="marge.haut"
+          [attr.y2]="base()"
+        />
+      }
+
+      @if (forme() === 'aires') {
+        <path class="graphique__aire" [attr.fill]="'url(#' + idDegrade + ')'" [attr.d]="aire()" />
+        <path class="graphique__ligne" [attr.d]="trace()" />
+
+        @for (bande of bandes(); track bande.rang) {
+          <circle
+            class="graphique__point"
+            [class.graphique__point--actif]="survole() === bande.rang"
+            [attr.cx]="bande.centre"
+            [attr.cy]="bande.y"
+            r="3.5"
+          />
+        }
+      } @else {
+        @for (bande of bandes(); track bande.rang) {
+          <rect
+            class="graphique__colonne"
+            [class.graphique__colonne--active]="survole() === bande.rang"
+            [attr.x]="bande.x"
+            [attr.y]="bande.y"
+            [attr.width]="bande.epaisseur"
+            [attr.height]="bande.hauteurBarre"
+            rx="4"
+          />
+        }
+      }
+
+      <!-- Bandes de survol : la cible est la colonne entière, pas la marque. -->
+      @for (bande of bandes(); track bande.rang) {
+        <rect
+          class="graphique__cible"
+          [attr.x]="bande.debutBande"
+          [attr.y]="marge.haut"
+          [attr.width]="bande.largeurBande"
+          [attr.height]="hauteur - marge.haut - marge.bas"
+          (mouseenter)="survoler(bande.rang)"
+        />
+        <text
+          class="graphique__abscisse"
+          [class.graphique__abscisse--actif]="survole() === bande.rang"
+          [attr.x]="bande.centre"
+          [attr.y]="hauteur - 8"
+          text-anchor="middle"
+        >
+          {{ bande.libelle }}
+        </text>
+      }
+    </svg>
+
+    @if (pointSurvole(); as point) {
+      <p
+        class="graphique__infobulle"
+        [attr.data-ancrage]="ancrageInfobulle()"
+        [style.inset-inline-start.%]="positionInfobulle()"
+      >
+        <span class="graphique__infobulle-libelle">{{ point.detail ?? point.libelle }}</span>
+        <span class="graphique__infobulle-valeur" data-numerique>{{
+          formater()(point.valeur)
+        }}</span>
+      </p>
+    }
+
+    @if (vide()) {
+      <p class="graphique__vide">Aucune donnée sur cette période.</p>
+    }
+  </div>
+
+  <details class="graphique__donnees">
+    <summary>Voir les données</summary>
+    <table>
+      <thead>
+        <tr>
+          <th scope="col">Période</th>
+          <th scope="col" class="graphique__fin">Valeur</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (bande of bandes(); track bande.rang) {
+          <tr>
+            <td>{{ bande.detail ?? bande.libelle }}</td>
+            <td class="graphique__fin" data-numerique>{{ formater()(bande.valeur) }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </details>
+</figure>

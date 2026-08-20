@@ -1,0 +1,100 @@
+.modale {
+  max-inline-size: min(38rem, calc(100vw - var(--espace-6)));
+  padding: 0;
+  border: none;
+  background: transparent;
+
+  &::backdrop {
+    background-color: oklch(0 0 0 / 0.5);
+
+    // Le contenu derrière reste deviné, jamais lisible : la modale prend la main sans que
+    // l'écran disparaisse.
+    backdrop-filter: var(--flou-calque);
+    animation: modale-voile var(--dur-fast) var(--ease-out);
+  }
+
+  &[open] .modale__panneau {
+    animation: modale-entree var(--dur-base) var(--ease-spring);
+  }
+
+  &__panneau {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-4);
+    padding: var(--espace-5);
+    border: var(--bordure-fine) solid var(--border-subtle);
+    border-radius: var(--rayon-carte);
+    background-color: var(--surface-1);
+    box-shadow: var(--ombre-3);
+
+    // Un filet de marque en tête de panneau : la modale appartient à l'application, elle
+    // n'est pas une boîte du navigateur.
+    &::before {
+      content: '';
+      position: absolute;
+      inset-block-start: 0;
+      inset-inline: 0;
+      block-size: var(--bordure-epaisse);
+      border-start-start-radius: var(--rayon-carte);
+      border-start-end-radius: var(--rayon-carte);
+      background-image: var(--degrade-marque);
+    }
+  }
+
+  &__entete {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--espace-4);
+  }
+
+  &__titre {
+    font-size: var(--taille-xl);
+  }
+
+  &__fermer {
+    padding: var(--espace-1) var(--espace-2);
+    border: none;
+    border-radius: var(--rayon-controle);
+    background: transparent;
+    color: var(--text-muted);
+    font-size: var(--taille-lg);
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out),
+      transform var(--dur-fast) var(--ease-spring);
+
+    &:hover {
+      background-color: var(--surface-2);
+      color: var(--text-strong);
+      transform: rotate(90deg);
+    }
+  }
+
+  &__corps {
+    color: var(--text-base);
+  }
+
+  &__pied:not(:empty) {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--espace-2);
+  }
+}
+
+@keyframes modale-voile {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes modale-entree {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.98);
+  }
+}

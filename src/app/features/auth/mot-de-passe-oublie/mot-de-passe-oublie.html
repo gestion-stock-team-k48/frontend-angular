@@ -1,0 +1,50 @@
+<section class="carte-auth">
+  <h1 class="carte-auth__titre">Mot de passe oublié</h1>
+
+  @if (envoye()) {
+    <p class="carte-auth__confirmation" role="status">
+      Si un compte existe pour cet email, un code de réinitialisation vient d'y être envoyé. Il
+      reste valable trente minutes.
+    </p>
+
+    <p class="carte-auth__liens">
+      <a class="carte-auth__lien" routerLink="/reinitialisation">Saisir le code reçu</a>
+      <a class="carte-auth__lien" routerLink="/connexion">Revenir à la connexion</a>
+    </p>
+  } @else {
+    <p class="carte-auth__intro">
+      Indiquer l'email du compte. Un code de réinitialisation y sera envoyé, valable trente minutes.
+    </p>
+
+    @if (message(); as texte) {
+      <p class="carte-auth__bandeau" role="alert">{{ texte }}</p>
+    }
+
+    <form class="carte-auth__formulaire" (submit)="$event.preventDefault(); demander()">
+      <app-champ libelle="Email" identifiant="oubli-email" [requis]="true" [erreur]="erreurEmail()">
+        <input
+          id="oubli-email"
+          type="email"
+          autocomplete="username"
+          [formField]="formulaire.email"
+        />
+      </app-champ>
+
+      <div class="carte-auth__actions">
+        <app-bouton
+          type="submit"
+          variante="primaire"
+          [pleineLargeur]="true"
+          [chargement]="enCours()"
+        >
+          Envoyer le code
+        </app-bouton>
+      </div>
+    </form>
+
+    <p class="carte-auth__liens">
+      <a class="carte-auth__lien" routerLink="/connexion">Revenir à la connexion</a>
+      <a class="carte-auth__lien" routerLink="/reinitialisation">J'ai déjà un code</a>
+    </p>
+  }
+</section>

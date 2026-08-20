@@ -1,0 +1,153 @@
+// Base de l'application. Rien de décoratif ici : uniquement ce qui rend l'interface
+// prévisible — modèle de boîte, typographie, focus, sélection.
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  // Le zoom du navigateur reste la première aide à la lecture : pas de taille figée.
+  // Le préfixe reste nécessaire : Safari iOS n'implémente pas la propriété standard, et
+  // sans lui le texte grossit tout seul au passage en paysage.
+  // stylelint-disable-next-line property-no-vendor-prefix
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--surface-0);
+  color: var(--text-base);
+  font-family: var(--police-texte);
+  font-size: var(--taille-md);
+  line-height: var(--interligne-base);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  color: var(--text-strong);
+  font-family: var(--police-display);
+  font-weight: 500;
+  line-height: var(--interligne-serre);
+}
+
+h1 {
+  font-size: var(--taille-2xl);
+}
+
+h2 {
+  font-size: var(--taille-xl);
+}
+
+h3 {
+  font-size: var(--taille-lg);
+}
+
+p {
+  margin: 0;
+}
+
+// Toute donnée chiffrée s'aligne verticalement : c'est la condition d'un tableau lisible.
+code,
+kbd,
+samp,
+pre,
+[data-numerique] {
+  font-family: var(--police-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+table {
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+// Le focus clavier est toujours visible. Non négociable, jamais désactivé.
+:focus-visible {
+  outline: var(--largeur-focus) solid var(--focus-ring);
+  outline-offset: var(--decalage-focus);
+}
+
+::selection {
+  background-color: var(--brand-subtle);
+  color: var(--text-strong);
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+// Apparence des contrôles de saisie. Globale, parce qu'un champ se ressemble d'un écran
+// à l'autre : la porter dans le composant d'enveloppe obligerait à percer son
+// encapsulation pour atteindre le contrôle projeté.
+input:not([type='range'], [type='checkbox'], [type='radio']),
+select,
+textarea {
+  inline-size: 100%;
+  padding: var(--espace-2) var(--espace-3);
+  border: var(--bordure-fine) solid var(--bordure-controle, var(--border-base));
+  border-radius: var(--rayon-controle);
+  background-color: var(--surface-1);
+  color: var(--text-strong);
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+
+  &:hover:not(:disabled) {
+    border-color: var(--border-strong);
+  }
+
+  // Le champ actif se détache par un halo de marque : on voit où l'on écrit sans chercher
+  // le curseur, y compris sur un formulaire dense.
+  &:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--brand) 18%, transparent);
+  }
+
+  &:disabled {
+    background-color: var(--surface-2);
+    color: var(--text-muted);
+    cursor: not-allowed;
+  }
+}
+
+// Les colonnes numériques s'alignent : chiffres à chasse fixe dès la saisie.
+input[type='number'],
+input[inputmode='numeric'] {
+  font-family: var(--police-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+input[type='range'] {
+  inline-size: 100%;
+  accent-color: var(--brand);
+}
+
+// Barres de défilement : fines, neutres au repos, teintées au survol. Sur un outil dense,
+// une barre épaisse mange de la largeur utile à chaque tableau.
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-base) transparent;
+}
+
+*:hover {
+  scrollbar-color: var(--brand) transparent;
+}
+
+a {
+  transition: color var(--dur-fast) var(--ease-out);
+}

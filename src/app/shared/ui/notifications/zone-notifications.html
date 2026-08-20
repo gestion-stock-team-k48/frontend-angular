@@ -1,0 +1,22 @@
+<!-- `polite` : une notification ne coupe jamais la lecture en cours. -->
+<div class="notifications" role="status" aria-live="polite">
+  @for (notification of service.notifications(); track notification.id) {
+    <div class="notifications__element" [attr.data-niveau]="notification.niveau">
+      <div class="notifications__texte">
+        <p class="notifications__message">{{ notification.message }}</p>
+        @if (notification.detail) {
+          <p class="notifications__detail">{{ notification.detail }}</p>
+        }
+      </div>
+
+      <button
+        type="button"
+        class="notifications__fermer"
+        aria-label="Fermer la notification"
+        (click)="service.fermer(notification.id)"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+    </div>
+  }
+</div>

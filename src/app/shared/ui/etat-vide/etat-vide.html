@@ -1,0 +1,9 @@
+<p class="etat-vide__titre">{{ titre() }}</p>
+
+@if (message()) {
+  <p class="etat-vide__message">{{ message() }}</p>
+}
+
+<div class="etat-vide__actions">
+  <ng-content />
+</div>

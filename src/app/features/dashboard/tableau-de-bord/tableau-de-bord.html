@@ -1,0 +1,160 @@
+<section class="bord">
+  <header class="bord__entete">
+    <div>
+      <h1 class="bord__titre">Tableau de bord</h1>
+      <p class="bord__sous-titre">
+        Ce qui a été encaissé, où en sont les commandes, et ce qui manque en rayon.
+      </p>
+    </div>
+
+    <app-bouton (presse)="reessayer()">Actualiser</app-bouton>
+  </header>
+
+  @if (indisponible()) {
+    <app-etat-vide
+      titre="Les statistiques n'ont pas pu être chargées"
+      message="Le serveur n'a pas répondu comme attendu."
+      ton="erreur"
+    >
+      <app-bouton (presse)="reessayer()">Réessayer</app-bouton>
+    </app-etat-vide>
+  } @else {
+    <div class="bord__tuiles">
+      <article class="bord__tuile bord__tuile--forte">
+        <p class="bord__mesure">Chiffre d'affaires du mois</p>
+        @if (chargement()) {
+          <app-squelette hauteur="2.5rem" />
+        } @else {
+          <p class="bord__valeur bord__valeur--hero" data-numerique>{{ caMois() | montant }}</p>
+          <p class="bord__detail">{{ caTotal() | montant }} depuis l'ouverture</p>
+        }
+      </article>
+
+      <article class="bord__tuile">
+        <p class="bord__mesure">Commandes client</p>
+        @if (chargement()) {
+          <app-squelette hauteur="2rem" />
+        } @else {
+          <p class="bord__valeur" data-numerique>{{ clientEnCours() | quantite }}</p>
+          <p class="bord__detail">en cours · {{ stats().commandesClientLivrees ?? 0 }} livrées</p>
+        }
+      </article>
+
+      <article class="bord__tuile">
+        <p class="bord__mesure">Commandes fournisseur</p>
+        @if (chargement()) {
+          <app-squelette hauteur="2rem" />
+        } @else {
+          <p class="bord__valeur" data-numerique>{{ fournisseurEnCours() | quantite }}</p>
+          <p class="bord__detail">
+            en cours · {{ stats().commandesFournisseurLivrees ?? 0 }} livrées
+          </p>
+        }
+      </article>
+
+      <article class="bord__tuile" [class.bord__tuile--alerte]="alertes().length > 0">
+        <p class="bord__mesure">Articles sous seuil</p>
+        @if (alertesChargent()) {
+          <app-squelette hauteur="2rem" />
+        } @else {
+          <p class="bord__valeur" data-numerique>{{ sousSeuil() | quantite }}</p>
+          <p class="bord__detail">
+            @if (ruptures() > 0) {
+              dont {{ ruptures() }} en rupture
+            } @else {
+              aucune rupture
+            }
+          </p>
+        }
+      </article>
+    </div>
+
+    <div class="bord__colonnes bord__colonnes--large">
+      <section class="bord__carte bord__carte--principale">
+        <app-graphique-temporel
+          titre="Chiffre d'affaires par mois"
+          [points]="caParMois()"
+          [formater]="formatMontant"
+        />
+        <p class="bord__note">
+          Calculé ici à partir des {{ profondeur }} dernières ventes : le serveur ne publie pas de
+          série mensuelle. Même définition que la mesure du mois — les ventes, pas les commandes.
+        </p>
+      </section>
+
+      <section class="bord__carte">
+        <app-repartition titre="Commandes client par état" [parts]="repartitionCommandes()" />
+        <p class="bord__note">Sur les {{ commandesLues() }} dernières commandes.</p>
+        <a class="bord__lien" routerLink="/commandes-client">Ouvrir les commandes</a>
+      </section>
+    </div>
+
+    <div class="bord__colonnes">
+      <section class="bord__carte">
+        <app-graphique-temporel
+          titre="Commandes livrées par mois"
+          forme="colonnes"
+          [points]="livraisonsParMois()"
+          [formater]="formatEntier"
+        />
+      </section>
+
+      <section class="bord__carte">
+        <app-graphique-barres
+          titre="Articles les plus vendus"
+          [points]="topArticles()"
+          [formater]="formatEntier"
+        />
+        <a class="bord__lien" routerLink="/ventes">Voir les ventes</a>
+      </section>
+    </div>
+
+    <section class="bord__carte">
+      <header class="bord__carte-entete">
+        <h2 class="bord__carte-titre">Alertes de seuil</h2>
+        <a class="bord__lien" routerLink="/mouvements-stock/alertes">Tout voir</a>
+      </header>
+
+      @if (alertesChargent()) {
+        <app-squelette hauteur="8rem" forme="bloc" />
+      } @else if (alertes().length === 0) {
+        <p class="bord__note">Aucun article sous son seuil. Rien à réapprovisionner aujourd'hui.</p>
+      } @else {
+        <ul class="bord__alertes">
+          @for (alerte of alertesEnApercu(); track alerte.articleId) {
+            <li class="bord__alerte">
+              <a
+                class="bord__lien-fort"
+                [routerLink]="['/mouvements-stock/article', alerte.articleId]"
+              >
+                {{ alerte.designation }}
+              </a>
+              <app-jauge-seuil
+                [stock]="alerte.quantiteStock ?? 0"
+                [seuil]="alerte.seuilMinimum ?? 0"
+                [article]="alerte.designation ?? null"
+              />
+              <span class="bord__chiffre" data-numerique>
+                {{ alerte.quantiteStock | quantite }} / {{ alerte.seuilMinimum | quantite }}
+              </span>
+              @if ((alerte.quantiteStock ?? 0) <= 0) {
+                <app-badge ton="danger">Rupture</app-badge>
+              } @else {
+                <app-badge ton="avertissement">Sous le seuil</app-badge>
+              }
+            </li>
+          }
+        </ul>
+
+        @if (alertesRestantes() > 0) {
+          <p class="bord__note">
+            et {{ alertesRestantes() }} autre{{ alertesRestantes() > 1 ? 's' : '' }} article{{
+              alertesRestantes() > 1 ? 's' : ''
+            }}
+            sous leur seuil.
+          </p>
+        }
+      }
+    </section>
+  }
+</section>

@@ -1,0 +1,80 @@
+<section class="ventes">
+  <header class="ventes__entete">
+    <div>
+      <h1 class="ventes__titre">Ventes</h1>
+      <p class="ventes__sous-titre">
+        Les ventes enregistrées. Une vente sort immédiatement les articles du stock, et ne se
+        modifie plus ensuite.
+      </p>
+    </div>
+
+    <a class="ventes__action" routerLink="/ventes/nouvelle">Nouvelle vente</a>
+  </header>
+
+  <form class="ventes__recherche" (submit)="$event.preventDefault(); chercher()">
+    <app-champ
+      libelle="Retrouver une vente par son code"
+      identifiant="vente-code"
+      aide="Le seul critère de recherche publié par le backend."
+      [erreur]="messageRecherche()"
+    >
+      <input
+        id="vente-code"
+        type="search"
+        spellcheck="false"
+        [value]="codeCherche()"
+        (input)="majCode($event)"
+      />
+    </app-champ>
+
+    <app-bouton type="submit" [chargement]="rechercheEnCours()">Rechercher</app-bouton>
+  </form>
+
+  <app-tableau
+    [colonnes]="colonnes"
+    [etat]="etat()"
+    [tri]="tri()"
+    libelleActions="Actions"
+    (triChange)="changerTri($event)"
+  >
+    @for (vente of ventes(); track vente.id) {
+      <tr>
+        <td data-numerique>{{ vente.code }}</td>
+        <td data-numerique>{{ vente.dateVente | date: 'short' }}</td>
+        <td data-alignement="fin" data-numerique>{{ vente.lignes?.length ?? 0 }}</td>
+        <td data-alignement="fin" data-numerique>{{ totalVente(vente) | montant }}</td>
+        <td>{{ vente.commentaire ?? '—' }}</td>
+        <td data-alignement="fin">
+          <a class="ventes__lien" [routerLink]="['/ventes', vente.id]">Ouvrir</a>
+        </td>
+      </tr>
+    }
+
+    <div zoneEtat>
+      @if (etat() === 'erreur') {
+        <app-etat-vide
+          titre="Les ventes n'ont pas pu être chargées"
+          message="Le serveur n'a pas répondu comme attendu."
+          ton="erreur"
+        >
+          <app-bouton (presse)="reessayer()">Réessayer</app-bouton>
+        </app-etat-vide>
+      } @else {
+        <app-etat-vide
+          titre="Aucune vente"
+          message="Une vente a besoin d'au moins un article, et sort du stock ce qu'elle emporte."
+        >
+          <a class="ventes__action" routerLink="/ventes/nouvelle">Nouvelle vente</a>
+        </app-etat-vide>
+      }
+    </div>
+  </app-tableau>
+
+  @if (etat() === 'pret') {
+    <app-pagination
+      [etat]="etatPage()"
+      (pageChange)="page.set($event)"
+      (tailleChange)="changerTaille($event)"
+    />
+  }
+</section>

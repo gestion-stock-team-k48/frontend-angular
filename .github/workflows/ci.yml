@@ -1,0 +1,247 @@
+# Intégration et livraison continues du frontend.
+#
+# Trois temps : on vérifie, on analyse, on publie. Rien n'est publié qui n'ait passé les deux
+# premiers — `needs` l'impose, et la publication ne se déclenche que sur les références qui
+# désignent quelque chose de déployable.
+
+# Les actions sont épinglées par empreinte de commit, avec leur version en commentaire.
+# Un tag peut être redéplacé sur un autre commit sans que personne ne le voie : quiconque
+# obtient les droits sur le dépôt d'une action peut alors changer ce qui s'exécute dans nos
+# pipelines, avec accès aux secrets. Une empreinte, elle, ne bouge pas.
+#
+# Pour monter une version : lire l'empreinte du nouveau tag et remplacer les deux.
+#     gh api repos/<propriétaire>/<dépôt>/git/ref/tags/<tag> --jq .object.sha
+
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+    tags: ['v*.*.*']
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+# Un push qui en remplace un autre sur la même référence annule le précédent : inutile de
+# faire tourner un pipeline pour un commit que personne ne déploiera. Une exception pour les
+# tags, dont l'annulation laisserait une version sans image.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+permissions:
+  contents: read
+
+env:
+  IMAGE: ${{ vars.DOCKERHUB_NAMESPACE || 'mcjordan12' }}/gestion-stock-frontend
+
+jobs:
+  # ── Qualité ────────────────────────────────────────────────────────────────────────────
+  qualite:
+    name: Lint, types, tests, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          # SonarCloud a besoin de l'historique complet pour attribuer les lignes neuves à
+          # leur commit ; une copie superficielle lui ferait voir tout le dépôt comme neuf.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci --no-audit --no-fund
+
+      - name: ESLint
+        run: npm run lint
+
+      - name: Stylelint
+        run: npm run lint:styles
+
+      - name: Format
+        run: npm run format:check
+
+      - name: Types
+        run: npm run typecheck
+
+      - name: Tests et couverture
+        run: npm run test:coverage
+
+      - name: Build de production
+        run: npm run build
+
+      - name: Couverture pour l'analyse
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: couverture
+          path: coverage/frontend-angular/lcov.info
+          retention-days: 5
+
+      - name: Résumé
+        if: always()
+        run: |
+          {
+            echo "### Frontend"
+            echo
+            echo "| Étape | État |"
+            echo "|---|---|"
+            echo "| Lint, types, format | ${{ job.status == 'success' && 'OK' || 'échec' }} |"
+            if [ -d dist/frontend-angular/browser ]; then
+              echo "| Poids du bundle | $(du -sh dist/frontend-angular/browser | cut -f1) |"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # ── Analyse statique ───────────────────────────────────────────────────────────────────
+  # Séparée de la qualité pour que l'absence de jeton SonarCloud — sur un fork, par exemple —
+  # ne fasse pas tomber tout le pipeline.
+  sonar:
+    name: SonarCloud
+    needs: qualite
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: couverture
+          path: coverage/frontend-angular
+
+      # `qualitygate.wait` fait attendre le verdict et échouer le job s'il est rouge. Sans
+      # lui, le scanner rend la main dès le rapport envoyé : le pipeline reste vert pendant
+      # que le quality gate est en échec, et personne ne l'apprend.
+      - name: Analyse
+        uses: SonarSource/sonarqube-scan-action@22918119ff8e1ca75a623e15c8296b6ea4fbe28f # v8
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: -Dsonar.qualitygate.wait=true
+
+  # ── Dépendances ────────────────────────────────────────────────────────────────────────
+  dependances:
+    name: Vulnérabilités des dépendances
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci --no-audit --no-fund
+
+      # Le seuil est `high` : signaler chaque avis `low` d'un paquet de développement ferait
+      # rougir le pipeline en permanence, et un pipeline toujours rouge n'est plus lu.
+      - name: npm audit
+        run: npm audit --audit-level=high
+
+  # ── Image ──────────────────────────────────────────────────────────────────────────────
+  image:
+    name: Image Docker
+    needs: [qualite, dependances]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Une pull request construit l'image pour vérifier que le Dockerfile tient, mais ne la
+    # publie pas : rien de non fusionné n'a sa place dans un registre public.
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: docker/setup-qemu-action@c7c53464625b32c7a7e944ae62b3e17d2b600130 # v3
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+
+      - name: Étiquettes
+        id: meta
+        uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
+        with:
+          images: ${{ env.IMAGE }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=sha,prefix=sha-
+            type=raw,value=latest
+          labels: |
+            org.opencontainers.image.title=gestion-stock-frontend
+            org.opencontainers.image.description=Interface Angular de gestion-stock, servie par nginx
+
+      - name: Connexion à Docker Hub
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          username: ${{ vars.DOCKERHUB_NAMESPACE || 'mcjordan12' }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # L'image est construite et analysée à chaque push et à chaque pull request : c'est ce
+      # qui garantit que le Dockerfile tient et que le socle reste sain. Elle n'est publiée
+      # que sur un tag — une version qu'on a décidé de livrer, pas un état de branche.
+      #
+      # Le build local mono-architecture sert au scan ; le multi-architecture ne part
+      # qu'ensuite, une fois Trivy passé.
+      - name: Construction pour analyse
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          load: true
+          tags: analyse:local
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      - name: Trivy
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: analyse:local
+          format: sarif
+          output: trivy.sarif
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+
+      - name: Remontée dans l'onglet sécurité
+        if: always() && github.event_name != 'pull_request'
+        uses: github/codeql-action/upload-sarif@f3712979fa5f215279b101dd0a2e3bdfb4353324 # v3
+        with:
+          sarif_file: trivy.sarif
+          category: trivy-image
+
+      - name: Échec sur vulnérabilité corrigeable
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          image-ref: analyse:local
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: '1'
+
+      - name: Construction multi-architecture et publication
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Résumé
+        if: always()
+        run: |
+          {
+            echo "### Image frontend"
+            echo
+            echo '```'
+            echo "${{ steps.meta.outputs.tags }}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

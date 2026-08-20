@@ -1,8 +1,27 @@
 # Design system
 
-Ce document fixe l'architecture visuelle. Son implémentation est faite en phase 2 (thème)
-et phase 3 (primitives UI). Les arbitrages typographie et couleur d'amorce sont rendus
-(session 1, 2026-08-19) et consignés en ADR-009.
+Ce document fixe l'architecture visuelle. Phases 2 et 3 faites : polices, tokens,
+`ServiceTheme`, mouvement, primitives UI et écran « Apparence ».
+Les arbitrages typographie et couleur d'amorce sont rendus (session 1, 2026-08-19) et
+consignés en ADR-009.
+
+## Où vivent les tokens
+
+| Fichier                               | Contenu                                                 |
+| ------------------------------------- | ------------------------------------------------------- |
+| `src/styles/_polices.scss`            | déclarations `@font-face`                               |
+| `src/styles/tokens/_primitifs.scss`   | rampes de marque, neutre et couleurs d'état             |
+| `src/styles/tokens/_semantiques.scss` | tokens consommés par les composants, thème sombre       |
+| `src/styles/tokens/_systeme.scss`     | espacement, rayons, ombres, plans, typographie, densité |
+| `src/styles/tokens/_mouvement.scss`   | durées, courbes, `prefers-reduced-motion`               |
+| `src/styles/_base.scss`               | modèle de boîte, typographie de base, focus             |
+| `src/app/core/theme/couleur-oklch.ts` | génération de rampe, conversion, contraste              |
+| `src/app/core/theme/theme.ts`         | `ServiceTheme`                                          |
+
+La rampe de marque existe en deux endroits : en dur dans `_primitifs.scss`, pour que le
+premier rendu soit juste avant l'exécution du script, et calculée par `ServiceTheme` pour
+l'amorce réelle de l'entreprise. Un test verrouille l'accord entre les deux
+(`tokens-statiques.spec.ts`).
 
 ## Parti pris
 
@@ -124,10 +143,80 @@ Prix unitaire          4 500 FCFA
 Ces valeurs sont portées par un token d'injection, jamais codées en dur : une entreprise
 déployée hors zone CFA change de devise sans toucher au code.
 
+## Primitives
+
+Dans `src/app/shared/ui/`. Aucune ne consomme de service ni ne porte de logique métier —
+sauf `ZoneNotifications`, exception bornée documentée en ADR-012.
+
+| Composant           | Sélecteur                | Rôle                                                  |
+| ------------------- | ------------------------ | ----------------------------------------------------- |
+| `JaugeSeuil`        | `app-jauge-seuil`        | élément signature, trois tailles, `role="meter"`      |
+| `Bouton`            | `app-bouton`             | quatre variantes, état de chargement à largeur stable |
+| `Champ`             | `app-champ`              | libellé, aide, erreur ; le contrôle est projeté       |
+| `Badge`             | `app-badge`              | pastille d'état, cinq tons                            |
+| `Squelette`         | `app-squelette`          | bloc de chargement, trois formes                      |
+| `EtatVide`          | `app-etat-vide`          | état vide ou état d'erreur, avec action               |
+| `Modale`            | `app-modale`             | `<dialog>` natif                                      |
+| `ZoneNotifications` | `app-zone-notifications` | pile de notifications                                 |
+
+Angular Aria n'est employé que là où il existe : il n'expose ni bouton, ni champ, ni boîte
+de dialogue. Voir ADR-011.
+
+## Graphiques
+
+`shared/dataviz` porte trois formes, écrites en SVG (ADR-021) :
+
+| Composant           | Forme                        | Emploi                     |
+| ------------------- | ---------------------------- | -------------------------- |
+| `GraphiqueTemporel` | aires ou colonnes, une série | une grandeur dans le temps |
+| `GraphiqueBarres`   | barres horizontales          | un classement              |
+| `Repartition`       | barre empilée + légende      | un part-à-tout par état    |
+
+Règles tenues : une seule couleur par série et donc pas de légende à une série ; jamais deux
+échelles sur un même dessin ; barres plafonnées à 24 px, extrémité arrondie côté valeur ;
+lavis d'aire à 14 % de la teinte ; trame d'axes en retrait, jamais en pointillés ; étiquetage
+au survol plutôt qu'une valeur sur chaque point ; et sous chaque graphique une table de
+données dépliable. Les couleurs d'état ne servent qu'aux états — jamais de « série 4 ».
+
+## Icônes
+
+`shared/ui/icone` : un jeu au trait dessiné dans le projet, grille de 24, épaisseur 1,6,
+extrémités arrondies. Ni police d'icônes ni paquet tiers — quelques chemins pèsent moins et
+suivent notre grammaire. L'icône est décorative quand un texte l'accompagne, et ne se nomme
+que lorsqu'elle est seule sur un bouton.
+
+## Navigation
+
+Repliée, la navigation devient un **rail d'icônes** de 3,5 rem plutôt que de disparaître :
+une navigation qui s'efface fait perdre le repère de position, et oblige à la rouvrir pour
+savoir où l'on est. Les libellés passent alors en infobulle. Sous 48 rem, le rail cède la
+place à un tiroir posé au-dessus du contenu.
+
+Le bandeau est translucide et flouté, colle en haut, et se réduit sur écran étroit : le nom
+de l'entreprise et celui du compte s'effacent, la pastille d'initiales suffit. Un lien de saut
+vers le contenu, visible au premier `Tab`, évite de retraverser la navigation à chaque écran.
+
+## Vitrine et connexion
+
+La vitrine et le panneau de marque de la connexion sont les deux seules surfaces entièrement à
+la couleur d'amorce : partout ailleurs, la marque ponctue un fond neutre. Ils emploient les
+mêmes tokens que l'application, donc une entreprise qui change sa couleur change aussi sa page
+d'accueil.
+
+Sous 64 rem, le panneau de marque de la connexion disparaît : un formulaire sur téléphone a
+besoin de deux champs, pas d'un argumentaire.
+
+## Écrans
+
+`styles/_ecrans.scss` tient ce qui vaut pour tous : largeur de confort de 90 rem, rembourrage
+et taille de titre en `clamp()` — donc fluides plutôt que par paliers —, filet de marque sous
+le titre, et entêtes qui passent en colonne sous 40 rem.
+
 ## Écran « Apparence »
 
-`/parametres/apparence` : sélecteur d'amorce, presets, mode clair/sombre, densité, aperçu en
-direct. C'est aussi la page de démonstration du design system.
+`/parametres/apparence` : mode, presets et curseurs de teinte, saturation et clarté, densité,
+rayon, aperçu en direct. Deuxième onglet : toutes les primitives, dans leurs états normaux,
+de chargement, d'erreur et vides. C'est la page de démonstration du design system.
 
 ## Mouvement
 
@@ -140,15 +229,47 @@ Objectif : que l'interface paraisse **réactive**, pas animée.
 
 Aucune durée en dur dans un composant.
 
-Micro-interactions attendues : états de boutons (hover / active / chargement à largeur
+Micro-interactions livrées (session 1, affinage) : états de boutons (hover / active / chargement à largeur
 stable) ; ouverture de modale et de tiroir (fondu + translation courte) ; toasts empilés ;
 skeletons pendant le chargement, jamais de spinner plein écran après le premier rendu ;
 apparition en cascade très légère des lignes de tableau, au premier chargement uniquement ;
 compteur animé sur les KPI du tableau de bord ; pulsation sobre sur les alertes de stock sous
 seuil ; transition de la sidebar repliable.
 
-Transitions de route via `withViewTransitions()`, avec un `view-transition-name` sur les
-éléments qui persistent d'un écran à l'autre.
+Transitions de route via `withViewTransitions()`.
+
+### Où vivent les animations partagées
+
+`src/styles/_animations.scss` porte les images clés communes — `apparition`,
+`apparition-echelle`, `glissement-lateral`, `pulsation-douce` — et deux classes utilitaires.
+Une même apparition employée sur une carte, une ligne de tableau et un toast doit avoir
+exactement la même durée et la même distance, sinon l'interface paraît bricolée.
+
+`src/styles/_tableau.scss` porte le survol et la cascade des lignes de tableau. Ces règles
+sont globales par nécessité : les lignes sont projetées dans `app-tableau` par l'écran
+appelant, elles portent donc l'attribut d'encapsulation du parent, et une règle écrite dans
+`tableau.scss` ne les atteint pas. C'est la même raison qui met le style des contrôles de
+saisie dans `_base.scss`.
+
+`shared/animations/nombre-anime.ts` fait courir les mesures du tableau de bord vers leur
+valeur. C'est le seul chiffre animé de l'application : ailleurs, un montant qui défile serait
+une coquetterie. L'horloge y est relue à chaque image plutôt que prise dans l'argument de
+`requestAnimationFrame`, dont l'origine diffère d'un environnement à l'autre.
+
+### Expression de la couleur
+
+Trois tokens sémantiques ajoutés pour donner de la matière sans sortir la couleur pleine :
+
+| Token                                        | Emploi                                              |
+| -------------------------------------------- | --------------------------------------------------- |
+| `--surface-marque`, `--surface-marque-forte` | survol d'une ligne, entrée de navigation active     |
+| `--degrade-marque`                           | boutons primaires, filets de tête, barres de mesure |
+| `--degrade-surface`, `--degrade-page`        | entêtes de tableau, halo de fond d'application      |
+| `--ombre-marque`, `--ombre-marque-forte`     | relief des actions primaires                        |
+| `--flou-calque`                              | bandeau, voile de modale, tiroir de navigation      |
+
+Les mélanges passent par `color-mix(in oklab, …)` sur `--brand` : la couleur d'amorce de
+l'entreprise se propage donc à tous ces effets sans qu'aucun d'eux ne soit recalculé.
 
 **`prefers-reduced-motion: reduce` est obligatoire** : toutes les durées tombent à `1ms` via
 une surcharge unique des tokens, et aucune animation d'entrée n'est jouée.

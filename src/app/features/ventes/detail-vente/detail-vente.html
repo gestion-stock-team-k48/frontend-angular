@@ -1,0 +1,69 @@
+<section class="vente">
+  <header class="vente__entete">
+    <div>
+      <p class="vente__fil"><a class="vente__lien" routerLink="/ventes">Retour aux ventes</a></p>
+      <h1 class="vente__titre">Vente {{ vente()?.code }}</h1>
+    </div>
+  </header>
+
+  @if (introuvable()) {
+    <app-etat-vide
+      titre="Cette vente n'existe plus, ou n'est pas accessible"
+      message="Vérifier le code, ou revenir à la liste."
+      ton="erreur"
+    >
+      <a class="vente__lien" routerLink="/ventes">Revenir à la liste</a>
+    </app-etat-vide>
+  } @else if (chargement()) {
+    <p class="vente__aide">Chargement…</p>
+  } @else if (vente(); as vente) {
+    <section class="vente__carte">
+      <dl class="vente__resume">
+        <div>
+          <dt>Date</dt>
+          <dd data-numerique>{{ vente.dateVente | date: 'medium' }}</dd>
+        </div>
+        <div>
+          <dt>Lignes</dt>
+          <dd data-numerique>{{ vente.lignes?.length ?? 0 }}</dd>
+        </div>
+        <div>
+          <dt>Total</dt>
+          <dd data-numerique>{{ total() | montant }}</dd>
+        </div>
+      </dl>
+
+      @if (vente.commentaire) {
+        <p class="vente__commentaire">{{ vente.commentaire }}</p>
+      }
+
+      <table class="vente__lignes">
+        <caption class="vente__legende">
+          Articles vendus
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Article</th>
+            <th scope="col" class="vente__fin">Quantité</th>
+            <th scope="col" class="vente__fin">Prix unitaire</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (ligne of vente.lignes; track ligne.id) {
+            <tr>
+              <td>{{ ligne.articleDesignation }}</td>
+              <td class="vente__fin" data-numerique>{{ ligne.quantite }}</td>
+              <td class="vente__fin" data-numerique>{{ ligne.prixUnitaire | montant }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <p class="vente__aide">
+        Le total est calculé à partir des lignes : le serveur n'en renvoie pas pour une vente,
+        contrairement aux commandes. Une vente ne se modifie ni ne se supprime — ses sorties de
+        stock sont déjà enregistrées.
+      </p>
+    </section>
+  }
+</section>

@@ -1,0 +1,49 @@
+// Règles communes à tous les écrans.
+// Elles sont globales par nécessité : le composant d'écran est créé par le routeur et ne
+// porte pas l'attribut d'encapsulation de la coquille — une règle écrite dans `shell.scss`
+// ne l'atteindrait jamais.
+
+.shell__contenu {
+  // Largeur de confort : au-delà, un tableau qui s'étire sur un écran large devient pénible
+  // à lire, l'œil perdant la ligne entre la première et la dernière colonne.
+  inline-size: 100%;
+  max-inline-size: 90rem;
+  margin-inline: auto;
+
+  // Le rembourrage suit la place : au chausse-pied sur un téléphone, à l'aise sur un bureau.
+  padding: clamp(var(--espace-3), 2vw, var(--espace-5)) clamp(var(--espace-3), 3vw, var(--espace-5));
+}
+
+// Titre d'écran : la marque le souligne d'un trait court. C'est le seul ornement permanent
+// de l'application, et il tient en trois déclarations.
+.shell__contenu h1 {
+  position: relative;
+  padding-block-end: var(--espace-2);
+  font-size: clamp(var(--taille-lg), 2.5vw, var(--taille-xl));
+  letter-spacing: -0.01em;
+}
+
+.shell__contenu h1::after {
+  content: '';
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-start: 0;
+  inline-size: var(--espace-6);
+  block-size: var(--bordure-epaisse);
+  border-radius: var(--rayon-plein);
+  background-image: var(--degrade-marque);
+}
+
+// L'écran arrive en fondu montant, une seule fois, à l'arrivée sur la route.
+.shell__contenu > * {
+  animation: apparition var(--dur-base) var(--ease-out) both;
+}
+
+// Les entêtes d'écran passent en colonne quand la largeur manque, plutôt que de comprimer
+// le titre contre son action.
+@media (width <= 40rem) {
+  .shell__contenu :is(header, .liste__entete, .bord__entete) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

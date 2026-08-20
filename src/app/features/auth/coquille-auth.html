@@ -1,0 +1,44 @@
+<div class="coquille-auth">
+  <!-- Panneau de marque : il tient la promesse de la vitrine pendant la saisie, et disparaît
+       dès que la largeur manque — un formulaire de connexion sur téléphone n'a pas besoin
+       d'argumentaire, il a besoin de deux champs. -->
+  <aside class="coquille-auth__panneau">
+    <a class="coquille-auth__marque" routerLink="/">Gestion de Stock</a>
+
+    <p class="coquille-auth__promesse">Savoir ce qu'il reste en rayon, sans ouvrir un tableur.</p>
+
+    <ul class="coquille-auth__points">
+      @for (point of points; track point) {
+        <li class="coquille-auth__point">
+          <app-icone nom="alertes" />
+          {{ point }}
+        </li>
+      }
+    </ul>
+
+    <p class="coquille-auth__pied">Multi-entreprise · vos données, vos comptes, vos couleurs.</p>
+  </aside>
+
+  <div class="coquille-auth__colonne">
+    <header class="coquille-auth__entete">
+      <a class="coquille-auth__retour" routerLink="/">← Retour à l'accueil</a>
+
+      <button
+        type="button"
+        class="coquille-auth__theme"
+        [attr.aria-pressed]="theme.themeApplique() === 'sombre'"
+        (click)="basculerTheme()"
+      >
+        @if (theme.themeApplique() === 'sombre') {
+          <app-icone nom="soleil" libelle="Passer au thème clair" />
+        } @else {
+          <app-icone nom="lune" libelle="Passer au thème sombre" />
+        }
+      </button>
+    </header>
+
+    <main class="coquille-auth__contenu">
+      <router-outlet />
+    </main>
+  </div>
+</div>

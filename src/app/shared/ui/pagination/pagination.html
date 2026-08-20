@@ -1,0 +1,42 @@
+<nav class="pagination" aria-label="Pagination">
+  <p class="pagination__compte" data-numerique>
+    @if (etat().total === 0) {
+      Aucun élément
+    } @else {
+      {{ premierElement() }}–{{ dernierElement() }} sur {{ etat().total }}
+    }
+  </p>
+
+  <div class="pagination__taille">
+    <label class="pagination__libelle" for="pagination-taille">Par page</label>
+    <select id="pagination-taille" [value]="etat().taille" (change)="changerTaille($event)">
+      @for (taille of tailles(); track taille) {
+        <option [value]="taille">{{ taille }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="pagination__navigation">
+    <button
+      type="button"
+      class="pagination__bouton"
+      [disabled]="etat().premiere"
+      (click)="precedente()"
+    >
+      Précédent
+    </button>
+
+    <p class="pagination__position" data-numerique aria-live="polite">
+      Page {{ pageAffichee() }} sur {{ nombrePages() }}
+    </p>
+
+    <button
+      type="button"
+      class="pagination__bouton"
+      [disabled]="etat().derniere"
+      (click)="suivante()"
+    >
+      Suivant
+    </button>
+  </div>
+</nav>

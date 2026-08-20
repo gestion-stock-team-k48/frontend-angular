@@ -1,0 +1,31 @@
+<section class="ecran-tiers">
+  <header class="ecran-tiers__entete">
+    <h1 class="ecran-tiers__titre">
+      {{ modification() ? 'Modifier le client' : 'Nouveau client' }}
+    </h1>
+    <a class="ecran-tiers__lien" routerLink="/clients">Retour à la liste</a>
+  </header>
+
+  @if (introuvable()) {
+    <app-etat-vide
+      titre="Ce client n'existe plus, ou n'est pas accessible"
+      message="Il a peut-être été supprimé."
+      ton="erreur"
+    >
+      <a class="ecran-tiers__lien" routerLink="/clients">Revenir à la liste</a>
+    </app-etat-vide>
+  } @else {
+    <div class="ecran-tiers__carte">
+      <app-formulaire-tiers
+        [tiers]="client() ?? null"
+        [action]="enregistrer"
+        [libelleEnregistrer]="modification() ? 'Enregistrer' : 'Créer le client'"
+        [envoyerPhoto]="envoyerPhoto()"
+        [photoEnregistree]="client()?.photo ?? null"
+        (enregistre)="apresEnregistrement()"
+        (photoEnvoyee)="apresPhoto()"
+        (annule)="annuler()"
+      />
+    </div>
+  }
+</section>

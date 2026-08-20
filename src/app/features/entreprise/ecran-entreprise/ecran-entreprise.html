@@ -1,0 +1,109 @@
+<section class="entreprise">
+  <header class="entreprise__entete">
+    <div>
+      <h1 class="entreprise__titre">Entreprise</h1>
+      <p class="entreprise__sous-titre">
+        La fiche de l'entreprise courante. Ces informations apparaissent sur les documents envoyés
+        aux clients et aux fournisseurs.
+      </p>
+    </div>
+  </header>
+
+  @if (indisponible()) {
+    <app-etat-vide
+      titre="La fiche de l'entreprise n'a pas pu être chargée"
+      message="Le serveur n'a pas répondu comme attendu."
+      ton="erreur"
+    />
+  } @else if (chargement()) {
+    <p class="entreprise__aide">Chargement…</p>
+  } @else {
+    @if (message(); as texte) {
+      <p class="entreprise__bandeau" role="alert">{{ texte }}</p>
+    }
+
+    <form class="entreprise__carte" (submit)="$event.preventDefault(); enregistrer()">
+      <div class="entreprise__groupe">
+        <app-champ
+          libelle="Nom"
+          identifiant="entreprise-nom"
+          [requis]="true"
+          [erreur]="erreurNom()"
+        >
+          <input id="entreprise-nom" type="text" [formField]="formulaire.nom" />
+        </app-champ>
+
+        <app-champ
+          libelle="Code fiscal"
+          identifiant="entreprise-code-fiscal"
+          [requis]="true"
+          [erreur]="erreurCodeFiscal()"
+        >
+          <input
+            id="entreprise-code-fiscal"
+            type="text"
+            spellcheck="false"
+            [formField]="formulaire.codeFiscal"
+          />
+        </app-champ>
+
+        <app-champ
+          libelle="Email"
+          identifiant="entreprise-email"
+          [requis]="true"
+          [erreur]="erreurEmail()"
+        >
+          <input id="entreprise-email" type="email" [formField]="formulaire.email" />
+        </app-champ>
+
+        <app-champ libelle="Téléphone" identifiant="entreprise-tel" [erreur]="erreurTelephone()">
+          <input id="entreprise-tel" type="tel" [formField]="formulaire.numTel" />
+        </app-champ>
+
+        <app-champ libelle="Site web" identifiant="entreprise-site" [erreur]="erreurSite()">
+          <input id="entreprise-site" type="url" [formField]="formulaire.siteWeb" />
+        </app-champ>
+      </div>
+
+      <app-champ
+        libelle="Description"
+        identifiant="entreprise-description"
+        [erreur]="erreurDescription()"
+      >
+        <textarea
+          id="entreprise-description"
+          rows="3"
+          [formField]="formulaire.description"
+        ></textarea>
+      </app-champ>
+
+      <div class="entreprise__groupe">
+        <app-champ libelle="Rue" identifiant="entreprise-rue" [erreur]="erreurRue()">
+          <input id="entreprise-rue" type="text" [formField]="formulaire.rue" />
+        </app-champ>
+
+        <app-champ libelle="Ville" identifiant="entreprise-ville" [erreur]="erreurVille()">
+          <input id="entreprise-ville" type="text" [formField]="formulaire.ville" />
+        </app-champ>
+
+        <app-champ
+          libelle="Code postal"
+          identifiant="entreprise-code-postal"
+          [erreur]="erreurCodePostal()"
+        >
+          <input id="entreprise-code-postal" type="text" [formField]="formulaire.codePostal" />
+        </app-champ>
+
+        <app-champ libelle="Pays" identifiant="entreprise-pays" [erreur]="erreurPays()">
+          <input id="entreprise-pays" type="text" [formField]="formulaire.pays" />
+        </app-champ>
+      </div>
+
+      <div class="entreprise__actions">
+        <app-bouton type="submit" variante="primaire" [chargement]="enCours()">
+          Enregistrer
+        </app-bouton>
+      </div>
+    </form>
+  }
+</section>

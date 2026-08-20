@@ -33,5 +33,11 @@ titre "5 DERNIERS COMMITS"
 git --no-pager log --oneline --decorate -5 2>/dev/null || printf ' (aucun commit)\n'
 
 titre "POINTS EN ATTENTE"
-sed -n '/^## Points bloquants/,$p' docs/01-ETAT.md 2>/dev/null | tail -n +2 | sed '/^$/d' || true
+sed -n '/^## Points bloquants/,/^## /p' docs/01-ETAT.md 2>/dev/null | tail -n +2 | sed '/^## /d;/^$/d' || true
+
+titre "REPRENDRE LE TRAVAIL"
+printf ' 1. nvm use\n'
+printf ' 2. ./scripts/bootstrap.sh   (dépendances, hooks, spec OpenAPI)\n'
+printf ' 3. lire docs/01-ETAT.md, docs/03-INTERDITS.md, docs/02-CONVENTIONS.md\n'
+printf ' 4. repartir de la ligne « Prochaine action précise » ci-dessus\n'
 printf '\n'

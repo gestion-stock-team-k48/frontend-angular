@@ -8,6 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:ci": "ng test --watch=false",
+    "test:coverage": "ng test --configuration ci",
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.spec.json --noEmit",
     "lint": "ng lint --max-warnings 0",
     "lint:styles": "stylelint \"src/**/*.scss\"",
@@ -16,11 +17,13 @@
     "check": "./scripts/check.sh",
     "bootstrap": "./scripts/bootstrap.sh",
     "sync:api": "./scripts/sync-api.sh",
-    "etat": "./scripts/etat.sh"
+    "etat": "./scripts/etat.sh",
+    "seed": "./scripts/seed.sh"
   },
   "private": true,
   "packageManager": "npm@11.17.0",
   "dependencies": {
+    "@angular/aria": "^22.1.2",
     "@angular/common": "^22.1.0",
     "@angular/compiler": "^22.1.0",
     "@angular/core": "^22.1.0",
@@ -37,6 +40,8 @@
     "@commitlint/cli": "^21.2.2",
     "@commitlint/config-conventional": "^21.2.2",
     "@eslint/js": "^10.0.1",
+    "@types/node": "^26.2.0",
+    "@vitest/coverage-v8": "^4.1.11",
     "angular-eslint": "22.1.0",
     "eslint": "^10.6.0",
     "eslint-config-prettier": "^10.1.8",

@@ -86,3 +86,676 @@ build de production 246,68 ko.
 
 **En attente.** Validation de la phase 1. Les routes `/connexion` et `/acces-refuse`,
 référencées par les gardes, n'existent pas avant les phases 4 et 5.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 2 · Thème
+
+**Branche** : `feat/theme-tokens` (depuis `develop`)
+
+**Contexte.** Phase 1 validée, fusionnée dans `main`, taguée `v0.2.0`. Consigne de
+travailler en autonomie : les commits sont posés au fil de l'eau et `01-ETAT.md` est tenu à
+jour à chaque étape, pour qu'une interruption ne laisse jamais un état illisible.
+
+**Fait.**
+
+- Polices auto-hébergées, générateur de rampe OKLCH, trois couches de tokens, tokens de
+  mouvement, `ServiceTheme`, page d'attente pour vérifier le thème à la main.
+- 57 tests, dont la garantie de contraste sur les 24 teintes du cercle.
+
+**Découvert en route.**
+
+- Un `cd public/fonts` d'un bloc précédent a persisté et fait atterrir un fichier source
+  dans `public/`. Déplacé et nettoyé avant tout commit.
+- `stylelint-config-standard-scss` impose une notation OKLCH incompatible avec celle que le
+  service écrit à l'exécution, et interdit de regrouper les tokens par familles. Deux règles
+  ajustées, une désactivée (ADR-010).
+- `stylelint --fix` supprime les zéros terminaux : le test qui verrouille l'accord entre la
+  rampe statique et le générateur comparait du texte, il compare désormais des nombres.
+- L'import `?raw` de Vite n'est pas géré par le builder de tests d'Angular. `@types/node` a
+  été ajouté pour lire la feuille de styles — seule dépendance posée sans validation, notée
+  comme telle.
+- Le passage du dépôt en public est refusé : rôle Maintainer, alors que GitLab exige Owner.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+57 tests passés, build de production 252,36 ko.
+
+**En attente.** Visibilité du dépôt, confirmation de `@types/node`.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 3 · Design system
+
+**Branche** : `feat/ui-design-system` (depuis `develop`)
+
+**Fait.**
+
+- Huit primitives dans `shared/ui`, dont la jauge de seuil, élément signature de
+  l'application.
+- Écran « Apparence » sur les onglets d'Angular Aria, servant aussi de page de démonstration.
+- 73 tests.
+
+**Découvert en route.**
+
+- `@angular/aria@22.1.2` n'expose ni bouton, ni champ, ni boîte de dialogue, contrairement à
+  ce que laissait entendre le brief. Ce qu'il couvre est utilisé ; le reste s'appuie sur la
+  plateforme, `<dialog>` compris (ADR-011).
+- La règle `click-events-have-key-events` signalait le clic sur le voile du `<dialog>`.
+  L'écouteur est passé en code : ce n'est pas un élément interactif à rendre focusable, et
+  Échap ferme déjà la modale.
+- `::ng-deep` était nécessaire pour styler un contrôle projeté. Le style des champs a été
+  déplacé dans la feuille de base, où il a naturellement sa place : plus aucun `::ng-deep`
+  dans le projet.
+- La page d'attente de la phase 2 a été retirée, remplacée par l'écran « Apparence ».
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+73 tests passés, build de production 270,23 ko.
+
+**En attente.** Visibilité du dépôt, confirmation de `@types/node`, relecture d'ensemble des
+phases enchaînées en autonomie.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 4 · Shell
+
+**Branche** : `feat/layout-shell` (depuis `develop`)
+
+**Fait.**
+
+- Coquille applicative complète, navigation déclarative, fil d'Ariane, pages 403 et 404,
+  transitions de route, tiroir de navigation sous 48 rem.
+- 80 tests.
+
+**Choix de conception.**
+
+- Les entrées de navigation dont l'écran n'existe pas restent visibles, marquées « à venir ».
+  Le menu montre ainsi le périmètre réel de l'application, plutôt que de grandir écran après
+  écran sans qu'on sache où l'on va.
+- L'état d'ouverture de la navigation n'est pas persisté : sur un poste d'entrepôt partagé,
+  une préférence gardée d'une session à l'autre surprendrait plus qu'elle n'aiderait.
+- L'activité réseau est signalée par une fine barre dans le bandeau, jamais par un voile
+  plein écran qui masquerait le contenu déjà lisible.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+80 tests passés, build de production 290,47 ko.
+
+**En attente.** Relecture d'ensemble des phases 2 à 4, visibilité du dépôt, confirmation de
+`@types/node`.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 5 · Authentification
+
+**Branche** : `feat/auth-connexion` (depuis `develop`)
+
+**Périmètre arbitré à l'ouverture.** Authentification complète : les cinq endpoints
+`/auth/*` plus `/utilisateurs/change-password`. L'inscription d'entreprise entre donc dans
+la phase — sans elle, aucun tenant ne peut être créé depuis l'interface.
+
+**Fait.**
+
+- Coquille d'authentification et cinq écrans : connexion, inscription, mot de passe oublié,
+  réinitialisation, changement de mot de passe.
+- Formulaires en Signal Forms, avec répartition des erreurs serveur entre les champs et un
+  bandeau d'ensemble.
+- `ServiceAuthentification` complété ; restauration de session au démarrage ;
+  `gardeMotDePasse` ; déconnexion et lien de compte dans le bandeau.
+- 105 tests.
+
+**Découvert en route.**
+
+- `POST /utilisateurs/change-password` répond `401` quand l'ancien mot de passe est faux.
+  L'intercepteur de rafraîchissement l'aurait pris pour une session expirée et aurait
+  déconnecté l'utilisateur pour une faute de frappe. Appel exclu du rafraîchissement
+  (ADR-013).
+- Un `loadChildren` posé sur un chemin vide oblige le routeur à charger le fichier de routes
+  même pour l'URL `/`. Les routes d'authentification sont donc importées statiquement ; les
+  écrans, eux, restent des morceaux séparés (ADR-014).
+- Signal Forms refuse l'attribut `name` sur un contrôle porteur de `[formField]` — la
+  directive le pose elle-même — et les entrées booléennes d'un composant ne se règlent pas
+  par un attribut nu (`requis` devient `[requis]="true"`).
+- L'email de réinitialisation transporte un code à recopier, pas un lien de retour :
+  l'écran de réinitialisation demande donc le code, sans lire de paramètre d'URL.
+- Le backend ne dit pas lequel des deux emails est en cause sur un `409` à l'inscription.
+  Le message part en bandeau plutôt que sous un champ choisi au hasard.
+
+**Choix de conception.**
+
+- Le formulaire d'inscription ne demande que ce que le backend exige. Adresse, téléphone,
+  site web et description sont facultatifs côté serveur : ils appartiennent à l'écran
+  Entreprise, pas à la première page vue par un nouveau client.
+- Quand toutes les erreurs de validation ont trouvé leur champ, aucun bandeau ne s'affiche :
+  répéter en haut d'écran ce qui est écrit sous chaque champ double le bruit.
+- `returnUrl` est filtré aux chemins internes. Une adresse absolue renverrait l'utilisateur
+  vers un site tiers juste après la saisie de son mot de passe.
+- Pas de menu de compte dans le bandeau : deux actions ne justifient pas un menu déroulant.
+  Il viendra avec l'écran de profil, quand il y aura plus à y mettre.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+105 tests passés, build de production 297,61 ko.
+
+**En attente.** Vérification visuelle des cinq écrans par le mainteneur — la liste des points
+à parcourir est dans `01-ETAT.md`. Puis relecture d'ensemble des phases 2 à 5, visibilité du
+dépôt, confirmation de `@types/node`.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 6 · Catalogue
+
+**Branche** : `feat/articles-catalogue` (depuis `develop`)
+
+**Contexte.** Phase 5 fusionnée dans `develop` sans vérification visuelle préalable, sur
+consigne de continuer en autonomie. Le plan de livraison n'étant pas versionné, le découpage
+des phases 6 à 11 a été déduit des groupes de navigation et consigné en ADR-015.
+
+**Fait.**
+
+- Primitives de liste : tableau, pagination, pipe `montant`.
+- Helper de pagination dans `core/api`, dérivé du schéma généré.
+- Écrans Catégories et Articles, création, modification, suppression, envoi de photo.
+- Correctif de la phase 5 sur la double notification d'erreur.
+- 137 tests.
+
+**Découvert en route.**
+
+- `GET /articles` n'accepte aucun paramètre de recherche, et `GET /categories` n'est pas
+  paginé. Les deux écarts sont signalés ; aucun contournement n'a été posé, en particulier
+  pas de champ de recherche qui ne filtrerait que la page affichée.
+- Les photos s'envoient mais aucun endpoint ne les relit : le backend conserve un nom
+  d'objet MinIO. L'écran le dit franchement plutôt que d'afficher une image cassée.
+- `tauxTva` n'intervient dans aucun calcul du backend, et `prixUnitaireTtc` est exigé dans la
+  requête. Le TTC est donc calculé par l'interface (ADR-016).
+- Signal Forms refuse l'attribut `min` sur un contrôle porteur de `[formField]` : la
+  contrainte passe par le validateur `min()` du schéma, qui la reflète lui-même dans le DOM.
+  Un `select` lié à un champ ne travaille qu'en texte : la catégorie est convertie en
+  identifiant à l'envoi.
+- `whenStable()` ne rend pas la main tant qu'une requête attend son `flush` : les tests de
+  liste avancent par `detectChanges()` et n'attendent la stabilité qu'après la réponse.
+- jsdom n'implémente ni `showModal` ni `close` sur `<dialog>`. Comblé une fois pour toutes
+  dans `src/test-setup.ts`, plutôt que de tordre la modale pour un environnement de test.
+- Le premier `ng` a écrit un identifiant d'analytics dans `angular.json`. Analytics coupé
+  pour l'espace de travail.
+- `git push` refusé par GitLab (jeton). Les phases 5 et 6 restent locales.
+
+**Choix de conception.**
+
+- Le tableau ne connaît pas les données : les lignes lui sont projetées. Un composant qui
+  saurait lire des articles ne servirait plus aux clients ni aux commandes.
+- Les catégories se trient dans le navigateur : la réponse est complète, un aller-retour
+  n'apporterait rien.
+- Supprimer le dernier élément d'une page recule d'une page au lieu d'afficher un vide.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+137 tests passés, build de production 311,27 ko.
+
+**En attente.** Vérification visuelle du catalogue, confirmation du découpage des phases
+(ADR-015), et un jeton GitLab valide pour pousser.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 7 · Stock
+
+**Branche** : `feat/mouvements-stock` (depuis `develop`)
+
+**Contexte.** Phase 6 fusionnée dans `develop` sans vérification visuelle préalable, sur
+consigne de continuer en autonomie.
+
+**Fait.**
+
+- Trois écrans : choix de l'article, stock d'un article, alertes de seuil.
+- Les quatre opérations de mouvement, dans un formulaire unique porté par une modale.
+- Pipe `quantite` ; helper d'erreurs élargi aux champs numériques.
+- 157 tests.
+
+**Découvert en route.**
+
+- Aucune liste globale des mouvements n'existe côté backend. La section s'ouvre donc sur le
+  choix d'un article (ADR-017) plutôt que sur une liste qui aurait coûté une requête par
+  ligne de catalogue.
+- L'historique d'un article ignore le paramètre `sort` : l'ordre des dates est forcé par la
+  requête du repository. Aucun en-tête cliquable n'est proposé sur ce tableau.
+- `GET /mouvements-stock/alertes-stock` dérive le stock réel de chaque article du catalogue à
+  chaque appel, sans pagination. Signalé, sans contournement possible côté interface.
+- `repartirErreur` n'acceptait que des champs de texte : une quantité est un nombre. Le type
+  du paramètre est passé à `ReadonlyFieldTree<unknown>`.
+- Quatre commits avaient été posés dans un ordre qui laissait deux d'entre eux référencer un
+  écran pas encore ajouté. Défaits par `reset --soft`, refaits dans l'ordre : chaque commit
+  de la branche compile seul.
+
+**Choix de conception.**
+
+- La quantité saisie est toujours positive : le sens du mouvement est porté par l'opération
+  choisie, comme côté backend. Un signe à saisir aurait doublé la source d'erreur.
+- L'écran de stock redemande le stock réel après chaque écriture au lieu de l'ajuster
+  lui-même. Le serveur reste seul à savoir ; deux calculs divergeraient un jour.
+- Les alertes sont triées par manque relatif au seuil : une rupture passe devant un article
+  qui frôle son seuil, et deux articles de tailles différentes se comparent quand même.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+157 tests passés, build de production 322,45 ko.
+
+**En attente.** Vérification visuelle des écrans de stock, confirmation du découpage des
+phases (ADR-015), et un jeton GitLab valide pour pousser.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 8 · Tiers
+
+**Branche** : `feat/clients-fournisseurs` (depuis `develop`)
+
+**Contexte.** Phase 7 fusionnée dans `develop` sans vérification visuelle préalable, sur
+consigne de continuer en autonomie.
+
+**Fait.**
+
+- `shared/tiers` : liste et formulaire communs, paramétrés par libellés, chemin et actions.
+- Modules clients et fournisseurs : service d'accès, routes, deux composants d'assemblage.
+- 174 tests.
+
+**Découvert en route.**
+
+- `ClientRequest` et `FournisseurRequest` sont identiques, champ pour champ, contrainte pour
+  contrainte. Les écrans sont donc écrits une fois (ADR-018) plutôt que copiés — une copie
+  aurait divergé à la première retouche.
+- Les listes de tiers n'acceptent pas plus de recherche que celle des articles : même écart,
+  même absence de champ de recherche.
+- Les tests des écrans qui naviguent après un enregistrement rejetaient silencieusement :
+  `provideRouter([])` ne connaît aucune route, et l'échec remontait en rejet non traité dans
+  le rapport de Vitest. Une route attrape-tout a été ajoutée à ces cinq tests.
+- La génération du module fournisseurs par substitution a renommé `HttpClient` en
+  `HttpFournisseur` et laissé une phrase absurde dans un commentaire. Relu et corrigé avant
+  le premier commit — une substitution automatique se relit.
+
+**Choix de conception.**
+
+- Les composants partagés ne construisent aucune URL et n'injectent aucun service d'API :
+  l'écran hôte leur passe la fonction à appeler. Le partage porte sur la forme, pas sur
+  l'accès aux données.
+- Un champ facultatif laissé vide est omis de la requête. Envoyer `""` reviendrait à écrire
+  en base une adresse vide là où il n'y a pas d'adresse.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+174 tests passés, build de production 322,70 ko.
+
+**En attente.** Vérification visuelle des écrans de tiers, confirmation d'ADR-015 et
+d'ADR-018, et un jeton GitLab valide pour pousser.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 9 · Commerce
+
+**Branche** : `feat/commandes-ventes` (depuis `develop`)
+
+**Contexte.** Phase 8 fusionnée dans `develop` sans vérification visuelle préalable, sur
+consigne de continuer en autonomie.
+
+**Fait.**
+
+- `shared/commerce` : états et transitions, éditeur de lignes, liste et écran de commande.
+- Modules commandes client et commandes fournisseur, réduits à leur service d'accès, leur
+  traduction de DTO et deux composants d'assemblage.
+- Module ventes : liste avec recherche par code, enregistrement, fiche en lecture seule.
+- 208 tests.
+
+**Découvert en route.**
+
+- `PUT` sur une commande n'effectue aucun contrôle d'état : le serveur accepte de réécrire
+  les lignes d'une commande déjà livrée. L'interface s'interdit la modification au-delà de
+  `EN_PREPARATION` (ADR-019) et l'écart est signalé — le contrôle a sa place côté serveur.
+- `DELETE /ventes/{id}` lève systématiquement une erreur : l'endpoint est publié mais ne
+  peut jamais aboutir. Aucun bouton de suppression n'est proposé pour une vente.
+- `VenteResponse` ne porte aucun total, là où les deux commandes en portent trois. Le montant
+  est dérivé des lignes renvoyées par le serveur.
+- Aucune recherche n'existe sur les commandes ni sur les ventes. Les listes déroulantes de
+  tiers et d'articles chargent une page large et disent quand il en reste derrière.
+
+**Incident.** Trois commandes ont tourné dans le dépôt backend : le répertoire courant y était
+resté après une lecture de ses sources. Un dossier `src/app/` y a été créé et une branche
+`feat/commandes-ventes` posée, puis les deux supprimés ; le dépôt est revenu sur `main`, sans
+autre trace. La seule modification qui subsiste chez lui — `mvnw` passé en 755 — est
+antérieure à cette session. Les chemins absolus sont désormais utilisés pour tout changement
+de répertoire.
+
+**Choix de conception.**
+
+- Un seul écran pour créer, modifier et lire une commande : les trois montrent la même chose,
+  et l'état décide si elle est ouverte à la saisie.
+- Le total affiché pendant la saisie est annoncé comme estimé. Le serveur recalcule à partir
+  des prix qu'il détient ; présenter le calcul du navigateur comme définitif serait faux.
+- L'avertissement d'écriture définitive d'une vente est affiché **avant** la saisie, pas
+  après l'envoi.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+208 tests passés, build de production 323,13 ko.
+
+**En attente.** Vérification visuelle des écrans de commerce, confirmation d'ADR-015, ADR-018
+et ADR-019, et un jeton GitLab valide pour pousser.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 10 · Administration
+
+**Branche** : `feat/administration` (depuis `develop`)
+
+**Fait.**
+
+- Écran Entreprise, réservé aux administrateurs.
+- Module Utilisateurs : liste, création, modification, suppression, rôles en cases à cocher.
+- « Mon profil », ouvert à tous, avec l'envoi de sa propre photo.
+- 225 tests.
+
+**Découvert en route.**
+
+- Créer un utilisateur ne prend pas de mot de passe : le serveur en génère un, l'envoie par
+  email et lève `mustChangePassword`. La garde écrite en phase 5 prend alors le relais — les
+  deux phases se rejoignent sans rien ajouter.
+- `DELETE /utilisateurs/{id}` ne protège ni le compte de l'appelant ni le dernier
+  administrateur. L'interface pose un garde-fou sur le premier cas (ADR-020) ; le second ne
+  peut être traité que côté serveur.
+- `POST /utilisateurs/{id}/photo` refuse la photo d'autrui. L'envoi n'apparaît donc que sur
+  « Mon profil », et pas sur l'écran d'administration.
+- `EntrepriseRequest` porte un champ `photo` qu'aucun endpoint ne remplit : il n'est pas
+  proposé à la saisie.
+- `PUT /utilisateurs/me` n'accepte ni l'email ni les rôles : ils restent affichés, en lecture.
+
+**Choix de conception.**
+
+- La liste des utilisateurs affiche l'état du mot de passe. C'est la question que se pose un
+  administrateur en regardant cet écran : mon collègue s'est-il déjà connecté ?
+- Le nom dans le bandeau mène au profil plutôt qu'au changement de mot de passe, qui n'en est
+  plus qu'un lien parmi d'autres.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+225 tests passés, build de production 323,88 ko.
+
+**En attente.** Vérification visuelle des écrans d'administration, et un jeton GitLab valide.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Phase 11 · Tableau de bord
+
+**Branche** : `feat/tableau-de-bord` (depuis `develop`)
+
+**Fait.**
+
+- Écran de pilotage : chiffre d'affaires du mois et total, commandes par état, classement des
+  articles les plus vendus, aperçu des cinq alertes de seuil les plus proches.
+- Racine de l'application redirigée vers le tableau de bord, comme prévu depuis la phase 4.
+- 230 tests.
+
+**Choix de conception.**
+
+- Aucun chiffre n'est recalculé côté navigateur : `GET /dashboard/statistiques` les porte
+  tous. La seule opération faite sur place est la mise à l'échelle des barres du classement.
+- Les alertes de seuil figurent sur le tableau de bord parce que ce sont les seules données
+  auxquelles il faut réagir le jour même. Cinq articles sont détaillés ; au-delà, un compte
+  renvoie à l'écran des alertes plutôt que d'allonger la page.
+- Le chiffre d'affaires du mois porte la couleur de marque : c'est la mesure qu'on vient
+  chercher en ouvrant l'application.
+- Le test de la navigation a changé de sens : il vérifiait qu'une entrée annoncée restait
+  inerte, il vérifie maintenant qu'il n'en reste aucune.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+230 tests passés, build de production 323,98 ko.
+
+**En attente.** Vérification visuelle du tableau de bord. Le plan déduit en ADR-015 s'achève
+ici : la suite appartient au mainteneur — relecture d'ensemble, fusion dans `main` et tag, ou
+reprise des seize écarts backend consignés dans `06-API-CONTRAT.md`.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Affinage visuel
+
+**Branche** : `feat/theme-affinage` (depuis `develop`, phases 1 à 11 fusionnées)
+
+**Demande.** L'interface est jugée trop plate : plus de couleur, plus de mouvement, plus
+agréable à l'usage.
+
+**Constat de départ.** Le document de design décrivait déjà, depuis la phase 2, la liste des
+micro-interactions attendues — cascade des lignes, transitions de modale et de toasts,
+compteur animé des KPI, pulsation des alertes. Presque rien n'avait été posé. L'affinage n'a
+donc pas inventé une direction : il a livré celle qui était écrite.
+
+**Fait.**
+
+- Trois familles de tokens sémantiques bâties sur `color-mix` de `--brand` : surfaces
+  teintées, dégradés, ombres de marque, flou de calque. Tout suit la couleur d'amorce de
+  l'entreprise sans qu'aucun effet ne soit recalculé.
+- Feuille `styles/_animations.scss` : images clés partagées et deux classes utilitaires.
+- Mouvement posé sur le tableau, la modale, les notifications, la jauge, la navigation, les
+  tuiles du tableau de bord et l'écran de connexion.
+- 232 tests.
+
+**Découvert en route.**
+
+- Les styles de ligne de tableau ne s'appliquaient pas depuis la phase 6 : les lignes sont
+  projetées, donc marquées par l'encapsulation du parent, hors de portée de `tableau.scss`.
+  Déplacés dans une feuille globale, comme le style des champs.
+- Même piège pour l'animation d'entrée d'écran : le composant rendu par le routeur ne porte
+  pas l'attribut d'encapsulation de la coquille.
+- Le compteur animé lisait l'horodatage passé par `requestAnimationFrame`, dont l'origine
+  diffère de `performance.now()` selon l'environnement : l'avancement partait en négatif et
+  les chiffres descendaient sous zéro. L'horloge est relue à chaque image.
+
+**Choix de conception.**
+
+- Un seul chiffre animé dans toute l'application, sur le tableau de bord. Un montant de
+  facture qui défile serait une coquetterie.
+- Le survol d'une ligne pose un liseré de marque plutôt qu'un fond appuyé : les chiffres de
+  la ligne restent lisibles pendant qu'on la désigne.
+- La cascade des lignes plafonne son retard à huit lignes. Sur cent lignes, un retard
+  proportionnel ferait attendre le bas du tableau plusieurs secondes.
+- Aucune durée n'a été écrite hors des tokens : `prefers-reduced-motion` continue d'éteindre
+  toute l'application d'une seule surcharge.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+232 tests passés, build de production 328,27 ko.
+
+**En attente.** Un regard sur l'écran : le mouvement se juge en le voyant, pas en le lisant.
+
+---
+
+## 2026-08-19 — session 1 (suite) — Alignement, codes serveur, jeu de démonstration
+
+**Branche** : `feat/theme-affinage`
+
+**Alignement des tableaux.** Le remplissage et l'alignement des cellules étaient déclarés
+dans `tableau.scss`. Les lignes étant projetées par l'écran appelant, aucune de ces règles ne
+les atteignait : l'entête avait sa mise en forme, le corps n'en avait aucune, et une colonne
+annoncée à droite s'affichait à gauche. C'est le même piège d'encapsulation que celui trouvé
+la veille sur le survol des lignes. Toute la géométrie du tableau vit désormais dans
+`styles/_tableau.scss`.
+
+**Codes attribués par le serveur.** Le champ « Code » disparaît du formulaire de commande et
+de celui de vente : le backend les génère et vérifie leur unicité, les proposer invitait au
+doublon sans rien apporter. Les codes d'article et de catégorie restent saisis — ceux-là, le
+serveur ne les invente pas.
+
+**Jeu de démonstration.** `scripts/seed.mjs` remplit le backend par son API publique, avec
+exactement les appels que ferait l'interface. Rien n'est écrit en base directement : les
+transitions d'état, les mouvements de stock déclenchés par une livraison et les refus de stock
+insuffisant restent l'affaire du serveur, et le jeu est cohérent par construction plutôt que
+par déclaration. Douze entreprises, chacune avec 12 catégories, 150 articles, 24 clients,
+10 fournisseurs, 5 comptes, un stock initial dont une part sous le seuil pour que les alertes
+aient de quoi parler, des corrections, des commandes des deux côtés à des états variés, et des
+ventes.
+
+**Le mot de passe unique.** Le backend ne permet pas de choisir le mot de passe d'un compte
+créé : il en génère un et l'envoie par email. Le premier jet lisait ce mot de passe dans
+Mailpit — et vingt et un comptes sont restés dehors, parce que Mailpit ne garde qu'un nombre
+limité de messages et que les notifications de commande avaient chassé les emails de création.
+Le script emprunte désormais le parcours « mot de passe oublié » : la demande produit toujours
+un message frais, et c'est de toute façon le chemin qu'emprunterait la personne. Un mode de
+rattrapage (`SEED_ALIGNEMENT=1`) repasse sur les comptes restés en arrière ; il a servi à
+aligner les vingt et un.
+
+**Découvert en route.**
+
+- **`uk_ventes_code` est une contrainte d'unicité globale**, alors que le code d'une vente est
+  généré en comptant les ventes de l'entreprise courante. La deuxième entreprise produit à son
+  tour `VT-2026-0001` et toute création de vente y échoue en `409`. C'est bloquant en
+  multi-tenant, bien au-delà du seed : aucune vente n'est possible hors de la première
+  entreprise inscrite. Le script fournit un code explicite pour contourner ; l'interface ne le
+  fait pas. Écart nº 16.
+- Les vagues de requêtes passaient au traitement l'index dans la vague et non dans la liste
+  entière : les codes de catégorie se répétaient toutes les six créations. Trouvé au premier
+  jeu complet, à la cinquième entreprise.
+
+**En attente.** Une base vierge pour poser le jeu canonique : les essais ont laissé des
+entreprises partielles, et aucun endpoint ne supprime une entreprise. La remise à zéro
+appartient au mainteneur, dans le dépôt backend.
+
+---
+
+## 2026-08-20 — session 1 (suite) — Tableau de bord, navigation, responsive
+
+**Branche** : `feat/ui-tableau-de-bord` (depuis `develop`)
+
+**Demande.** Bandeau et navigation plus professionnels et responsives, écrans responsives,
+tableau de bord digne de ce nom — avec des graphiques, quitte à prendre une bibliothèque.
+
+**Recherche.** Les recommandations convergent : mesures critiques en tête, une tendance, les
+alertes de rupture, une table de détail, et surtout pas de surcharge — un tableau de bord qui
+montre tout ne montre rien.
+
+**La bibliothèque.** Chart.js, ECharts et ngx-charts ont été pesées, puis écartées au profit
+de trois formes écrites en SVG (ADR-021). La raison n'est pas l'économie de 70 ko : c'est que
+la couleur d'amorce de l'entreprise change à l'exécution, et qu'un dessin dont les couleurs
+sont des `var(--brand)` se repeint tout seul, là où un canevas doit être redessiné. C'est la
+même raison qui écarte déjà les bibliothèques de composants dans l'INTERDIT nº 6.
+
+**Fait.**
+
+- `shared/dataviz` : série temporelle en aires ou colonnes, classement en barres,
+  part-à-tout. Infobulle au survol, table de données dépliable sous chaque graphique.
+- Tableau de bord reconstruit : quatre mesures, quatre visualisations, les alertes.
+- `shared/ui/icone` : jeu au trait dessiné dans le projet.
+- Navigation repliable en rail d'icônes ; bandeau translucide, compact sur mobile, avec lien
+  de saut vers le contenu.
+- Feuille `styles/_ecrans.scss` : largeur de confort, rembourrage et titres fluides.
+- 251 tests, dont les trois graphiques, les icônes et le rail.
+
+**Découvert en route.**
+
+- Le backend ne publie aucune série temporelle. Les tendances sont donc agrégées ici, à
+  partir des 200 dernières ventes et commandes, sur la définition du serveur : le chiffre
+  d'affaires, ce sont les ventes — pas les commandes. L'écran l'écrit sous la courbe.
+- Un axe de comptages plafonnant à 1 se graduait « 0 0 1 1 1 » : le pas de 0,25 disparaissait
+  à l'arrondi. Les graduations acceptent désormais un pas minimal, et une série d'entiers le
+  demande d'elle-même.
+- `r` n'est pas une propriété CSS animable partout : le grossissement du point survolé passe
+  par une échelle. Stylelint avait raison de refuser.
+
+**Choix de conception.**
+
+- Une seule couleur par série, pas de double axe, étiquetage au survol plutôt qu'une valeur
+  sur chaque point. Les couleurs d'état ne servent qu'aux états.
+- Le rail plutôt que l'effacement : une navigation qui disparaît fait perdre le repère de
+  position et oblige à la rouvrir pour savoir où l'on est.
+- Fluidité par `clamp()` plutôt que par paliers : moins de points de rupture à maintenir, et
+  rien qui saute entre deux tailles d'écran.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+251 tests passés, build de production 329,21 ko.
+
+**En attente.** Un regard à l'écran, avec le jeu de démonstration en place.
+
+---
+
+## 2026-08-20 — session 1 (suite) — Vitrine publique et orientation
+
+**Branche** : `feat/ui-tableau-de-bord`
+
+**Demande.** Une page d'accueil publique, un écran de connexion plus soigné, et surtout : que
+le système oriente l'utilisateur au lieu de le laisser deviner une adresse.
+
+**Fait.**
+
+- `features/accueil` : vitrine publique à la racine — ce que l'application fait, trois étapes
+  pour démarrer, deux portes d'entrée. Chaque point correspond à un écran livré ; rien n'y est
+  promis pour plus tard, aucun témoignage n'est inventé.
+- L'aperçu de l'application est dessiné avec les tokens du projet, pas capturé : il se
+  recolore avec le thème et l'amorce, et ne vieillit pas.
+- Orientation : `gardeAccueil` renvoie une session ouverte de la vitrine vers son tableau de
+  bord ; `gardeInvite` y renvoie aussi depuis les écrans d'authentification ; la connexion mène
+  au tableau de bord, ou à l'écran demandé par `returnUrl`.
+- Connexion en deux colonnes sur grand écran, une seule sous 64 rem ; mot de passe révélable.
+- 258 tests.
+
+**Découvert en route.**
+
+- Le budget de style par composant (4 ko d'avertissement, 8 ko d'erreur) a mordu deux fois.
+  Le châssis des graphiques est parti dans une feuille globale — trois composants le partagent,
+  c'est sa place —, et la vitrine a été coupée en deux feuilles. Le budget a joué son rôle : il
+  a signalé deux fois qu'une feuille servait plus large que son composant.
+- La règle d'accessibilité du projet refuse `autofocus`, à raison : le focus imposé désoriente
+  un lecteur d'écran. Le champ email n'en a pas.
+- Une apostrophe typographique dans un texte ne se compare pas à une apostrophe droite dans un
+  test. Le test a été corrigé, pas le texte.
+
+**Choix de conception.**
+
+- La vitrine et le panneau de connexion sont les deux seules surfaces entièrement à la couleur
+  de marque ; ailleurs, elle ponctue un fond neutre.
+- `returnUrl` écarte la vitrine : y revenir après connexion renverrait aussitôt au tableau de
+  bord, ce qui ferait clignoter l'écran pour rien.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+258 tests passés, build de production 333,95 ko.
+
+---
+
+## 2026-08-20 — session 2 — Correction du chiffre d'affaires par mois
+
+**Branche** : `feat/ui-tableau-de-bord`
+
+**Contexte de départ.** Le mainteneur a comparé deux graphiques du tableau de bord et relevé
+une incohérence : le chiffre d'affaires par mois montrait onze mois à zéro puis 4,4 M FCFA
+sur le mois courant, tandis que les commandes livrées par mois s'étalaient sur six mois. La
+même forme apparaissait dans les douze entreprises du jeu de démonstration.
+
+**Fait.**
+
+- **Cause trouvée, hors interface.** Les deux courbes ne lisent pas la même date. Les
+  commandes portent une `dateCommande` que le client fournit, et le jeu de démonstration
+  l'antidate. Les ventes portent une `dateVente` que `VenteServiceImpl` fixait à
+  `Instant.now()`, sans que `VenteRequest` déclare le moindre champ de date : aucune vente ne
+  pouvait être antidatée par l'API, et les trente ventes de chaque entreprise tombaient donc
+  le jour du seed.
+- **Champ ouvert côté serveur, sur décision du mainteneur** (voir « Sorti du cadre ») :
+  `VenteRequest.dateVente`, facultatif, `@PastOrPresent`. Absent, le serveur horodate comme
+  avant. Deux tests unitaires couvrent les deux branches ; le contrat a été resynchronisé et
+  `06-API-CONTRAT.md` note le champ sous la table des ventes.
+- **Jeu de démonstration** : les ventes sont réparties sur la même fenêtre que les commandes
+  client, à une heure ouvrable tirée au sort et bornée à l'instant courant. Les deux courbes
+  couvrent enfin la même période.
+- **Deux débordements corrigés dans `dataviz`.** `plafond()` arrondissait à la graduation la
+  plus proche et non à la graduation supérieure : sur un maximum de 1,2 M, l'échelle
+  s'arrêtait à 1 M et le SVG coupait le sommet de la courbe à ras du cadre. La gouttière de
+  l'axe des valeurs était figée à 56 unités, trop étroite pour « 500 000 FCFA » : les
+  étiquettes sortaient du cadre par la gauche et étaient rognées. Elle se calcule désormais
+  sur la plus longue étiquette.
+- **Courbe lissée** — interpolation d'Hermite monotone (Fritsch–Carlson), un dégradé qui
+  s'éteint sur l'axe, une ligne de zéro distincte de la trame, un repère vertical au survol et
+  l'abscisse pointée mise en avant.
+
+**Découvert en route.**
+
+- Une infobulle absolument positionnée à 95 % de son conteneur ne dispose que des 5 % restants
+  pour se dimensionner : elle cassait ses lignes au lieu de déborder. `inline-size: max-content`
+  la dimensionne sur son texte, et un ancrage par attribut la ramène dans la carte aux deux
+  extrémités.
+- Une spline ordinaire aurait plongé sous l'axe après la suite de mois à zéro. La contrainte de
+  monotonie n'est pas un détail de rendu : sans elle, le dessin affiche des valeurs négatives
+  qui n'existent pas.
+
+**Sorti du cadre.** L'interdit nº 1 réserve les modifications au dossier `frontend-angular`.
+L'écart a été exposé au mainteneur avec ses trois options — ouvrir le champ côté serveur,
+corriger les dates en SQL après le seed, ou redéfinir le chiffre d'affaires sur les commandes
+livrées — et il a tranché pour la première. Le backend est donc modifié : `VenteRequest` et
+`VenteServiceImpl`, plus leurs tests.
+
+**Vérifications finales.** Lint 0 erreur / 0 avertissement, stylelint 0 erreur, typecheck OK,
+259 tests passés, build de production 334,50 ko. Côté serveur, `VenteServiceImplTest` au vert.
+Contrôle à l'écran : courbe entière dans son cadre, étiquettes complètes, infobulle contenue
+aux deux bords, en clair comme en sombre.

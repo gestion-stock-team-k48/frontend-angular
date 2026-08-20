@@ -1,0 +1,52 @@
+<header class="topbar">
+  <a class="topbar__saut" href="#contenu">Aller au contenu</a>
+
+  <button
+    type="button"
+    class="topbar__icone"
+    [attr.aria-expanded]="sidebarOuverte()"
+    aria-controls="navigation-principale"
+    (click)="bascule.emit()"
+  >
+    <app-icone nom="menu" libelle="Afficher ou masquer la navigation" />
+  </button>
+
+  <div class="topbar__identite">
+    <span class="topbar__application">Gestion de Stock</span>
+    @if (auth.entreprise(); as entreprise) {
+      <span class="topbar__entreprise" [title]="entreprise.nom">{{ entreprise.nom }}</span>
+    }
+  </div>
+
+  <!-- Barre d'activité : elle remplace un spinner plein écran, qui masquerait le contenu
+       déjà affiché à chaque appel. -->
+  @if (chargement.enCours()) {
+    <span class="topbar__activite" role="status" aria-label="Chargement en cours"></span>
+  }
+
+  <div class="topbar__actions">
+    <button
+      type="button"
+      class="topbar__icone"
+      [attr.aria-pressed]="theme.themeApplique() === 'sombre'"
+      (click)="basculerTheme()"
+    >
+      @if (theme.themeApplique() === 'sombre') {
+        <app-icone nom="soleil" libelle="Passer au thème clair" />
+      } @else {
+        <app-icone nom="lune" libelle="Passer au thème sombre" />
+      }
+    </button>
+
+    @if (auth.utilisateur(); as utilisateur) {
+      <a class="topbar__compte" routerLink="/profil" [title]="utilisateur.email">
+        <span class="topbar__pastille" aria-hidden="true">{{ initiales() }}</span>
+        <span class="topbar__nom">{{ utilisateur.prenom }} {{ utilisateur.nom }}</span>
+      </a>
+    }
+
+    <button type="button" class="topbar__icone" (click)="deconnecter()">
+      <app-icone nom="sortie" libelle="Se déconnecter" />
+    </button>
+  </div>
+</header>

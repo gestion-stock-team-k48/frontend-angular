@@ -15,6 +15,46 @@ export type DemandeReinitialisationMotDePasse = Schemas['ResetPasswordRequest'];
 export type DemandeChangementMotDePasse = Schemas['ChangePasswordRequest'];
 export type Utilisateur = Schemas['UtilisateurResponse'];
 
+export type Categorie = Schemas['CategoryResponse'];
+export type DemandeCategorie = Schemas['CategoryRequest'];
+export type Article = Schemas['ArticleResponse'];
+export type DemandeArticle = Schemas['ArticleRequest'];
+
+export type StatistiquesTableauDeBord = Schemas['DashboardStatsResponse'];
+export type TopArticleVendu = Schemas['TopArticleVenduResponse'];
+
+export type Entreprise = Schemas['EntrepriseResponse'];
+export type DemandeEntreprise = Schemas['EntrepriseRequest'];
+export type DemandeUtilisateur = Schemas['UtilisateurRequest'];
+export type DemandeProfil = Schemas['UtilisateurMeRequest'];
+
+export type Client = Schemas['ClientResponse'];
+export type DemandeClient = Schemas['ClientRequest'];
+export type Fournisseur = Schemas['FournisseurResponse'];
+export type DemandeFournisseur = Schemas['FournisseurRequest'];
+
+export type CommandeClient = Schemas['CommandeClientResponse'];
+export type DemandeCommandeClient = Schemas['CommandeClientRequest'];
+export type CommandeFournisseur = Schemas['CommandeFournisseurResponse'];
+export type DemandeCommandeFournisseur = Schemas['CommandeFournisseurRequest'];
+export type DemandeEtatCommande = Schemas['EtatCommandeRequest'];
+export type Vente = Schemas['VenteResponse'];
+export type DemandeVente = Schemas['VenteRequest'];
+
+/** États d'une commande, tels que la spécification les déclare. */
+export type EtatCommande = NonNullable<CommandeClient['etatCommande']>;
+
+export type MouvementStock = Schemas['MvtStkResponse'];
+export type DemandeMouvementStock = Schemas['MvtStkRequest'];
+export type DemandeCorrectionStock = Schemas['MvtStkCorrectionRequest'];
+export type AlerteStock = Schemas['AlerteStockResponse'];
+
+/** Sens d'un mouvement, tel que le backend le qualifie lui-même. */
+export type TypeMouvementStock = NonNullable<MouvementStock['typeMvt']>;
+
+/** Origine d'un mouvement : ce qui l'a provoqué. */
+export type SourceMouvementStock = Schemas['MvtStkRequest']['sourceMvt'];
+
 /** Rôles applicatifs, tels que déclarés par la spécification. */
 export type Role = NonNullable<Utilisateur['roles']>[number];
 

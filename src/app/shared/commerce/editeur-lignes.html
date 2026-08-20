@@ -1,0 +1,74 @@
+<div class="lignes">
+  <div class="lignes__entete">
+    <h2 class="lignes__titre">Lignes</h2>
+    <button type="button" class="lignes__ajouter" [disabled]="desactive()" (click)="ajouter()">
+      Ajouter une ligne
+    </button>
+  </div>
+
+  @if (catalogueTronque()) {
+    <p class="lignes__avertissement" role="status">
+      Seuls les premiers articles du catalogue sont proposés. Le backend n'expose aucune recherche
+      sur les articles : au-delà, la liste déroulante ne peut pas être complète.
+    </p>
+  }
+
+  @if (lignes().length === 0) {
+    <p class="lignes__vide">Aucune ligne. En ajouter au moins une.</p>
+  }
+
+  @for (ligne of lignes(); track $index) {
+    <div class="lignes__ligne">
+      <label class="lignes__champ">
+        <span class="lignes__libelle">Article</span>
+        <select
+          [value]="ligne.articleId"
+          [disabled]="desactive()"
+          (change)="changerArticle($index, $event)"
+        >
+          <option value="">Choisir un article</option>
+          @for (article of articles(); track article.id) {
+            <option [value]="article.id">{{ article.designation }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="lignes__champ lignes__champ--etroit">
+        <span class="lignes__libelle">Quantité</span>
+        <input
+          type="number"
+          min="1"
+          step="1"
+          [value]="ligne.quantite"
+          [disabled]="desactive()"
+          (input)="changerQuantite($index, $event)"
+        />
+      </label>
+
+      <p class="lignes__prix" data-numerique>
+        <span class="lignes__libelle">Prix unitaire TTC</span>
+        {{ prixDe(ligne) | montant }}
+      </p>
+
+      <button
+        type="button"
+        class="lignes__retirer"
+        [disabled]="desactive()"
+        (click)="retirer($index)"
+      >
+        Retirer
+      </button>
+    </div>
+  }
+
+  <p class="lignes__total">
+    Total estimé : <strong data-numerique>{{ total() | montant }}</strong>
+    <span class="lignes__aide">Le serveur recalcule les totaux à l'enregistrement.</span>
+  </p>
+
+  @if (!valides() && lignes().length > 0) {
+    <p class="lignes__erreur" role="alert">
+      Chaque ligne demande un article et une quantité supérieure à zéro.
+    </p>
+  }
+</div>

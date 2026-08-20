@@ -1,0 +1,25 @@
+:host {
+  display: block;
+  background-color: var(--surface-2);
+  border-radius: var(--rayon-1);
+  animation: squelette-pulsation 1.4s var(--ease-in-out) infinite;
+}
+
+:host([data-forme='bloc']) {
+  border-radius: var(--rayon-carte);
+}
+
+:host([data-forme='cercle']) {
+  border-radius: var(--rayon-plein);
+}
+
+@keyframes squelette-pulsation {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.55;
+  }
+}

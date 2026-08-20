@@ -1,0 +1,106 @@
+<section class="liste-commandes">
+  <header class="liste-commandes__entete">
+    <div>
+      <h1 class="liste-commandes__titre">{{ titre() }}</h1>
+      <p class="liste-commandes__sous-titre">{{ sousTitre() }}</p>
+    </div>
+
+    <a class="liste-commandes__action" [routerLink]="[cheminBase(), 'nouvelle']"
+      >Nouvelle commande</a
+    >
+  </header>
+
+  <app-tableau
+    [colonnes]="colonnes"
+    [etat]="etat()"
+    [tri]="tri()"
+    libelleActions="Actions"
+    (triChange)="changerTri($event)"
+  >
+    @for (commande of commandes(); track commande.id) {
+      <tr>
+        <td data-numerique>{{ commande.code }}</td>
+        <td data-numerique>{{ commande.date | date: 'shortDate' }}</td>
+        <td>{{ commande.tiersNom || '—' }}</td>
+        <td>
+          <app-badge [ton]="tonEtat(commande.etat)">{{ libelleEtat(commande.etat) }}</app-badge>
+        </td>
+        <td data-alignement="fin" data-numerique>{{ commande.totalTtc | montant }}</td>
+        <td data-alignement="fin">
+          <div class="liste-commandes__actions">
+            <a class="liste-commandes__lien" [routerLink]="[cheminBase(), commande.id]">Ouvrir</a>
+            @if (supprimable(commande.etat)) {
+              <app-bouton taille="petite" variante="danger" (presse)="aSupprimer.set(commande)">
+                Supprimer
+              </app-bouton>
+            }
+          </div>
+        </td>
+      </tr>
+    }
+
+    <div zoneEtat>
+      @if (etat() === 'erreur') {
+        <app-etat-vide
+          titre="Les commandes n'ont pas pu être chargées"
+          message="Le serveur n'a pas répondu comme attendu."
+          ton="erreur"
+        >
+          <app-bouton (presse)="reessayer()">Réessayer</app-bouton>
+        </app-etat-vide>
+      } @else {
+        <app-etat-vide
+          titre="Aucune commande"
+          [message]="
+            'Une commande a besoin d\'un ' +
+            libelleTiers().toLowerCase() +
+            ' et d\'au moins un article.'
+          "
+        >
+          <a class="liste-commandes__action" [routerLink]="[cheminBase(), 'nouvelle']">
+            Nouvelle commande
+          </a>
+        </app-etat-vide>
+      }
+    </div>
+  </app-tableau>
+
+  @if (etat() === 'pret') {
+    <app-pagination
+      [etat]="etatPage()"
+      (pageChange)="page.set($event)"
+      (tailleChange)="changerTaille($event)"
+    />
+  }
+</section>
+
+<app-modale
+  [ouverte]="aSupprimer() !== null"
+  titre="Supprimer la commande"
+  [bloquante]="suppressionEnCours()"
+  (fermeture)="aSupprimer.set(null)"
+>
+  @if (aSupprimer(); as commande) {
+    <p class="liste-commandes__confirmation">
+      La commande « {{ commande.code }} » sera supprimée. Le serveur refuse la suppression d'une
+      commande livrée : ses mouvements de stock sont déjà enregistrés.
+    </p>
+
+    <div class="liste-commandes__actions liste-commandes__actions--fin">
+      <app-bouton
+        variante="fantome"
+        [desactive]="suppressionEnCours()"
+        (presse)="aSupprimer.set(null)"
+      >
+        Annuler
+      </app-bouton>
+      <app-bouton
+        variante="danger"
+        [chargement]="suppressionEnCours()"
+        (presse)="confirmerSuppression()"
+      >
+        Supprimer
+      </app-bouton>
+    </div>
+  }
+</app-modale>

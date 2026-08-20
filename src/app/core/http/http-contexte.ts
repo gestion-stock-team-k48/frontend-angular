@@ -17,3 +17,10 @@ export const SANS_RAFRAICHISSEMENT = new HttpContextToken<boolean>(() => false);
 
 /** N'incrémente pas l'indicateur de chargement global. Pour les appels de fond. */
 export const SANS_INDICATEUR_CHARGEMENT = new HttpContextToken<boolean>(() => false);
+
+/**
+ * N'affiche pas de notification globale si la requête échoue : l'écran qui l'a lancée
+ * présente déjà l'erreur sous ses champs ou dans son bandeau. Sans ce marqueur, un même
+ * refus s'écrit deux fois — une fois dans le formulaire, une fois en haut de l'écran.
+ */
+export const SANS_NOTIFICATION_ERREUR = new HttpContextToken<boolean>(() => false);

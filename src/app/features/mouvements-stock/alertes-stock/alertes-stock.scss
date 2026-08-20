@@ -1,0 +1,38 @@
+.alertes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-4);
+
+  &__entete {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--espace-3);
+  }
+
+  &__titre {
+    color: var(--text-strong);
+    font-family: var(--police-display);
+    font-size: var(--taille-xl);
+  }
+
+  &__sous-titre {
+    max-inline-size: 60ch;
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+  }
+
+  // La jauge a besoin d'une largeur stable pour que les lignes se comparent d'un coup d'œil.
+  &__jauge {
+    inline-size: 10rem;
+  }
+
+  &__lien {
+    border: 0;
+    background-color: transparent;
+    color: var(--brand);
+    font-size: var(--taille-sm);
+    cursor: pointer;
+  }
+}

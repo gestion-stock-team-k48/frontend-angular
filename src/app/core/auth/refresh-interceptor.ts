@@ -14,7 +14,7 @@ import { SANS_RAFRAICHISSEMENT } from '../http/http-contexte';
  * par ce backend, pas `401`. Un vrai refus de droits paiera donc un aller-retour inutile
  * avant d'être présenté à l'utilisateur — coût assumé, voir ADR-005.
  */
-const STATUTS_A_RAFRAICHIR: readonly number[] = [401, 403];
+const STATUTS_A_RAFRAICHIR: ReadonlySet<number> = new Set([401, 403]);
 
 /**
  * Rejoue une requête refusée après un rafraîchissement du jeton.
@@ -36,7 +36,7 @@ export function intercepteurRafraichissement(
 
   return suivant(requete).pipe(
     catchError((erreur: unknown) => {
-      if (!(erreur instanceof HttpErrorResponse) || !STATUTS_A_RAFRAICHIR.includes(erreur.status)) {
+      if (!(erreur instanceof HttpErrorResponse) || !STATUTS_A_RAFRAICHIR.has(erreur.status)) {
         return throwError(() => erreur);
       }
 

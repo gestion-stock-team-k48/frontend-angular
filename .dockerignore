@@ -1,0 +1,21 @@
+# Contexte de build. `node_modules` en tête : c'est de loin le plus gros, et il est
+# reconstruit dans l'image à partir du verrou.
+
+node_modules/
+dist/
+.angular/
+coverage/
+.git/
+.gitignore
+.githooks/
+.vscode/
+.idea/
+docs/
+scripts/
+openapi.json
+Dockerfile
+.dockerignore
+.github/
+*.md
+.env
+.env.*

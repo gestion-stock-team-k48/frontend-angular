@@ -1,1 +1,14 @@
-/* You can add global styles to this file, and also import other style files */
+// Feuille de styles globale.
+// L'ordre compte : les polices et les primitifs d'abord, puis les tokens sémantiques qui
+// s'y réfèrent, puis la base qui consomme le tout.
+
+@use 'styles/polices';
+@use 'styles/tokens/primitifs';
+@use 'styles/tokens/semantiques';
+@use 'styles/tokens/systeme';
+@use 'styles/tokens/mouvement';
+@use 'styles/base';
+@use 'styles/animations';
+@use 'styles/tableau';
+@use 'styles/ecrans';
+@use 'styles/dataviz';

@@ -1,0 +1,103 @@
+<div class="vitrine">
+  <header class="vitrine__bandeau">
+    <p class="vitrine__marque">Gestion de Stock</p>
+
+    <nav class="vitrine__nav" aria-label="Accès à l'application">
+      <button
+        type="button"
+        class="vitrine__icone"
+        [attr.aria-pressed]="theme.themeApplique() === 'sombre'"
+        (click)="basculerTheme()"
+      >
+        @if (theme.themeApplique() === 'sombre') {
+          <app-icone nom="soleil" libelle="Passer au thème clair" />
+        } @else {
+          <app-icone nom="lune" libelle="Passer au thème sombre" />
+        }
+      </button>
+
+      <a class="vitrine__lien" routerLink="/connexion">Se connecter</a>
+      <a class="vitrine__action" routerLink="/inscription">Inscrire mon entreprise</a>
+    </nav>
+  </header>
+
+  <main class="vitrine__contenu">
+    <section class="vitrine__hero">
+      <div class="vitrine__hero-texte">
+        <p class="vitrine__surtitre">Application de gestion de stock multi-entreprise</p>
+        <h1 class="vitrine__titre">Savoir ce qu'il reste en rayon, sans ouvrir un tableur.</h1>
+        <p class="vitrine__accroche">
+          Catalogue, mouvements de stock, commandes client et fournisseur, ventes, alertes de seuil.
+          Chaque entreprise a ses données, ses comptes et ses couleurs.
+        </p>
+
+        <div class="vitrine__actions">
+          <a class="vitrine__action vitrine__action--grande" routerLink="/inscription">
+            Inscrire mon entreprise
+          </a>
+          <a class="vitrine__lien-fort" routerLink="/connexion">J'ai déjà un compte</a>
+        </div>
+
+        <p class="vitrine__mention">
+          Aucun paiement, aucune carte : l'inscription crée l'entreprise et son premier compte
+          administrateur.
+        </p>
+      </div>
+
+      <!-- Aperçu dessiné avec les tokens de l'application : ce que l'on montre est ce que
+           l'on obtient, et il se recolore avec le thème comme le reste. -->
+      <app-apercu-application class="vitrine__apercu" />
+    </section>
+
+    <section class="vitrine__section" aria-labelledby="titre-atouts">
+      <h2 class="vitrine__section-titre" id="titre-atouts">Ce que l'application fait</h2>
+
+      <ul class="vitrine__atouts">
+        @for (atout of atouts; track atout.titre) {
+          <li class="vitrine__atout">
+            <span class="vitrine__atout-icone"><app-icone [nom]="atout.icone" /></span>
+            <h3 class="vitrine__atout-titre">{{ atout.titre }}</h3>
+            <p class="vitrine__atout-texte">{{ atout.texte }}</p>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="vitrine__section" aria-labelledby="titre-etapes">
+      <h2 class="vitrine__section-titre" id="titre-etapes">Trois étapes pour démarrer</h2>
+
+      <ol class="vitrine__etapes">
+        @for (etape of etapes; track etape.rang) {
+          <li class="vitrine__etape">
+            <span class="vitrine__etape-rang" data-numerique>{{ etape.rang }}</span>
+            <h3 class="vitrine__atout-titre">{{ etape.titre }}</h3>
+            <p class="vitrine__atout-texte">{{ etape.texte }}</p>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <section class="vitrine__appel">
+      <h2 class="vitrine__section-titre">Prêt à ranger le tableur ?</h2>
+      <p class="vitrine__atout-texte">
+        L'inscription prend une minute. Les données restent celles de votre entreprise, séparées de
+        toutes les autres.
+      </p>
+      <div class="vitrine__actions">
+        <a class="vitrine__action vitrine__action--grande" routerLink="/inscription">
+          Inscrire mon entreprise
+        </a>
+        <a class="vitrine__lien-fort" routerLink="/connexion">Se connecter</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="vitrine__pied">
+    <p>Gestion de Stock · {{ annee }}</p>
+    <nav class="vitrine__pied-liens" aria-label="Liens utiles">
+      <a class="vitrine__lien" routerLink="/connexion">Connexion</a>
+      <a class="vitrine__lien" routerLink="/inscription">Inscription</a>
+      <a class="vitrine__lien" routerLink="/mot-de-passe-oublie">Mot de passe oublié</a>
+    </nav>
+  </footer>
+</div>

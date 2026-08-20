@@ -1,0 +1,91 @@
+// Tokens système : espacement, rayons, ombres, épaisseurs, plans.
+// Aucune de ces valeurs n'est écrite en dur dans un composant.
+
+:root {
+  // Espacement — progression de 4 px, resserrée en bas où se jouent les écarts fins
+  --espace-0: 0;
+  --espace-1: 0.25rem;
+  --espace-2: 0.5rem;
+  --espace-3: 0.75rem;
+  --espace-4: 1rem;
+  --espace-5: 1.5rem;
+  --espace-6: 2rem;
+  --espace-7: 3rem;
+  --espace-8: 4rem;
+
+  // Densité — pilotée par ThemeService. « compact » resserre les tableaux longs sans
+  // toucher aux zones de saisie, qui doivent rester atteignables au doigt.
+  --densite-ligne: 2.75rem;
+  --densite-cellule-y: var(--espace-3);
+  --densite-cellule-x: var(--espace-4);
+
+  // Rayons — pilotés par ThemeService (net, doux, arrondi)
+  --rayon-0: 0;
+  --rayon-1: 0.25rem;
+  --rayon-2: 0.5rem;
+  --rayon-3: 0.75rem;
+  --rayon-plein: 9999px;
+  --rayon-controle: var(--rayon-2);
+  --rayon-carte: var(--rayon-3);
+
+  // Bordures
+  --bordure-fine: 1px;
+  --bordure-epaisse: 2px;
+
+  // Ombres — discrètes : sur un outil dense, l'ombre sert à détacher un calque, pas à décorer
+  --ombre-1: 0 1px 2px oklch(0 0 0 / 0.06);
+  --ombre-2: 0 2px 8px oklch(0 0 0 / 0.08);
+  --ombre-3: 0 8px 24px oklch(0 0 0 / 0.12);
+
+  // Ombre teintée par la marque. Réservée à ce qui est cliquable et primaire : un bouton
+  // d'action, une tuile mise en avant. Elle donne du relief sans ajouter de couleur au fond.
+  --ombre-marque: 0 4px 14px color-mix(in oklab, var(--brand) 32%, transparent);
+  --ombre-marque-forte: 0 6px 20px color-mix(in oklab, var(--brand) 45%, transparent);
+
+  // Flou d'arrière-plan des calques posés au-dessus du contenu : bandeau, voile, modale.
+  --flou-calque: blur(12px);
+
+  // Plans
+  --z-base: 0;
+  --z-entete: 100;
+  --z-sidebar: 200;
+  --z-voile: 800;
+  --z-modale: 900;
+  --z-toast: 1000;
+
+  // Typographie
+  --police-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --police-texte: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --police-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', monospace;
+
+  --taille-xs: 0.75rem;
+  --taille-sm: 0.875rem;
+  --taille-md: 1rem;
+  --taille-lg: 1.125rem;
+  --taille-xl: 1.5rem;
+  --taille-2xl: 2rem;
+
+  --interligne-serre: 1.2;
+  --interligne-base: 1.5;
+
+  --largeur-focus: 2px;
+  --decalage-focus: 2px;
+}
+
+// Densité compacte : uniquement les lignes de tableau et les cellules.
+:root[data-densite='compact'] {
+  --densite-ligne: 2.25rem;
+  --densite-cellule-y: var(--espace-2);
+  --densite-cellule-x: var(--espace-3);
+}
+
+// Rayon global
+:root[data-rayon='net'] {
+  --rayon-controle: var(--rayon-0);
+  --rayon-carte: var(--rayon-0);
+}
+
+:root[data-rayon='arrondi'] {
+  --rayon-controle: var(--rayon-3);
+  --rayon-carte: var(--rayon-3);
+}

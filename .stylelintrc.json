@@ -19,7 +19,10 @@
     "color-named": "never",
     "alpha-value-notation": "number",
     "color-function-notation": "modern",
-    "no-empty-source": null
+    "no-empty-source": null,
+    "lightness-notation": "number",
+    "hue-degree-notation": "number",
+    "custom-property-empty-line-before": null
   },
   "overrides": [
     {

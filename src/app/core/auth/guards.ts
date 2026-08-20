@@ -34,10 +34,46 @@ export function gardeRole(...roles: readonly Role[]): CanActivateFn {
   };
 }
 
-/** Interdit les écrans de connexion à une session déjà ouverte. */
-export const gardeInvite: CanActivateFn = () => {
+/** Écran ouvert par défaut à une session établie. */
+export const ECRAN_PAR_DEFAUT = '/tableau-de-bord';
+
+/**
+ * Renvoie une session ouverte vers son écran de travail, laisse passer les autres.
+ *
+ * Deux gardes s'appuient dessus. Elles gardent des noms distincts parce qu'elles répondent à
+ * deux questions différentes — « cet écran est-il réservé aux visiteurs ? » et « où mène la
+ * racine du site ? » — et que les routes se lisent d'autant mieux. Leur réponse se trouve
+ * être la même, et une seule implémentation vaut mieux que deux qui dériveront.
+ */
+const renvoyerVersLEcranDeTravail: CanActivateFn = () => {
   const auth = inject(ServiceAuthentification);
   const router = inject(Router);
 
-  return auth.estAuthentifie() ? router.createUrlTree(['/']) : true;
+  return auth.estAuthentifie() ? router.createUrlTree([ECRAN_PAR_DEFAUT]) : true;
+};
+
+/** Interdit les écrans de connexion à une session déjà ouverte. */
+export const gardeInvite: CanActivateFn = renvoyerVersLEcranDeTravail;
+
+/**
+ * Page d'accueil : la vitrine pour qui arrive, le tableau de bord pour qui est déjà entré.
+ *
+ * C'est le système qui oriente, pas l'utilisateur : personne n'a à retenir une adresse pour
+ * retrouver son travail. Rien n'empêche de saisir l'URL de la vitrine à la main — elle reste
+ * accessible —, mais l'ouverture de l'application n'y laisse pas une session en cours.
+ */
+export const gardeAccueil: CanActivateFn = renvoyerVersLEcranDeTravail;
+
+/**
+ * Bloque l'application tant qu'un mot de passe temporaire n'a pas été remplacé.
+ *
+ * L'administrateur qui crée un compte y met un mot de passe généré, transmis par email.
+ * Laisser cet utilisateur circuler avec ce mot de passe reviendrait à laisser un secret
+ * connu de deux personnes ouvrir la porte indéfiniment.
+ */
+export const gardeMotDePasse: CanActivateFn = () => {
+  const auth = inject(ServiceAuthentification);
+  const router = inject(Router);
+
+  return auth.doitChangerMotDePasse() ? router.createUrlTree(['/changer-mot-de-passe']) : true;
 };

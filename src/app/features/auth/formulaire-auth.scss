@@ -1,0 +1,144 @@
+// Feuille commune aux cinq écrans d'authentification : ils partagent la même carte, les
+// mêmes espacements et le même bandeau d'erreur. Une seule feuille évite que les écrans
+// dérivent les uns des autres au fil des retouches.
+
+:host {
+  display: block;
+  inline-size: 100%;
+  max-inline-size: 26rem;
+}
+
+:host(.large) {
+  max-inline-size: 44rem;
+}
+
+.carte-auth {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-4);
+  padding: var(--espace-6) var(--espace-5) var(--espace-5);
+  border: var(--bordure-fine) solid var(--border-subtle);
+  border-radius: var(--rayon-carte);
+  background-color: var(--surface-1);
+  box-shadow: var(--ombre-3);
+  animation: apparition var(--dur-slow) var(--ease-out) both;
+
+  // Filet de marque en tête de carte, comme sur les modales : c'est la même famille
+  // d'objets, une surface posée au-dessus du fond.
+  &::before {
+    content: '';
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    block-size: var(--bordure-epaisse);
+    background-image: var(--degrade-marque);
+  }
+
+  &__titre {
+    color: var(--text-strong);
+    font-family: var(--police-display);
+    font-size: var(--taille-xl);
+  }
+
+  &__intro {
+    max-inline-size: 52ch;
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+  }
+
+  &__formulaire {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-4);
+  }
+
+  // Deux colonnes dès que la place le permet, une seule en dessous : les formulaires longs
+  // — l'inscription surtout — deviennent illisibles en une colonne unique sur grand écran.
+  &__groupe {
+    display: grid;
+    gap: var(--espace-4) var(--espace-4);
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  }
+
+  // `fieldset` regroupe les champs pour les technologies d'assistance ; sa bordure et ses
+  // marges par défaut, elles, n'ont rien à faire dans cette carte.
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-3);
+    padding: 0;
+    border: 0;
+    margin: 0;
+    min-inline-size: 0;
+  }
+
+  &__section-titre {
+    color: var(--text-strong);
+    font-size: var(--taille-sm);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  &__bandeau {
+    padding: var(--espace-3);
+    border: var(--bordure-fine) solid var(--state-danger);
+    border-radius: var(--rayon-controle);
+    background-color: var(--state-danger-surface);
+    color: var(--state-danger-text);
+    font-size: var(--taille-sm);
+  }
+
+  &__confirmation {
+    padding: var(--espace-3);
+    border: var(--bordure-fine) solid var(--state-success);
+    border-radius: var(--rayon-controle);
+    background-color: var(--state-success-surface);
+    color: var(--state-success-text);
+    font-size: var(--taille-sm);
+  }
+
+  // Champ portant une action à droite : le bouton vit dans la boîte du contrôle plutôt qu'à
+  // côté, sans quoi la ligne se déséquilibre dès que le libellé change de longueur.
+  &__champ-avec-action {
+    position: relative;
+    display: block;
+  }
+
+  &__revelation {
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: var(--espace-1);
+    padding-inline: var(--espace-2);
+    border: 0;
+    border-radius: var(--rayon-controle);
+    background-color: transparent;
+    color: var(--text-muted);
+    font-size: var(--taille-xs);
+    cursor: pointer;
+
+    &:hover {
+      color: var(--brand);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-2);
+  }
+
+  &__liens {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--espace-2);
+    font-size: var(--taille-sm);
+  }
+
+  &__lien {
+    color: var(--brand);
+  }
+}

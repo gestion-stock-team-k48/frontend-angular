@@ -1,23 +1,43 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { describe, expect, it } from 'vitest';
 import { App } from './app';
+import { provideAppConfig } from './core/config/app-config';
+import { ServiceNotifications } from './core/notifications/notifications';
+
+async function monter() {
+  await TestBed.configureTestingModule({
+    imports: [App],
+    providers: [
+      provideRouter([]),
+      provideHttpClient(),
+      provideHttpClientTesting(),
+      provideAppConfig(),
+    ],
+  }).compileComponents();
+
+  const fixture = TestBed.createComponent(App);
+  await fixture.whenStable();
+  return fixture;
+}
 
 describe('App', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [App],
-    }).compileComponents();
+  it('monte la sortie du routeur et la zone de notifications', async () => {
+    const fixture = await monter();
+    const racine = fixture.nativeElement as HTMLElement;
+
+    expect(racine.querySelector('app-zone-notifications')).not.toBeNull();
   });
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
-    expect(app).toBeTruthy();
-  });
+  it('affiche les notifications poussées depuis le noyau', async () => {
+    const fixture = await monter();
 
-  it('should render title', async () => {
-    const fixture = TestBed.createComponent(App);
+    TestBed.inject(ServiceNotifications).erreur('Stock insuffisant pour ART-00187');
     await fixture.whenStable();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, frontend-angular');
+
+    const racine = fixture.nativeElement as HTMLElement;
+    expect(racine.textContent).toContain('Stock insuffisant pour ART-00187');
   });
 });

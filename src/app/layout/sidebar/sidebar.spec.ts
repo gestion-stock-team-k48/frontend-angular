@@ -1,0 +1,89 @@
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { Sidebar } from './sidebar';
+import { ServiceAuthentification } from '../../core/auth/auth';
+import { provideAppConfig } from '../../core/config/app-config';
+import type { Utilisateur } from '../../core/api/api-types';
+
+const ADMIN: Utilisateur = { id: 1, email: 'a@b.cm', roles: ['ROLE_ADMIN'] };
+const SIMPLE: Utilisateur = { id: 2, email: 'c@d.cm', roles: ['ROLE_USER'] };
+
+async function monter(utilisateur: Utilisateur | null) {
+  TestBed.configureTestingModule({
+    providers: [
+      provideRouter([]),
+      provideHttpClient(),
+      provideHttpClientTesting(),
+      provideAppConfig(),
+    ],
+  });
+
+  if (utilisateur !== null) {
+    TestBed.inject(ServiceAuthentification).chargerUtilisateur().subscribe();
+    TestBed.inject(HttpTestingController).expectOne('/api/v1/utilisateurs/me').flush(utilisateur);
+  }
+
+  const fixture = TestBed.createComponent(Sidebar);
+  await fixture.whenStable();
+  return fixture;
+}
+
+describe('Sidebar', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    TestBed.resetTestingModule();
+  });
+
+  it('montre les entrées d’administration à un administrateur', async () => {
+    const fixture = await monter(ADMIN);
+    const texte = (fixture.nativeElement as HTMLElement).textContent ?? '';
+
+    expect(texte).toContain('Utilisateurs');
+    expect(texte).toContain('Entreprise');
+  });
+
+  it('masque les entrées d’administration à un utilisateur simple', async () => {
+    const fixture = await monter(SIMPLE);
+    const texte = (fixture.nativeElement as HTMLElement).textContent ?? '';
+
+    expect(texte).not.toContain('Utilisateurs');
+    expect(texte).toContain('Articles');
+  });
+
+  it('mène désormais à tous les écrans qu’elle annonce', async () => {
+    const fixture = await monter(SIMPLE);
+    const racine = fixture.nativeElement as HTMLElement;
+
+    const liens = Array.from(racine.querySelectorAll('a')).map((lien) => lien.textContent?.trim());
+    expect(liens).toContain('Tableau de bord');
+    expect(liens).toContain('Articles');
+    expect(liens).toContain('Ventes');
+
+    // Toutes les entrées visibles de ce rôle sont livrées : plus aucune n'est inerte.
+    expect(racine.querySelectorAll('.sidebar__lien--indisponible')).toHaveLength(0);
+  });
+
+  it('garde ses icônes quand elle est repliée en rail', async () => {
+    const fixture = await monter(SIMPLE);
+    fixture.componentRef.setInput('repliee', true);
+    await fixture.whenStable();
+
+    const racine = fixture.nativeElement as HTMLElement;
+    // Une navigation qui s'efface fait perdre le repère de position : le rail garde les
+    // icônes, et le libellé passe en infobulle.
+    expect(racine.querySelectorAll('app-icone').length).toBeGreaterThan(5);
+    expect(racine.querySelector('a')?.getAttribute('title')).toBe('Tableau de bord');
+  });
+
+  it('n’affiche aucun groupe vide', async () => {
+    const fixture = await monter(SIMPLE);
+    const groupes = (fixture.nativeElement as HTMLElement).querySelectorAll('.sidebar__groupe');
+
+    for (const groupe of Array.from(groupes)) {
+      expect(groupe.querySelectorAll('li').length).toBeGreaterThan(0);
+    }
+  });
+});

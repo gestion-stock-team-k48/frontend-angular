@@ -1,0 +1,48 @@
+<form class="formulaire-mouvement" (submit)="$event.preventDefault(); enregistrer()">
+  @if (message(); as texte) {
+    <p class="formulaire-mouvement__bandeau" role="alert">{{ texte }}</p>
+  }
+
+  <app-champ
+    libelle="Quantité"
+    identifiant="mouvement-quantite"
+    [requis]="true"
+    aide="Toujours positive : c'est l'opération qui donne le sens."
+    [erreur]="erreurQuantite()"
+  >
+    <input id="mouvement-quantite" type="number" step="1" [formField]="formulaire.quantite" />
+  </app-champ>
+
+  @if (correction()) {
+    <app-champ
+      libelle="Motif"
+      identifiant="mouvement-motif"
+      [requis]="true"
+      aide="Ce que la correction rattrape : inventaire, casse, erreur de saisie."
+      [erreur]="erreurMotif()"
+    >
+      <input id="mouvement-motif" type="text" [formField]="formulaire.motif" />
+    </app-champ>
+  } @else {
+    <app-champ
+      libelle="Source du mouvement"
+      identifiant="mouvement-source"
+      [requis]="true"
+      [erreur]="erreurSource()"
+    >
+      <select id="mouvement-source" [formField]="formulaire.source">
+        <option value="">Choisir une source</option>
+        @for (source of sources; track source.valeur) {
+          <option [value]="source.valeur">{{ source.libelle }}</option>
+        }
+      </select>
+    </app-champ>
+  }
+
+  <div class="formulaire-mouvement__actions">
+    <app-bouton variante="fantome" [desactive]="enCours()" (presse)="annule.emit()">
+      Annuler
+    </app-bouton>
+    <app-bouton type="submit" variante="primaire" [chargement]="enCours()">Enregistrer</app-bouton>
+  </div>
+</form>

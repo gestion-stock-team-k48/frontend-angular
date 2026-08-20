@@ -1,0 +1,33 @@
+// Cadre commun aux écrans de création et de modification d'un tiers.
+.ecran-tiers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espace-4);
+  max-inline-size: 52rem;
+
+  &__entete {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--espace-3);
+  }
+
+  &__titre {
+    color: var(--text-strong);
+    font-family: var(--police-display);
+    font-size: var(--taille-xl);
+  }
+
+  &__lien {
+    color: var(--brand);
+    font-size: var(--taille-sm);
+  }
+
+  &__carte {
+    padding: var(--espace-5);
+    border: var(--bordure-fine) solid var(--border-subtle);
+    border-radius: var(--rayon-carte);
+    background-color: var(--surface-1);
+  }
+}
