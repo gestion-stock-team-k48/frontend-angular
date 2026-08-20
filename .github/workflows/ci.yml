@@ -106,7 +106,7 @@ jobs:
           path: coverage/frontend-angular
 
       - name: Analyse
-        uses: SonarSource/sonarqube-scan-action@v4
+        uses: SonarSource/sonarqube-scan-action@v8
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
@@ -184,7 +184,7 @@ jobs:
           provenance: false
 
       - name: Trivy
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: analyse:local
           format: sarif
@@ -200,7 +200,7 @@ jobs:
           category: trivy-image
 
       - name: Échec sur vulnérabilité corrigeable
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: analyse:local
           format: table
