@@ -17,7 +17,7 @@ export function messageErreurUtilisateur(erreur: HttpErrorResponse): string {
 
   const reponse = extraireReponseErreur(erreur);
 
-  if (reponse && reponse.validationErrors) {
+  if (reponse?.validationErrors) {
     return 'Un ou plusieurs champs sont invalides. Corriger les champs signalés ci-dessous.';
   }
 

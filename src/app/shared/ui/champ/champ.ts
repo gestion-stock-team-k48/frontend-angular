@@ -35,7 +35,10 @@ export class Champ {
   readonly invalide = computed(() => this.erreur() !== null && this.erreur() !== '');
 
   /** À poser sur le contrôle projeté, pour que le lecteur d'écran annonce le bon texte. */
-  readonly decritPar = computed(() =>
-    this.invalide() ? this.identifiantErreur() : this.aide() ? this.identifiantAide() : null,
-  );
+  readonly decritPar = computed(() => {
+    if (this.invalide()) {
+      return this.identifiantErreur();
+    }
+    return this.aide() ? this.identifiantAide() : null;
+  });
 }

@@ -15,7 +15,7 @@ import type { PointSerie } from './serie';
 export class GraphiqueBarres {
   readonly titre = input.required<string>();
   readonly points = input.required<readonly PointSerie[]>();
-  readonly formater = input<(valeur: number) => string>((valeur) => String(valeur));
+  readonly formater = input<(valeur: number) => string>(String);
 
   private readonly maximum = computed(() =>
     Math.max(1, ...this.points().map((point) => point.valeur)),

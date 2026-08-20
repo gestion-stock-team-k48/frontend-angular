@@ -33,12 +33,7 @@
 
   <div class="formulaire-tiers__groupe">
     <app-champ libelle="Rue" identifiant="tiers-rue" [erreur]="erreurRue()">
-      <input
-        id="tiers-rue"
-        type="text"
-        autocomplete="street-address"
-        [formField]="formulaire.rue"
-      />
+      <input id="tiers-rue" type="text" autocomplete="address-line1" [formField]="formulaire.rue" />
     </app-champ>
 
     <app-champ libelle="Ville" identifiant="tiers-ville" [erreur]="erreurVille()">
