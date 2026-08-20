@@ -1,0 +1,96 @@
+// Sections de contenu de la vitrine : atouts, étapes, appel final.
+// Séparées de la feuille de page pour que chacune tienne dans le budget de style.
+
+.vitrine {
+  &__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-5);
+  }
+
+  &__section-titre {
+    color: var(--text-strong);
+    font-family: var(--police-display);
+    font-size: clamp(var(--taille-lg), 3vw, var(--taille-2xl));
+  }
+
+  &__atouts,
+  &__etapes {
+    display: grid;
+    gap: var(--espace-4);
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  &__atout,
+  &__etape {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-2);
+    padding: var(--espace-5);
+    border: var(--bordure-fine) solid var(--border-subtle);
+    border-radius: var(--rayon-carte);
+    background-color: var(--surface-1);
+    box-shadow: var(--ombre-1);
+    transition:
+      border-color var(--dur-base) var(--ease-out),
+      box-shadow var(--dur-base) var(--ease-out),
+      transform var(--dur-base) var(--ease-out);
+
+    &:hover {
+      border-color: color-mix(in oklab, var(--brand) 40%, var(--border-subtle));
+      box-shadow: var(--ombre-2);
+      transform: translateY(-2px);
+    }
+  }
+
+  &__atout-icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    border-radius: var(--rayon-controle);
+    background-color: var(--surface-marque-forte);
+    color: var(--brand);
+  }
+
+  &__atout-titre {
+    color: var(--text-strong);
+    font-size: var(--taille-md);
+    font-weight: 600;
+  }
+
+  &__atout-texte {
+    max-inline-size: 46ch;
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+  }
+
+  &__etape-rang {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    border-radius: var(--rayon-plein);
+    background-image: var(--degrade-marque);
+    color: var(--brand-contrast);
+    font-family: var(--police-display);
+    font-weight: 600;
+  }
+
+  &__appel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--espace-4);
+    padding: clamp(var(--espace-5), 5vw, var(--espace-7));
+    border: var(--bordure-fine) solid color-mix(in oklab, var(--brand) 30%, var(--border-subtle));
+    border-radius: var(--rayon-carte);
+    background-color: var(--surface-marque);
+    text-align: center;
+  }
+}

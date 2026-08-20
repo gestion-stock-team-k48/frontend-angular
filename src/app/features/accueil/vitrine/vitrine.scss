@@ -1,0 +1,206 @@
+// Vitrine publique. Elle emploie les mêmes tokens que l'application : ce qu'elle montre est
+// ce que l'on obtient, et elle change de couleur avec la marque de l'entreprise.
+
+.vitrine {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100vh;
+  background-color: var(--surface-0);
+  background-image:
+    radial-gradient(
+      70rem 45rem at 85% -15%,
+      color-mix(in oklab, var(--brand) 22%, transparent) 0%,
+      transparent 60%
+    ),
+    radial-gradient(
+      55rem 40rem at -10% 40%,
+      color-mix(in oklab, var(--brand) 12%, transparent) 0%,
+      transparent 55%
+    );
+  background-repeat: no-repeat;
+
+  &__bandeau {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: var(--z-entete);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--espace-3);
+    padding: var(--espace-3) clamp(var(--espace-3), 4vw, var(--espace-7));
+    border-block-end: var(--bordure-fine) solid var(--border-subtle);
+    background-color: color-mix(in oklab, var(--surface-0) 80%, transparent);
+    backdrop-filter: var(--flou-calque);
+  }
+
+  &__marque {
+    color: var(--text-strong);
+    font-family: var(--police-display);
+    font-size: var(--taille-md);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: var(--espace-3);
+  }
+
+  &__icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    padding: 0;
+    border: var(--bordure-fine) solid transparent;
+    border-radius: var(--rayon-controle);
+    background-color: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition:
+      background-color var(--dur-fast) var(--ease-out),
+      color var(--dur-fast) var(--ease-out);
+
+    &:hover {
+      background-color: var(--surface-marque);
+      color: var(--text-strong);
+    }
+  }
+
+  &__contenu {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: clamp(var(--espace-6), 8vw, var(--espace-8));
+    inline-size: 100%;
+    max-inline-size: 76rem;
+    padding: clamp(var(--espace-5), 6vw, var(--espace-8))
+      clamp(var(--espace-3), 4vw, var(--espace-7));
+    margin-inline: auto;
+  }
+
+  &__hero {
+    display: grid;
+    align-items: center;
+    gap: clamp(var(--espace-5), 5vw, var(--espace-7));
+    grid-template-columns: 1.1fr 1fr;
+
+    @media (width <= 64rem) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__hero-texte {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-4);
+    align-items: flex-start;
+  }
+
+  &__surtitre {
+    padding: var(--espace-1) var(--espace-3);
+    border: var(--bordure-fine) solid color-mix(in oklab, var(--brand) 35%, transparent);
+    border-radius: var(--rayon-plein);
+    background-color: var(--surface-marque);
+    color: var(--brand);
+    font-size: var(--taille-xs);
+    font-weight: 500;
+  }
+
+  // Le titre grandit avec la place, sans palier : c'est la seule ligne que l'on lit de loin.
+  &__titre {
+    max-inline-size: 18ch;
+    color: var(--text-strong);
+    font-family: var(--police-display);
+    font-size: clamp(var(--taille-xl), 5vw, 3.25rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: var(--interligne-serre);
+  }
+
+  &__accroche {
+    max-inline-size: 52ch;
+    color: var(--text-base);
+    font-size: var(--taille-md);
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--espace-4);
+  }
+
+  &__action {
+    padding: var(--espace-2) var(--espace-4);
+    border-radius: var(--rayon-controle);
+    background-image: var(--degrade-marque);
+    background-color: var(--brand);
+    color: var(--brand-contrast);
+    font-size: var(--taille-sm);
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: var(--ombre-marque);
+    transition:
+      box-shadow var(--dur-fast) var(--ease-out),
+      transform var(--dur-instant) var(--ease-out);
+
+    &:hover {
+      box-shadow: var(--ombre-marque-forte);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    &--grande {
+      padding: var(--espace-3) var(--espace-5);
+      font-size: var(--taille-md);
+    }
+  }
+
+  &__lien {
+    color: var(--text-base);
+    font-size: var(--taille-sm);
+    text-decoration: none;
+
+    &:hover {
+      color: var(--brand);
+    }
+  }
+
+  &__lien-fort {
+    color: var(--brand);
+    font-weight: 500;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  &__mention {
+    color: var(--text-muted);
+    font-size: var(--taille-xs);
+  }
+
+  &__pied {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--espace-3);
+    padding: var(--espace-5) clamp(var(--espace-3), 4vw, var(--espace-7));
+    border-block-start: var(--bordure-fine) solid var(--border-subtle);
+    color: var(--text-muted);
+    font-size: var(--taille-sm);
+  }
+
+  &__pied-liens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--espace-4);
+  }
+}

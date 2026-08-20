@@ -1,0 +1,131 @@
+// Maquette de l'application : mêmes tokens que l'écran réel, donc même thème et même
+// couleur d'amorce. Une capture d'écran, elle, serait à refaire à chaque retouche.
+
+:host {
+  display: block;
+}
+
+.apercu {
+  overflow: hidden;
+  border: var(--bordure-fine) solid var(--border-subtle);
+  border-radius: var(--rayon-carte);
+  background-color: var(--surface-1);
+  box-shadow: var(--ombre-3);
+  rotate: -1.5deg;
+  transition: rotate var(--dur-slow) var(--ease-out);
+
+  &:hover {
+    rotate: 0deg;
+  }
+
+  &__bandeau {
+    display: flex;
+    align-items: center;
+    gap: var(--espace-2);
+    padding: var(--espace-2) var(--espace-3);
+    border-block-end: var(--bordure-fine) solid var(--border-subtle);
+    background-image: var(--degrade-surface);
+  }
+
+  &__pastille {
+    inline-size: var(--espace-3);
+    block-size: var(--espace-3);
+    border-radius: var(--rayon-plein);
+    background-image: var(--degrade-marque);
+  }
+
+  &__barre {
+    inline-size: 40%;
+    block-size: var(--espace-2);
+    border-radius: var(--rayon-plein);
+    background-color: var(--surface-3);
+  }
+
+  &__corps {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    min-block-size: 15rem;
+  }
+
+  &__rail {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-3);
+    padding: var(--espace-3) var(--espace-2);
+    border-inline-end: var(--bordure-fine) solid var(--border-subtle);
+    background-color: var(--surface-2);
+  }
+
+  &__puce {
+    block-size: var(--espace-3);
+    border-radius: var(--rayon-1);
+    background-color: var(--surface-3);
+
+    &:first-child {
+      background-color: var(--brand);
+    }
+  }
+
+  &__ecran {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-3);
+    padding: var(--espace-3);
+  }
+
+  &__tuiles {
+    display: grid;
+    gap: var(--espace-2);
+    grid-template-columns: 1.4fr 1fr 1fr;
+  }
+
+  &__tuile {
+    block-size: var(--espace-7);
+    border: var(--bordure-fine) solid var(--border-subtle);
+    border-radius: var(--rayon-2);
+    background-image: var(--degrade-surface);
+
+    &--forte {
+      border-color: color-mix(in oklab, var(--brand) 45%, var(--border-subtle));
+      background-color: var(--surface-marque);
+    }
+  }
+
+  &__graphique {
+    display: block;
+    inline-size: 100%;
+    block-size: 5rem;
+  }
+
+  &__aire {
+    fill: color-mix(in oklab, var(--brand) 16%, transparent);
+  }
+
+  &__courbe {
+    fill: none;
+    stroke: var(--brand);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &__lignes {
+    display: flex;
+    flex-direction: column;
+    gap: var(--espace-2);
+  }
+
+  &__ligne {
+    block-size: var(--espace-2);
+    border-radius: var(--rayon-plein);
+    background-color: var(--surface-2);
+
+    &:nth-child(2) {
+      inline-size: 80%;
+    }
+
+    &:nth-child(3) {
+      inline-size: 60%;
+    }
+  }
+}
