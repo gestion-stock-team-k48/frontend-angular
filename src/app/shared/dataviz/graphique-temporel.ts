@@ -26,6 +26,11 @@ export type FormeGraphique = 'aires' | 'colonnes';
 /** Compteur d'instances : deux graphiques sur un écran ne peuvent pas partager un id SVG. */
 let sequence = 0;
 
+function numeroSuivant(): number {
+  sequence += 1;
+  return sequence;
+}
+
 /**
  * Série dans le temps, en courbe ou en colonnes.
  *
@@ -45,14 +50,14 @@ export class GraphiqueTemporel {
   readonly forme = input<FormeGraphique>('aires');
 
   /** Rendu d'une valeur : montant, quantité — l'écran sait, le graphique non. */
-  readonly formater = input<(valeur: number) => string>((valeur) => String(valeur));
+  readonly formater = input<(valeur: number) => string>(String);
 
   protected readonly largeur = LARGEUR;
   protected readonly hauteur = HAUTEUR;
   protected readonly marge = MARGE;
 
   /** Identifiant du dégradé, propre à l'instance. */
-  protected readonly idDegrade = `degrade-serie-${(sequence += 1)}`;
+  protected readonly idDegrade = `degrade-serie-${numeroSuivant()}`;
 
   protected readonly survole = signal<number | null>(null);
 

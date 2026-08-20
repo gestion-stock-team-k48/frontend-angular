@@ -39,5 +39,5 @@ export function ajouteAuStock(type: TypeMouvementStock | undefined): boolean {
 
 /** Le `select` ne rend que du texte : ce garde-fou le ramène dans le type de la source. */
 export function estSourceConnue(valeur: string): valeur is SourceMouvementStock {
-  return Object.prototype.hasOwnProperty.call(SOURCES, valeur);
+  return Object.hasOwn(SOURCES, valeur);
 }

@@ -68,6 +68,6 @@ function libelleDuChemin(chemin: string): string | null {
 
 /** `commandes-client` devient « Commandes client ». */
 function adoucir(segment: string): string {
-  const mots = segment.replace(/-/g, ' ');
+  const mots = segment.replaceAll('-', ' ');
   return mots.charAt(0).toUpperCase() + mots.slice(1);
 }
