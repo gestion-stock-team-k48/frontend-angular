@@ -31,6 +31,13 @@ describe('plafond', () => {
     expect(plafond([93, 12])).toBe(100);
   });
 
+  it('couvre toujours la valeur la plus haute, sans quoi la marque sort du cadre', () => {
+    // 1 200 000 divisé par quatre appelle un pas de 500 000 : l'échelle doit monter à
+    // 1 500 000, pas s'arrêter au million le plus proche.
+    expect(plafond([1_200_000, 926_902])).toBe(1_500_000);
+    expect(plafond([110])).toBe(150);
+  });
+
   it('ne descend jamais à zéro, ce qui rendrait l’échelle indivisible', () => {
     expect(plafond([])).toBe(1);
     expect(plafond([0, 0])).toBe(1);

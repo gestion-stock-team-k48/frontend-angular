@@ -24,13 +24,7 @@ export function graduations(maximum: number, nombre = 4, pasMinimal = 0): readon
     return [0];
   }
 
-  const brut = maximum / nombre;
-  const decade = 10 ** Math.floor(Math.log10(brut));
-  const pas = [1, 2, 2.5, 5, 10]
-    .map((facteur) => facteur * decade)
-    .find((candidat) => candidat >= brut);
-  const choisi = Math.max(pas ?? decade * 10, pasMinimal);
-
+  const choisi = pasGraduation(maximum, nombre, pasMinimal);
   const reperes: number[] = [];
   for (let valeur = 0; valeur <= maximum + choisi / 2; valeur += choisi) {
     reperes.push(valeur);
@@ -38,11 +32,32 @@ export function graduations(maximum: number, nombre = 4, pasMinimal = 0): readon
   return reperes;
 }
 
-/** Échelle d'un axe de valeurs : le maximum affiché, arrondi sur la dernière graduation. */
+/**
+ * Échelle d'un axe de valeurs : le maximum affiché, arrondi à la graduation supérieure.
+ *
+ * L'arrondi est un plafond strict, jamais un arrondi au plus proche : une échelle qui
+ * s'arrête sous la valeur la plus haute fait sortir la marque de son cadre, et le SVG la
+ * coupe à ras — un maximum de 1 200 000 sur une échelle à 1 000 000 donnait une courbe
+ * tronquée par le haut.
+ */
 export function plafond(valeurs: readonly number[], pasMinimal = 0): number {
   const maximum = Math.max(0, ...valeurs);
-  const reperes = graduations(maximum, 4, pasMinimal);
-  return Math.max(reperes[reperes.length - 1] ?? 1, 1);
+  if (maximum <= 0) {
+    return 1;
+  }
+
+  const pas = pasGraduation(maximum, 4, pasMinimal);
+  return Math.max(Math.ceil(maximum / pas) * pas, 1);
+}
+
+/** Pas d'un axe : la décade lisible immédiatement au-dessus de la division exacte. */
+function pasGraduation(maximum: number, nombre: number, pasMinimal: number): number {
+  const brut = maximum / nombre;
+  const decade = 10 ** Math.floor(Math.log10(brut));
+  const pas = [1, 2, 2.5, 5, 10]
+    .map((facteur) => facteur * decade)
+    .find((candidat) => candidat >= brut);
+  return Math.max(pas ?? decade * 10, pasMinimal);
 }
 
 /** Vrai si la série ne contient que des comptages : son axe se gradue alors en entiers. */

@@ -1312,6 +1312,12 @@ export interface components {
         };
         VenteRequest: {
             code?: string;
+            /**
+             * Format: date-time
+             * @description Date de la vente ; l'instant courant si absente. Ne peut pas être dans le futur.
+             * @example 2026-05-14T09:20:00Z
+             */
+            dateVente?: string;
             commentaire?: string;
             lignes: components["schemas"]["LigneVenteRequest"][];
         };

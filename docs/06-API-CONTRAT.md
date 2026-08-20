@@ -194,6 +194,12 @@ non `403` : ce `401` ne signale pas une session expirée. Voir ADR-013.
 | `DELETE` | `/ventes/{id}`        | Supprimer une vente          |
 | `GET`    | `/ventes/{id}`        | Récupérer une vente          |
 
+`VenteRequest.dateVente` est facultatif : absent, le serveur horodate à l'instant de la
+création ; présent, il doit être passé ou courant. L'interface ne le renseigne pas — une vente
+saisie est une vente du moment. Le jeu de démonstration s'en sert pour répartir les ventes sur
+l'année, sans quoi le chiffre d'affaires mensuel du tableau de bord s'écrase entièrement sur le
+mois du seed.
+
 ### Utilisateurs
 
 | Méthode  | Chemin                          | Rôle                               |

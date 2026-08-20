@@ -1,6 +1,6 @@
 # État courant
 
-- Dernière mise à jour : 2026-08-19 — session 1
+- Dernière mise à jour : 2026-08-20 — session 2
 - Phase en cours : affinage de l'interface — tableau de bord, navigation, responsive.
 - Branche de travail : feat/ui-tableau-de-bord
 - Dernier commit : voir `git log -1` — tableau de bord et documentation
@@ -39,11 +39,19 @@ qui passent en colonne sous 40 rem — dans une feuille commune plutôt que rép
 
 ## Ajouté depuis
 
+- Chiffre d'affaires par mois : les ventes du jeu de démonstration tombaient toutes le jour du
+  seed, faute de date acceptée par `POST /ventes`. Champ `dateVente` facultatif ouvert côté
+  serveur sur décision du mainteneur, jeu de démonstration réparti sur la même fenêtre que les
+  commandes client. Détail dans `08-JOURNAL.md`, session 2.
+- Graphique temporel : courbe lissée en Hermite monotone, dégradé éteint sur l'axe, ligne de
+  zéro, repère vertical au survol. Deux débordements corrigés — une échelle qui s'arrêtait sous
+  la valeur la plus haute et coupait le sommet de la courbe, une gouttière d'axe figée qui
+  rognait les montants. Elle se calcule maintenant sur la plus longue étiquette.
 - Vitrine publique à la racine, avec aperçu dessiné de l'application.
 - Orientation par le système : la connexion mène au tableau de bord, une session ouverte ne
   reste jamais sur la vitrine, et `returnUrl` écarte cette dernière.
 - Écran de connexion en deux colonnes, mot de passe révélable.
-- 258 tests.
+- 259 tests.
 
 ## À vérifier à la main
 
