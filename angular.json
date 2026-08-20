@@ -79,6 +79,20 @@
           "builder": "@angular/build:unit-test",
           "options": {
             "setupFiles": ["src/test-setup.ts"]
+          },
+          "configurations": {
+            "ci": {
+              "watch": false,
+              "coverage": true,
+              "coverageReporters": ["lcovonly", "text-summary"],
+              "coverageExclude": [
+                "src/**/*.spec.ts",
+                "src/test-setup.ts",
+                "src/main.ts",
+                "src/environments/**",
+                "src/app/core/api/generated/**"
+              ]
+            }
           }
         },
         "lint": {
